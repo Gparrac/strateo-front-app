@@ -1,7 +1,9 @@
 <template>
-  <HelloWorld />
+
+ <h1>Bienvenido a Strateo-app</h1>
+
 </template>
 
 <script setup>
-  import HelloWorld from '@/components/HelloWorld.vue'
+
 </script>
