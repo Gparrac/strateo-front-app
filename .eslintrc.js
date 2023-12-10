@@ -9,6 +9,10 @@ module.exports = {
   ],
   rules: {
     "vue/multi-word-component-names": "off",
-    "vue/no-v-text-v-html-on-component": 0
+    "vue/no-v-text-v-html-on-component": 0,
+      "vue/valid-v-slot": ["error", {
+        "allowModifiers": true
+      }]
+
   }
 }
