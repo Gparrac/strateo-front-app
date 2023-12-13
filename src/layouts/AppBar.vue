@@ -1,6 +1,7 @@
 <template>
-  <v-layout class="h-screen">
-    <v-app-bar title="Application bar" @click="$router.push('/')">
+  <v-app>
+  <v-layout class="">
+    <v-app-bar title="STRATEO" @click="$router.push('/')">
       <v-app-bar-nav-icon
         variant="text"
         @click.stop="drawer = !drawer"
@@ -33,11 +34,12 @@
 
     <v-main
       class="d-flex align-center justify-center"
-      style="min-height: 300px"
+      style="min-height: 100vh"
     >
     <router-view />
     </v-main>
   </v-layout>
+</v-app>
 </template>
 <script setup>
 import { ref } from "vue";
@@ -54,10 +56,10 @@ let items = [
     path: "/users"
   },
   {
-    title: "Empresas",
+    title: "Roles y permisos",
     value: 2,
     icon: "mdi-folder",
-    path:'/'
+    path:'/roles'
   },
 ];
 </script>

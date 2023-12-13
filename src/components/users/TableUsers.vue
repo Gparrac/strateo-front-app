@@ -2,19 +2,20 @@
   <div>
     <v-data-table
       :headers="headers"
-      :items="users"
+      :items="userStore.records"
       items-per-page="5"
       item-value="id"
       item-selectable="selectable"
       v-model="selectedItems"
       show-select
+      :loading="userStore.loader"
     >
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon
             size="small"
             class="me-2"
-            @click="editItem(item)"
+            @click="() => router.push(`/user-form/${item.id}`)"
           >
             mdi-pencil
           </v-icon>
@@ -25,10 +26,11 @@
 </template>
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import { getUsers } from "@/services/userService";
-import { useModalStore } from "@/store/users";
+import { useUserStore } from "@/store/users";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
-const modalStore = useModalStore();
+const userStore = useUserStore();
 let headers = [
   {
     title: "ID",
@@ -39,36 +41,17 @@ let headers = [
   { title: "Apellidos", align: "end", key: "third.surnames" },
   { title: "Email", align: "end", key: "third.email" },
   { title: "Telefono", align: "end", key: "third.mobile" },
-  { title: "Role", align: "end", key: "role_id" },
+  { title: "Role", align: "end", key: "role.name" },
   { title: "Acciones", align: "end", key: "actions" },
 ];
-let users = ref([]);
-let selectedItems = ref([]);
-function editItem(item) {
-  const temp = Object.assign({},{
-        userId: item.id,
-        name:item.name,
-        typeDocument:item.typeDocument,
-        identification:item.third.identification,
-        names:item.third.names,
-        surnames:item.third.surnames,
-        address:item.third.address,
-        mobile:item.third.mobile,
-        email:item.third.email,
-        city:item.third.city,
-        status:item.status,
-        role:item.role
-      });
 
-  modalStore.activeModal('update',temp);
-}
+let selectedItems = ref([]);
 watch(selectedItems,(newV)=>{
-  modalStore.setSelected(newV);
+  userStore.setSelected(newV);
 
 })
 onMounted(async () => {
-  users.value = await getUsers();
-  console.log('users',users.value)
+  await userStore.fetchRecords();
 
 });
 </script>
