@@ -1,19 +1,21 @@
-const path = `${import.meta.env.VITE_API_URL}`;
-export async function signIn(user){
-  return true;
-  // try {
-  //   const response = await fetch(`${path}/sign-in`,{
-  //     method: "POST",
-  //     body: user,
-  //   });
-  //   if(!response.ok){
-  //     throw Error('Fallo de conexión!')
-  //   }
-  //   const data = await response.json();
-  //   return data;
+import Petition from "../PetitionStructure/Petition";
 
-  // } catch (error) {
-  //   console.error(error);
-  //   return false;
-  //}
+export default class AuthService
+{
+  constructor(){
+    this.petition = new Petition();
+    this.prefix = '/auth';
+  }
+
+  signup(body){
+    return this.petition.post(`${this.prefix}/signup`, body);
+  }
+
+  login(body){
+    return this.petition.post(`${this.prefix}/login`, body);
+  }
+
+  logout(){
+    return this.petition.get(`${this.prefix}/logout`);
+  }
 }
