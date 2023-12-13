@@ -1,21 +1,18 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
 import AppBar from '@/layouts/AppBar.vue';
+import { usersRoute } from './Forms';
 const routes = [
   {
     path: '/',
     component: () => AppBar,
     children: [
-      {
-        path: '',
-        name: 'Home',
-        component: () => import('@/views/Home.vue'),
-      },
         {
-          path: '/users',
-          name: 'Users',
-          component: () => import('@/views/users/Users.vue'),
+          path: '',
+          name: 'Home',
+          component: () => import('@/views/Home.vue'),
         },
+        usersRoute,
         {
           path: '/user-form/:userId?',
           name: 'UserForm',

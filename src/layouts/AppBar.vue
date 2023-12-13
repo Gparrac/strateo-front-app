@@ -33,10 +33,12 @@
     </v-navigation-drawer>
 
     <v-main
-      class="d-flex align-center justify-center"
+      class="d-flex align-start justify-center"
       style="min-height: 100vh"
     >
-    <router-view />
+      <div class="w-100 pa-16">
+        <router-view />
+      </div>
     </v-main>
   </v-layout>
 </v-app>

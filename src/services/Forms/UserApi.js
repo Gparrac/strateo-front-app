@@ -1,10 +1,11 @@
 import FormsFactory from "./Interface/FormFactory";
 import Petition from "../PetitionStructure/Petition";
 
-export default class OfficeForm extends FormsFactory {
+export default class UserApi extends FormsFactory {
     constructor(){
+        super();
         this.petition = new Petition();
-        this.route = '/office';
+        this.route = '/user-parameterization';
     }
 
     create(body){
@@ -22,5 +23,4 @@ export default class OfficeForm extends FormsFactory {
     delete(query = null){
         return this.petition.delete(this.route, query)
     }
-
 }
