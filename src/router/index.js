@@ -1,7 +1,7 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
 import AppBar from '@/layouts/AppBar.vue';
-import { usersRoute } from './Forms';
+import formsRoute from './Forms';
 const routes = [
   {
     path: '/',
@@ -12,12 +12,7 @@ const routes = [
           name: 'Home',
           component: () => import('@/views/Home.vue'),
         },
-        usersRoute,
-        {
-          path: '/user-form/:userId?',
-          name: 'UserForm',
-          component: () => import('@/views/users/UserForm.vue'),
-        }
+        ...formsRoute,
       ],
 
   },
