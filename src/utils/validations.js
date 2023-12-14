@@ -1,4 +1,4 @@
-export const rulesValidation = {
+export const RulesValidation = {
   text: [
     (value) => !!value || "Este campo es requirido",
     (value) =>

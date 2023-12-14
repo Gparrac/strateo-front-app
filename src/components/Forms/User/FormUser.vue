@@ -1,9 +1,9 @@
 <template>
-  <v-form ref="formRef">
+  <v-form ref="form">
     <v-row justify="center">
       <v-card rounded="3" class="w-100">
         <v-card-title>
-          <span class="text-h5">{{ titleForm }} </span>
+          <span class="text-h5">{{ title }} </span>
         </v-card-title>
 
         <!----------------------- FORM --------------------------->
@@ -19,36 +19,42 @@
                         v-model="editUser.typeDocument"
                         item-title="label"
                         item-value="name"
+                        :rules="rulesValidation.select"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Documento"
                         v-model="editUser.identification"
+                        :rules="rulesValidation.identification"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Nombres"
                         v-model="editUser.names"
+                        :rules="rulesValidation.text"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Apellidos"
                         v-model="editUser.surnames"
+                        :rules="rulesValidation.text"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Email"
                         v-model="editUser.email"
+                        :rules="rulesValidation.email"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Telefono"
                         v-model="editUser.mobile"
+                        :rules="rulesValidation.mobile"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -59,6 +65,7 @@
                         v-model:search="searchCity"
                         item-title="name"
                         :return-object="true"
+                        :rules="rulesValidation.select"
                       ></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -68,6 +75,7 @@
                         v-model="editUser.offices"
                         item-title="name"
                         :return-object="true"
+                        :rules="rulesValidation.select"
                         multiple
                       ></v-select>
                     </v-col>
@@ -83,6 +91,7 @@
                       <v-text-field
                         label="Nombre de usuario"
                         v-model="editUser.name"
+                        :rules="rulesValidation.text"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -92,6 +101,7 @@
                         v-model="editUser.status"
                         item-title="label"
                         item-value="name"
+                        :rules="rulesValidation.select"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -101,6 +111,7 @@
                         v-model="editUser.role"
                         item-title="name"
                         :return-object="true"
+                        :rules="rulesValidation.select"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -108,6 +119,7 @@
                         label="Contraseña"
                         type="password"
                         v-model="editUser.password"
+                        :rules="passwordRule"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -115,6 +127,7 @@
                         label="Confirmar contraseña"
                         type="password"
                         v-model="editUser.confirmPassword"
+                        :rules="confirmPasswordRule"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -162,18 +175,17 @@
 import UserApi from "@/services/Forms/UserApi.js";
 import RoleApi from "@/services/Forms/RoleApi.js";
 import Petition from "@/services/PetitionStructure/Petition.js";
-
+import { RulesValidation } from "@/utils/validations";
 
 const userApi = new UserApi();
 const roleApi = new RoleApi();
 const petition = new Petition();
 
-
 export default {
   name: "FormUser",
   props: ["idEditForm"],
+  components: {},
   data: () => ({
-    titleForm: "Usuario",
     loading: false,
     cities: [],
     roles: [],
@@ -187,6 +199,7 @@ export default {
       { name: "A", label: "Activo" },
       { name: "I", label: "Inactivo" },
     ],
+    rulesValidation: RulesValidation
   }),
   async mounted() {
     try {
@@ -199,7 +212,33 @@ export default {
         console.error('Alguna de las funciones falló:', error);
       }
   },
-  components: {},
+  computed: {
+    passwordRule() {
+      return !this.idEditForm
+        ? [
+            (value) => !!value || "Contraseña es requerida",
+            (value) =>
+              (value && value.length >= 6) ||
+              "Contraseña debe tener al menos 6 caracteres",
+          ]
+        : [];
+    },
+    confirmPasswordRule() {
+      return !this.idEditForm
+        ? [
+            (value) => !!value || "Contraseña es requerida",
+            (value) =>
+              value === this.editUser.password || "Las contraseñas no coinciden",
+          ]
+        : [
+            (value) =>
+              value === this.editUser.password || "Las contraseñas no coinciden",
+          ];
+    },
+    title(){
+      return this.idEditForm ? 'Edición de Usuario' : 'Creación de Usuario';
+    }
+  },
   watch: {
     async searchCity(to) {
       if (to.length > 3) {
