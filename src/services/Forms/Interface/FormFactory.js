@@ -1,4 +1,8 @@
 export default class FormsFactory {
+    constructor(){
+        this.token = true;
+    }
+
     create(body){
         throw new Error("create method not implemented");
     }

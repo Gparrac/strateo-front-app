@@ -1,18 +1,18 @@
 import Petition from "../PetitionStructure/Petition";
 
-export default class AuthService
+export default class AuthUser
 {
   constructor(){
     this.petition = new Petition();
     this.prefix = '/auth';
   }
 
-  signup(body){
-    return this.petition.post(`${this.prefix}/signup`, body);
-  }
-
   login(body){
     return this.petition.post(`${this.prefix}/login`, body);
+  }
+
+  user(){
+    return this.petition.get(`${this.prefix}/user`, '', true);
   }
 
   logout(){

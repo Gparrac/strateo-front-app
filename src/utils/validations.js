@@ -25,7 +25,7 @@ export const RulesValidation = {
   password: [
     (value) => !!value || "Contraseña es requerida",
     (value) =>
-      (value && value.length >= 6) ||
+      (value && value.length >= 4) ||
       "Contraseña debe tener al menos 6 caracteres",
   ],
 };

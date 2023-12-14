@@ -43,25 +43,42 @@
   </v-layout>
 </v-app>
 </template>
-<script setup>
-import { ref } from "vue";
+<script>
+  import AuthUser from '@/services/auth/AuthUser';
+  const authUser = new AuthUser();
 
-let drawer = ref(false);
+  export default {
+    name: 'AppBar',
+    data: () => ({
+      drawer: false,
+      items: [
+        {
+          title: "Usuarios",
+          value: 1,
+          icon: "mdi-folder",
+          path: "/users"
+        },
+        {
+          title: "Roles y permisos",
+          value: 2,
+          icon: "mdi-folder",
+          path:'/roles'
+        },
+      ],
 
-//lack to append items following permission politics ⚠️
-let items = [
-
-  {
-    title: "Usuarios",
-    value: 1,
-    icon: "mdi-folder",
-    path: "/users"
-  },
-  {
-    title: "Roles y permisos",
-    value: 2,
-    icon: "mdi-folder",
-    path:'/roles'
-  },
-];
+      user: null,
+    }),
+    mounted(){
+      this.getUserData();
+    },
+    methods: {
+      async getUserData() {
+        const userData = await authUser.user();
+        if(userData.message == 'Unauthenticated.'){
+          this.$router.push('/sign-in');
+        }
+        this.user = userData;
+      }
+    }
+  }
 </script>
