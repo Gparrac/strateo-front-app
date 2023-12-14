@@ -1,5 +1,13 @@
 <template>
     <div>
+      <div class="d-flex pb-5">
+
+<h2 class="flex-grow-1">Registros actuales</h2>
+<div >
+        <v-btn icon="mdi-plus" class="mr-3" color="primary" variant="tonal" @click="() => $router.push(`roles/create`)"> </v-btn>
+        <v-btn icon="mdi-delete" color="warning" variant="tonal" :disabled="selectedItems.length == 0 ? true : false"> </v-btn>
+      </div>
+    </div>
         <v-data-table
             :headers="headers"
             :items="records"

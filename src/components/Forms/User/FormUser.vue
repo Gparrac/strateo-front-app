@@ -152,7 +152,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-
+            @click="() => $router.push(`/users`)"
             :loading="loading"
           >
             Close
@@ -189,7 +189,7 @@ export default {
     loading: false,
     cities: [],
     roles: [],
-    typsDocument: [],
+    typesDocument: [],
     offices: [],
     searchCity: "",
     formRef: null,
@@ -295,10 +295,10 @@ export default {
 
     },
     async setTypesDocument(){
-      this.typsDocument = (await petition.get('/type-document-user')).data;
+      this.typesDocument = (await petition.get('/type-document-user')).data;
     },
     async setRoles(){
-      this.typsDocument = (await roleApi.read('type-document-user')).data;
+      this.typesDocument = (await roleApi.read('type-document-user')).data;
     },
     async setCities(name=null){
       const query = name ? `?name=${name}` : '';
