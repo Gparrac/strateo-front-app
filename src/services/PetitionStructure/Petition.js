@@ -11,11 +11,11 @@ export default class Petition {
      * @param {string query with the necesary params to the get endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    get(url, query = ''){
+    get(url, query = '', token = false){
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'GET',
-                headers: this.headers(),
+                headers: this.headers(token),
             })
             .then(res => res.json())
             .then(data => {
@@ -33,12 +33,11 @@ export default class Petition {
      * @param {formData object with the necesary attributes to the post endpoint service} body
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    post(url, body){
+    post(url, body, token = false){
         return new Promise((resolve, reject) => {
-            let headers = this.headers();
             fetch(`${this.routeEndpoint}${url}`, {
                 method: 'POST',
-                headers: headers,
+                headers: this.headers(token),
                 body: body
             })
             .then(res => res.json())
@@ -56,12 +55,11 @@ export default class Petition {
      * @param {object formData with the necesary attributes to the get endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    put(url, body){
+    put(url, body, token = false){
         return new Promise((resolve, reject) => {
-            let headers = this.headers();
             fetch(`${this.routeEndpoint}${url}?_method=PUT`, {
                 method: 'POST',
-                headers: headers,
+                headers: this.headers(),
                 body: body
             })
             .then(res => res.json())
@@ -79,7 +77,7 @@ export default class Petition {
      * @param {string query with the necesary params to the put endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    delete(url, query = ''){
+    delete(url, query = '', token = false){
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'DELETE',
@@ -98,9 +96,15 @@ export default class Petition {
      *
      * @returns headers necesary for the fetch call
      */
-    headers(){
-        let headers = new Headers();
-        headers.append("X-Requested-With", "XMLHttpRequest");
+    headers(token = false) {
+        const headers = new Headers({
+          "X-Requested-With": "XMLHttpRequest"
+        });
+      
+        if (token) {
+          const authToken = localStorage.getItem('auth-token');
+          authToken && headers.append("Authorization", `Bearer ${authToken}`);
+        }
         return headers;
     }
 }
