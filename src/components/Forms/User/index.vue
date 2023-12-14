@@ -5,5 +5,5 @@
     export {
         FormUser,
         TableUser
-    }
+    };
 </script>
