@@ -1,17 +1,17 @@
 <template>
     <div>
-        <v-data-table 
-            :headers="headers" 
-            :items="records" 
-            items-per-page="5" 
+        <v-data-table
+            :headers="headers"
+            :items="records"
+            items-per-page="5"
             item-value="id"
-            item-selectable="selectable" 
-            v-model="selectedItems" 
+            item-selectable="selectable"
+            v-model="selectedItems"
             show-select
         >
             <template v-slot:[`item.actions`]="{ item }">
                 <div>
-                    <v-icon size="small" class="me-2" @click="() => router.push(`/user-form/${item.id}`)">
+                    <v-icon size="small" class="me-2" @click="() => $router.push(`users/edit/${item.id}`)">
                         mdi-pencil
                     </v-icon>
                 </div>
@@ -21,6 +21,9 @@
 </template>
 
 <script>
+import UserApi from '@/services/Forms/UserApi';
+
+const userApi = new UserApi();
 export default {
     name: 'TableUser',
     data: () => ({
@@ -43,6 +46,13 @@ export default {
     components: {
     },
     methods: {
+      async fetchUser(){
+        const respose = await userApi.read();
+        if(respose.data) this.records = respose.data;
+      }
+    },
+    async mounted(){
+      await this.fetchUser();
     }
 }
 </script>

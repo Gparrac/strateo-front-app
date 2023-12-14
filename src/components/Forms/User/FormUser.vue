@@ -1,6 +1,5 @@
 <template>
-<v-form ref="formRef">
-  {{idEditForm}}
+  <v-form ref="formRef">
     <v-row justify="center">
       <v-card rounded="3" class="w-100">
         <v-card-title>
@@ -126,7 +125,7 @@
         </v-card-text>
         <!----------------------- FORM --------------------------->
 
-        <!-- <div class="pt-5">
+        <div class="pt-5">
           <small
             v-for="(error, index) in errorMessages"
             :key="index"
@@ -135,22 +134,13 @@
             {{ index + 1 + ". " + error }} <br />
           </small>
         </div>
-
-        <v-card-text v-if="userStore.kindModal == 'delete'">
-          Estas seguro que deseas eliminar
-          {{
-            userStore.usersSelected.length == 1
-              ? userStore.usersSelected.length + " usuario"
-              : userStore.usersSelected.length + " usuarios"
-          }}?
-        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="userStore.hiddenModal"
-            :loading="userStore.loader"
+
+            :loading="loading"
           >
             Close
           </v-btn>
@@ -158,50 +148,149 @@
             color="blue-darken-1"
             variant="text"
             @click="submitForm"
-            :loading="userStore.loader"
+            :loading="loading"
           >
             Save
           </v-btn>
-        </v-card-actions> -->
+        </v-card-actions>
       </v-card>
     </v-row>
   </v-form>
 </template>
 
 <script>
-import UserApi from '@/services/Forms/UserApi.js';
+import UserApi from "@/services/Forms/UserApi.js";
+import RoleApi from "@/services/Forms/RoleApi.js";
+import Petition from "@/services/PetitionStructure/Petition.js";
+
 
 const userApi = new UserApi();
+const roleApi = new RoleApi();
+const petition = new Petition();
 
-export default  {
-    name: 'FormUser',
-    props: ['idEditForm'],
-    data: () => ({
-        titleForm: 'Usuario',
-        loading: false,
-        cities: [],
-        roles: [],
-        typeDocuments: [],
-        offices: [],
-        searchCity: "",
-        formRef: null,
-        errorMessages: [],
-        editUser: {},
-        status: [
-            { name: "A", label: "Activo" },
-            { name: "I", label: "Inactivo" },
-        ],
-    }),
-    mounted(){
-      this.getDataEditForm();
-    },
-    components:{
-    },
-    methods:{
-      async getDataEditForm(){
-        if(!this.idEditForm) return;
-        const data = await userApi.read(`?user_id=${this.idEditForm}`)
+
+export default {
+  name: "FormUser",
+  props: ["idEditForm"],
+  data: () => ({
+    titleForm: "Usuario",
+    loading: false,
+    cities: [],
+    roles: [],
+    typsDocument: [],
+    offices: [],
+    searchCity: "",
+    formRef: null,
+    errorMessages: [],
+    editUser: {},
+    status: [
+      { name: "A", label: "Activo" },
+      { name: "I", label: "Inactivo" },
+    ],
+  }),
+  async mounted() {
+    try {
+        await Promise.all([
+          this.setEditUser(),
+          this.setCities(),
+          this.setRoles(),
+        ]);
+      } catch (error) {
+        console.error('Alguna de las funciones falló:', error);
       }
+  },
+  components: {},
+  watch: {
+    async searchCity(to) {
+      if (to.length > 3) {
+        this.setCities(to);
+  }
+    },
+  },
+  methods: {
+    async submitForm(){
+      this.loading = true;
+      const { valid } = await this.$refs.form.validate();
+  if (valid) {
+    //passing validations 🚥
+    const formData = new FormData();
+    let response = false;
+    formData.append("type_document", this.editUser.typeDocument);
+    formData.append("identification", this.editUser.identification);
+    formData.append("names", this.editUser.names);
+    formData.append("surnames", this.editUser.surnames);
+    formData.append("address", this.editUser.address);
+    formData.append("mobile", this.editUser.mobile);
+    formData.append("email", this.editUser.email);
+    formData.append("city_id", this.editUser.city.id);
+    formData.append("status", this.editUser.status);
+    formData.append("role_id", this.editUser.role.id);
+    formData.append(
+      "offices_id[]",
+      this.editUser.offices.map((item) => +item.id)
+    );
+    formData.append("name", this.editUser.name);
+
+    if (this.idEditForm) {
+      console.log("update", this.editUser);
+      formData.append("user_id", this.editUser.userId);
+      if (this.editUser.password)
+        formData.append("password", this.editUser.password);
+        await userApi.update(formData);
+    } else {
+      formData.append("password", this.editUser.password);
+      await userApi.create(formData);
     }
-}
+
+    console.log("response", response);
+    if (response.error) {
+      // lack to define logic to pass show errors in FormUser 🚨
+    } else {
+      console.log("consesión exitosa!");
+      this.$router.push('/users');
+      // lack to define logic to pass show alert in TableUser 🚨
+
+    }
+  }
+    this.loading = false;
+
+    },
+    async setTypesDocument(){
+      this.typsDocument = (await petition.get('/type-document-user')).data;
+    },
+    async setRoles(){
+      this.typsDocument = (await roleApi.read('type-document-user')).data;
+    },
+    async setCities(name=null){
+      const query = name ? `?name=${name}` : '';
+      this.cities = (await petition.get('/cities',query)).data;
+  },
+    async setEditUser() {
+      if (!this.idEditForm) return;
+      const response = await userApi.read(`&user_id=${this.idEditForm}`);
+        this.editUser = Object.assign(
+          {},
+          {
+            userId: response.data.id,
+            name: response.data.name,
+            typeDocument: response.data.third.type_document,
+            identification: response.data.third.identification,
+            names: response.data.third.names,
+            surnames: response.data.third.surnames,
+            address: response.data.third.address,
+            mobile: response.data.third.mobile,
+            email: response.data.third.email,
+            city: response.data.third.city,
+            status: response.data.status,
+            role: response.data.role,
+            offices: response.data.offices.map((item) => ({
+              id: item.id,
+              name: item.name,
+            })),
+          }
+        );
+
+    },
+  },
+};
 </script>

@@ -11,7 +11,7 @@ export default class Petition {
      * @param {string query with the necesary params to the get endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    get(url, query = null){
+    get(url, query = ''){
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'GET',
@@ -79,7 +79,7 @@ export default class Petition {
      * @param {string query with the necesary params to the put endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    delete(url, query = null){
+    delete(url, query = ''){
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'DELETE',

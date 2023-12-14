@@ -1,11 +1,11 @@
 import FormsFactory from "./Interface/FormFactory";
 import Petition from "../PetitionStructure/Petition";
 
-export default class OfficeApi extends FormsFactory {
+export default class RoleApi extends FormsFactory {
     constructor(){
-      super();
+        super();
         this.petition = new Petition();
-        this.route = '/office';
+        this.route = '/role-parameterization?form_id=3';
     }
 
     create(body){

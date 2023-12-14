@@ -5,14 +5,14 @@ export default class UserApi extends FormsFactory {
     constructor(){
         super();
         this.petition = new Petition();
-        this.route = '/user-parameterization';
+        this.route = '/user-parameterization?form_id=5';
     }
 
     create(body){
         return this.petition.post(this.route, body);
     }
 
-    read(query = null){
+    read(query = ''){
         return this.petition.get(this.route, query);
     }
 
@@ -20,7 +20,7 @@ export default class UserApi extends FormsFactory {
         return this.petition.put(this.route, body);
     }
 
-    delete(query = null){
+    delete(query = ''){
         return this.petition.delete(this.route, query)
     }
 }
