@@ -19,6 +19,7 @@
                         v-model="editUser.typeDocument"
                         item-title="label"
                         item-value="name"
+                        :item="typesDocument"
                         :rules="rulesValidation.select"
                       ></v-select>
                     </v-col>
@@ -298,7 +299,7 @@ export default {
       this.typesDocument = (await petition.get('/type-document-user')).data;
     },
     async setRoles(){
-      this.typesDocument = (await roleApi.read('type-document-user')).data;
+      this.roles = (await roleApi.read('')).data;
     },
     async setCities(name=null){
       const query = name ? `?name=${name}` : '';

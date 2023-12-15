@@ -2,10 +2,18 @@
   <v-app>
   <v-layout class="">
     <v-app-bar title="STRATEO" @click="$router.push('/')">
-      <v-app-bar-nav-icon
-        variant="text"
-        @click.stop="drawer = !drawer"
-      ></v-app-bar-nav-icon>
+      <template v-slot:prepend>
+        <v-app-bar-nav-icon
+          variant="text"
+          @click.stop="drawer = !drawer"
+        ></v-app-bar-nav-icon>
+      </template>
+
+        <v-spacer></v-spacer>
+
+        <v-btn icon @click="() => toggleSettings=!toggleSettings">
+          <v-icon>mdi-account-circle</v-icon>
+        </v-btn>
     </v-app-bar>
 
     <v-navigation-drawer class="pl-3" v-model="drawer" location="left" permanent >
@@ -33,9 +41,10 @@
     </v-navigation-drawer>
 
     <v-main
-      class="d-flex align-start justify-center"
-      style="min-height: 100vh"
+    class="d-flex align-start justify-center"
+    style="min-height: 100vh"
     >
+    <ModalUserSettings :expand="toggleSettings"></ModalUserSettings>
       <div class="w-100 pa-16">
         <router-view />
       </div>
@@ -45,24 +54,47 @@
 </template>
 <script>
   import AuthUser from '@/services/auth/AuthUser';
+  import ModalUserSettings from '@/components/blocks/ModalUserSettings.vue';
   const authUser = new AuthUser();
 
   export default {
     name: 'AppBar',
+    components:{
+      ModalUserSettings
+    },
     data: () => ({
+      toggleSettings:false,
       drawer: false,
       items: [
         {
           title: "Usuarios",
           value: 1,
-          icon: "mdi-folder",
+          icon: "mdi-account-multiple-plus",
           path: "/users"
         },
         {
           title: "Roles y permisos",
           value: 2,
-          icon: "mdi-folder",
+          icon: "mdi-account-key",
           path:'/roles'
+        },
+        {
+          title: "Empresa",
+          value: 3,
+          icon: "mdi-factory",
+          path:'/enterprises'
+        },
+        {
+          title: "Clientes",
+          value: 4,
+          icon: "mdi-account-switch",
+          path:'/customers'
+        },
+        {
+          title: "Oficinas",
+          value: 5,
+          icon: "mdi-lan",
+          path:'/offices'
         },
       ],
 
