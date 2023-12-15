@@ -1,18 +1,20 @@
 <template>
   <v-form class="d-flex justify-center align-center h-screen" ref="form">
     <v-card width="512" :loading="loader">
-      <v-card-title> Inicio de sesión </v-card-title>
-      <v-card-subtitle>
-        <v-switch
+      <v-card-title class="text-h3 pt-5 text-center"> Inicio de sesión </v-card-title>
+
+      <v-card-text>
+
+        <v-row>
+          <v-col cols="12">
+            <v-switch
           v-model="typeAuth"
           :label="
             'Ingreso por ' + (typeAuth ? 'correo' : 'número de documento')
           "
           :color="typeAuth ? 'orange' : 'primary'"
         ></v-switch>
-      </v-card-subtitle>
-      <v-card-text>
-        <v-row>
+          </v-col>
           <v-col cols="12" v-if="typeAuth">
             <v-text-field
               label="Correo"
@@ -79,7 +81,7 @@ export default {
       const data = await petition.get('/type-document-user');
       this.typesDocument = data.data;
     },
-    
+
     async logIn() {
       this.loader = true;
       const { valid } = await this.$refs.form.validate();

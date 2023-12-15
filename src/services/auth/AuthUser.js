@@ -16,6 +16,6 @@ export default class AuthUser
   }
 
   logout(){
-    return this.petition.get(`${this.prefix}/logout`);
+    return this.petition.get(`${this.prefix}/logout`,'',true);
   }
 }

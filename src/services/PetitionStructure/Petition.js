@@ -59,7 +59,7 @@ export default class Petition {
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}?_method=PUT`, {
                 method: 'POST',
-                headers: this.headers(),
+                headers: this.headers(token),
                 body: body
             })
             .then(res => res.json())
@@ -81,7 +81,7 @@ export default class Petition {
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'DELETE',
-                headers: this.headers(),
+                headers: this.headers(token),
             })
             .then(res => res.json())
             .then(data => {
@@ -100,7 +100,7 @@ export default class Petition {
         const headers = new Headers({
           "X-Requested-With": "XMLHttpRequest"
         });
-      
+
         if (token) {
           const authToken = localStorage.getItem('auth-token');
           authToken && headers.append("Authorization", `Bearer ${authToken}`);
