@@ -17,7 +17,12 @@ export default class Petition {
                 method: 'GET',
                 headers: this.headers(token),
             })
-            .then(res => res.json())
+            .then(res => {
+                return res.json().then(data => {
+                    data.statusResponse = res.status;
+                    return data;
+                });
+            })
             .then(data => {
                 resolve(data);
             })
@@ -40,7 +45,12 @@ export default class Petition {
                 headers: this.headers(token),
                 body: body
             })
-            .then(res => res.json())
+            .then(res => {
+                return res.json().then(data => {
+                    data.statusResponse = res.status;
+                    return data;
+                });
+            })
             .then(data => {
                 resolve(data)
             })
@@ -62,7 +72,12 @@ export default class Petition {
                 headers: this.headers(token),
                 body: body
             })
-            .then(res => res.json())
+            .then(res => {
+                return res.json().then(data => {
+                    data.statusResponse = res.status;
+                    return data;
+                });
+            })
             .then(data => {
                 resolve(data)
             })
@@ -84,7 +99,12 @@ export default class Petition {
                 headers: this.headers(token),
                 body: body
             })
-            .then(res => res.json())
+            .then(res => {
+                return res.json().then(data => {
+                    data.statusResponse = res.status;
+                    return data;
+                });
+            })
             .then(data => {
                 resolve(data);
             })
