@@ -19,7 +19,7 @@
                         v-model="editUser.typeDocument"
                         item-title="label"
                         item-value="name"
-                        :item="typesDocument"
+                        :items="typesDocument"
                         :rules="rulesValidation.select"
                       ></v-select>
                     </v-col>
@@ -177,9 +177,13 @@ import UserApi from "@/services/Forms/UserApi.js";
 import RoleApi from "@/services/Forms/RoleApi.js";
 import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
+import { mapStores } from "pinia";
+import { useAlertMessageStore } from "@/store/alertMessage";
+import OfficeApi from "@/services/Forms/OfficeApi";
 
 const userApi = new UserApi();
 const roleApi = new RoleApi();
+const officeApi = new OfficeApi();
 const petition = new Petition();
 
 export default {
@@ -200,18 +204,20 @@ export default {
       { name: "A", label: "Activo" },
       { name: "I", label: "Inactivo" },
     ],
-    rulesValidation: RulesValidation
+    rulesValidation: RulesValidation,
   }),
   async mounted() {
     try {
-        await Promise.all([
-          this.setEditUser(),
-          this.setCities(),
-          this.setRoles(),
-        ]);
-      } catch (error) {
-        console.error('Alguna de las funciones falló:', error);
-      }
+      await Promise.all([
+        this.setEditUser(),
+        this.setCities(),
+        this.setRoles(),
+        this.setTypesDocument(),
+        this.setOffices(),
+      ]);
+    } catch (error) {
+      console.error("Alguna de las funciones falló:", error);
+    }
   },
   computed: {
     passwordRule() {
@@ -229,107 +235,109 @@ export default {
         ? [
             (value) => !!value || "Contraseña es requerida",
             (value) =>
-              value === this.editUser.password || "Las contraseñas no coinciden",
+              value === this.editUser.password ||
+              "Las contraseñas no coinciden",
           ]
         : [
             (value) =>
-              value === this.editUser.password || "Las contraseñas no coinciden",
+              value === this.editUser.password ||
+              "Las contraseñas no coinciden",
           ];
     },
-    title(){
-      return this.idEditForm ? 'Edición de Usuario' : 'Creación de Usuario';
-    }
+    title() {
+      return this.idEditForm ? "Edición de Usuario" : "Creación de Usuario";
+    },
+    ...mapStores(useAlertMessageStore),
   },
   watch: {
     async searchCity(to) {
       if (to.length > 3) {
         this.setCities(to);
-  }
+      }
     },
   },
   methods: {
-    async submitForm(){
+    async submitForm() {
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
-  if (valid) {
-    //passing validations 🚥
-    const formData = new FormData();
-    let response = false;
-    formData.append("type_document", this.editUser.typeDocument);
-    formData.append("identification", this.editUser.identification);
-    formData.append("names", this.editUser.names);
-    formData.append("surnames", this.editUser.surnames);
-    formData.append("address", this.editUser.address);
-    formData.append("mobile", this.editUser.mobile);
-    formData.append("email", this.editUser.email);
-    formData.append("city_id", this.editUser.city.id);
-    formData.append("status", this.editUser.status);
-    formData.append("role_id", this.editUser.role.id);
-    formData.append(
-      "offices_id[]",
-      this.editUser.offices.map((item) => +item.id)
-    );
-    formData.append("name", this.editUser.name);
+      if (valid) {
+        //passing validations 🚥
+        const formData = new FormData();
+        let response = {};
+        formData.append("type_document", this.editUser.typeDocument);
+        formData.append("identification", this.editUser.identification);
+        formData.append("names", this.editUser.names);
+        formData.append("surnames", this.editUser.surnames);
+        formData.append("address", this.editUser.address);
+        formData.append("mobile", this.editUser.mobile);
+        formData.append("email", this.editUser.email);
+        formData.append("city_id", this.editUser.city.id);
+        formData.append("status", this.editUser.status);
+        formData.append("role_id", this.editUser.role.id);
+        formData.append(
+          "offices_id[]",
+          this.editUser.offices.map((item) => +item.id)
+        );
+        formData.append("name", this.editUser.name);
 
-    if (this.idEditForm) {
-      console.log("update", this.editUser);
-      formData.append("user_id", this.editUser.userId);
-      if (this.editUser.password)
-        formData.append("password", this.editUser.password);
-        await userApi.update(formData);
-    } else {
-      formData.append("password", this.editUser.password);
-      await userApi.create(formData);
-    }
-
-    console.log("response", response);
-    if (response.error) {
-      // lack to define logic to pass show errors in FormUser 🚨
-    } else {
-      console.log("consesión exitosa!");
-      this.$router.push('/users');
-      // lack to define logic to pass show alert in TableUser 🚨
-
-    }
-  }
-    this.loading = false;
-
+        if (this.idEditForm) {
+          formData.append("user_id", this.editUser.userId);
+          if (this.editUser.password)
+            formData.append("password", this.editUser.password);
+          response = await userApi.update(formData);
+        } else {
+          formData.append("password", this.editUser.password);
+          response = await userApi.create(formData);
+        }
+        if (response.error) {
+          this.alertMessageStore.show(false, "Error en el servidor");
+          // lack to define logic to pass show errors in FormUser 🚨
+        } else {
+          this.alertMessageStore.show(true, "Poceso exitoso!");
+          this.$router.push("/users");
+          // lack to define logic to pass show alert in TableUser 🚨
+        }
+      }
+      this.loading = false;
     },
-    async setTypesDocument(){
-      this.typesDocument = (await petition.get('/type-document-user')).data;
+    async setTypesDocument() {
+      this.typesDocument = (await petition.get("/type-document-user")).data;
     },
-    async setRoles(){
-      this.roles = (await roleApi.read('')).data;
+    async setRoles() {
+      this.roles = (await roleApi.read("")).data;
     },
-    async setCities(name=null){
-      const query = name ? `?name=${name}` : '';
-      this.cities = (await petition.get('/cities',query)).data;
-  },
+    async setOffices() {
+      this.offices = (await officeApi.read("?format=short")).data;
+      console.log("typeDocument", this.offices);
+    },
+    async setCities(name = null) {
+      const query = name ? `?name=${name}` : "";
+      this.cities = (await petition.get("/cities", query)).data;
+    },
     async setEditUser() {
       if (!this.idEditForm) return;
-      const response = await userApi.read(`&user_id=${this.idEditForm}`);
-        this.editUser = Object.assign(
-          {},
-          {
-            userId: response.data.id,
-            name: response.data.name,
-            typeDocument: response.data.third.type_document,
-            identification: response.data.third.identification,
-            names: response.data.third.names,
-            surnames: response.data.third.surnames,
-            address: response.data.third.address,
-            mobile: response.data.third.mobile,
-            email: response.data.third.email,
-            city: response.data.third.city,
-            status: response.data.status,
-            role: response.data.role,
-            offices: response.data.offices.map((item) => ({
-              id: item.id,
-              name: item.name,
-            })),
-          }
-        );
-
+      const response = await userApi.read(`?user_id=${this.idEditForm}`);
+      this.editUser = Object.assign(
+        {},
+        {
+          userId: response.data.id,
+          name: response.data.name,
+          typeDocument: response.data.third.type_document,
+          identification: response.data.third.identification,
+          names: response.data.third.names,
+          surnames: response.data.third.surnames,
+          address: response.data.third.address,
+          mobile: response.data.third.mobile,
+          email: response.data.third.email,
+          city: response.data.third.city,
+          status: response.data.status,
+          role: response.data.role,
+          offices: response.data.offices.map((item) => ({
+            id: item.id,
+            name: item.name,
+          })),
+        }
+      );
     },
   },
 };

@@ -77,11 +77,12 @@ export default class Petition {
      * @param {string query with the necesary params to the put endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    delete(url, query = '', token = false){
+    delete(url, body, token = false){
         return new Promise((resolve, reject) => {
-            fetch(`${this.routeEndpoint}${url}${query}`, {
+            fetch(`${this.routeEndpoint}${url}`, {
                 method: 'DELETE',
                 headers: this.headers(token),
+                body: body
             })
             .then(res => res.json())
             .then(data => {
