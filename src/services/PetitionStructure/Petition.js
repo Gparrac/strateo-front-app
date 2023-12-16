@@ -17,12 +17,7 @@ export default class Petition {
                 method: 'GET',
                 headers: this.headers(token),
             })
-            .then(res => {
-                return res.json().then(data => {
-                    data.statusResponse = res.status;
-                    return data;
-                });
-            })
+            .then(res => res.json())
             .then(data => {
                 resolve(data);
             })
@@ -45,12 +40,7 @@ export default class Petition {
                 headers: this.headers(token),
                 body: body
             })
-            .then(res => {
-                return res.json().then(data => {
-                    data.statusResponse = res.status;
-                    return data;
-                });
-            })
+            .then(res => res.json())
             .then(data => {
                 resolve(data)
             })
@@ -72,12 +62,7 @@ export default class Petition {
                 headers: this.headers(token),
                 body: body
             })
-            .then(res => {
-                return res.json().then(data => {
-                    data.statusResponse = res.status;
-                    return data;
-                });
-            })
+            .then(res => res.json())
             .then(data => {
                 resolve(data)
             })
@@ -92,19 +77,13 @@ export default class Petition {
      * @param {string query with the necesary params to the put endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    delete(url, body, token = false){
+    delete(url, query = '', token = false){
         return new Promise((resolve, reject) => {
-            fetch(`${this.routeEndpoint}${url}`, {
+            fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'DELETE',
                 headers: this.headers(token),
-                body: body
             })
-            .then(res => {
-                return res.json().then(data => {
-                    data.statusResponse = res.status;
-                    return data;
-                });
-            })
+            .then(res => res.json())
             .then(data => {
                 resolve(data);
             })

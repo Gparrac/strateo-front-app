@@ -2,8 +2,13 @@
   <div>
     <h1 class="pb-7">{{ titleView }}</h1>
     <div>
-      <FormRole v-if="isForm" :idEditForm="idEditForm" />
-      <TableRole v-else />
+      <FormRole
+        v-if="isForm"
+        :idEditForm="idEditForm"
+        :nameTable="nameTable"
+        :path="path"
+      />
+      <TableRole v-else :nameTable="nameTable" :path="path" />
     </div>
     <div></div>
   </div>
@@ -17,7 +22,8 @@ export default {
   name: "RoleView",
   data: () => ({
     titleView: "Parametrización de Roles",
-
+    nameTable: "usuarios",
+    path: "roles",
     isForm: false,
     idEditForm: null,
   }),

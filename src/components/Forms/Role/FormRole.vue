@@ -8,6 +8,27 @@
 
         <!----------------------- FORM --------------------------->
         <v-card-text>
+          <v-row>
+      <v-col cols="12" >
+                      <v-text-field
+                        label="Nombre"
+                        v-model="editItem.name"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+
+                      ></v-text-field>
+                    </v-col>
+      <v-col cols="12" >
+                      <v-textarea
+                        label="Describción"
+                        v-model="editItem.description"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-textarea>
+                    </v-col>
+    </v-row>
           <v-table>
     <thead>
       <tr class="text-left">
@@ -30,7 +51,7 @@
         <td v-for="pitem in permissions" :key="pitem.id" class="text-left">
           <v-switch
           color="primary"
-          v-model="editRole.forms[findex].permissions_id"
+          v-model="editItem.forms[findex].permissions_id"
           :label="pitem.id"
           :value="pitem.id"
         ></v-switch>
@@ -45,7 +66,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="() => $router.push(`/roles`)"
+            @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
             Close
@@ -53,7 +74,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="submit"
+            @click="submitForm"
             :loading="loading"
           >
             Save
@@ -85,20 +106,20 @@ export default {
     forms: [],
     permissions: [],
     errorMessages: [],
-    editRole: {},
+    editItem: {},
     rulesValidation: RulesValidation
   }),
   async mounted() {
     try {
         await Promise.all([
           this.setEditRole(),
-          this.setForms(),
+          this.setEditItem(),
           this.setPermissions(),
         ]);
       } catch (error) {
         console.error('Alguna de las funciones falló:', error);
       }
-      console.log('editItem',this.editRole);
+      console.log('editItem',this.editItem);
   },
   computed: {
     title(){
@@ -106,13 +127,14 @@ export default {
     }
   },
   methods: {
-    submit(){
-      console.log('submit',this.editRole)
+    submitForm(){
+      console.log('submitForm',this.editItem)
+      this.$router.push(`/${this.path}`);
     },
-    async setForms(){
+    async setEditItem(){
       this.forms = (await formApi.read()).data;
       if (!this.idEditForm){
-        this.editRole.forms = this.forms.map((item) =>{
+        this.editItem.forms = this.forms.map((item) =>{
           return {form_id:item.id,permissions_id:[]}
         });
       }
@@ -122,8 +144,8 @@ export default {
     },
     async setEditRole() {
       if (!this.idEditForm) return;
-      this.editRole = (await roleApi.read(`&role_id=${this.idEditForm}`)).data;
-      console.log('edit',this.editRole)
+      this.editItem = (await roleApi.read(`&role_id=${this.idEditForm}`)).data;
+      console.log('edit',this.editItem)
     },
   },
 };

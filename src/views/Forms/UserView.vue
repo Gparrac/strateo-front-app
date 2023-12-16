@@ -2,8 +2,13 @@
   <div>
     <h1 class="pb-7">{{ titleView }}</h1>
     <div>
-      <FormUser v-if="isForm" :idEditForm="idEditForm" />
-      <TableUser v-else />
+      <FormUser
+        v-if="isForm"
+        :idEditForm="idEditForm"
+        :nameTable="nameTable"
+        :path="path"
+      />
+      <TableUser v-else :nameTable="nameTable" :path="path" />
     </div>
     <div></div>
   </div>
@@ -17,7 +22,8 @@ export default {
   name: "UserView",
   data: () => ({
     titleView: "Parametrización de Usuarios",
-
+    nameTable: "usuarios",
+    path: "users",
     isForm: false,
     idEditForm: null,
   }),

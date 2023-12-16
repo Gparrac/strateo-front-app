@@ -5,7 +5,7 @@ export default class OfficeApi extends FormsFactory {
     constructor(){
         super();
         this.petition = new Petition();
-        this.route = '/office';
+        this.route = '/office-parameterization';
     }
 
     create(body){

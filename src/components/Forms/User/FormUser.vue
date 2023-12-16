@@ -1,7 +1,7 @@
 <template>
   <v-form ref="form">
     <v-row justify="center">
-      <v-card rounded="3" class="w-100">
+      <v-card rounded="3" class="w-100" :loading="loading">
         <v-card-title>
           <span class="text-h5">{{ title }} </span>
         </v-card-title>
@@ -16,67 +16,92 @@
                     <v-col cols="12" sm="6">
                       <v-select
                         label="Tipo de documento"
-                        v-model="editUser.typeDocument"
+                        v-model="editItem.typeDocument"
                         item-title="label"
                         item-value="name"
                         :items="typesDocument"
                         :rules="rulesValidation.select"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Documento"
-                        v-model="editUser.identification"
+                        v-model="editItem.identification"
                         :rules="rulesValidation.identification"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Nombres"
-                        v-model="editUser.names"
+                        v-model="editItem.names"
                         :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Apellidos"
-                        v-model="editUser.surnames"
+                        v-model="editItem.surnames"
                         :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Email"
-                        v-model="editUser.email"
+                        v-model="editItem.email"
+                        placeholder="johndoe@gmail.com"
                         :rules="rulesValidation.email"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Telefono"
-                        v-model="editUser.mobile"
+                        v-model="editItem.mobile"
                         :rules="rulesValidation.mobile"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-autocomplete
                         label="Ciudad"
-                        v-model="editUser.city"
+                        v-model="editItem.city"
                         :items="cities"
                         v-model:search="searchCity"
                         item-title="name"
                         :return-object="true"
                         :rules="rulesValidation.select"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-select
                         :items="offices"
                         label="Oficina"
-                        v-model="editUser.offices"
+                        v-model="editItem.offices"
                         item-title="name"
                         :return-object="true"
                         :rules="rulesValidation.select"
+                        :loading="loading"
+                        :disabled="custom"
+
                         multiple
                       ></v-select>
                     </v-col>
@@ -91,44 +116,58 @@
                     <v-col cols="12" sm="12">
                       <v-text-field
                         label="Nombre de usuario"
-                        v-model="editUser.name"
+                        v-model="editItem.name"
                         :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-select
                         label="Estado"
                         :items="status"
-                        v-model="editUser.status"
+                        v-model="editItem.status"
                         item-title="label"
                         item-value="name"
                         :rules="rulesValidation.select"
-                      ></v-select>
+                        :loading="loading"
+                        :disabled="custom"
+             ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-select
                         :items="roles"
                         label="Role"
-                        v-model="editUser.role"
+                        v-model="editItem.role"
                         item-title="name"
                         :return-object="true"
                         :rules="rulesValidation.select"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Contraseña"
                         type="password"
-                        v-model="editUser.password"
+                        v-model="editItem.password"
                         :rules="passwordRule"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Confirmar contraseña"
                         type="password"
-                        v-model="editUser.confirmPassword"
+                        v-model="editItem.confirmPassword"
                         :rules="confirmPasswordRule"
+                        :loading="loading"
+                        :disabled="custom"
+
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -153,7 +192,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="() => $router.push(`/users`)"
+            @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
             Close
@@ -188,10 +227,18 @@ const petition = new Petition();
 
 export default {
   name: "FormUser",
-  props: ["idEditForm"],
+  props: {
+    idEditForm: Number,
+    nameTable: String,
+    path: String,
+
+  },
   components: {},
   data: () => ({
+    // required data
     loading: false,
+    editItem: {},
+    // optional data
     cities: [],
     roles: [],
     typesDocument: [],
@@ -199,7 +246,6 @@ export default {
     searchCity: "",
     formRef: null,
     errorMessages: [],
-    editUser: {},
     status: [
       { name: "A", label: "Activo" },
       { name: "I", label: "Inactivo" },
@@ -207,9 +253,10 @@ export default {
     rulesValidation: RulesValidation,
   }),
   async mounted() {
+    this.loading = true;
     try {
       await Promise.all([
-        this.setEditUser(),
+        this.setEditItem(),
         this.setCities(),
         this.setRoles(),
         this.setTypesDocument(),
@@ -218,6 +265,7 @@ export default {
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
+    this.loading = false;
   },
   computed: {
     passwordRule() {
@@ -235,17 +283,17 @@ export default {
         ? [
             (value) => !!value || "Contraseña es requerida",
             (value) =>
-              value === this.editUser.password ||
+              value === this.editItem.password ||
               "Las contraseñas no coinciden",
           ]
         : [
             (value) =>
-              value === this.editUser.password ||
+              value === this.editItem.password ||
               "Las contraseñas no coinciden",
           ];
     },
     title() {
-      return this.idEditForm ? "Edición de Usuario" : "Creación de Usuario";
+      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.editItem}`;
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -264,29 +312,31 @@ export default {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
-        formData.append("type_document", this.editUser.typeDocument);
-        formData.append("identification", this.editUser.identification);
-        formData.append("names", this.editUser.names);
-        formData.append("surnames", this.editUser.surnames);
-        formData.append("address", this.editUser.address);
-        formData.append("mobile", this.editUser.mobile);
-        formData.append("email", this.editUser.email);
-        formData.append("city_id", this.editUser.city.id);
-        formData.append("status", this.editUser.status);
-        formData.append("role_id", this.editUser.role.id);
-        formData.append(
-          "offices_id[]",
-          this.editUser.offices.map((item) => +item.id)
-        );
-        formData.append("name", this.editUser.name);
+        formData.append("type_document", this.editItem.typeDocument);
+        formData.append("identification", this.editItem.identification);
+        formData.append("names", this.editItem.names);
+        formData.append("surnames", this.editItem.surnames);
+        formData.append("address", this.editItem.address);
+        formData.append("mobile", this.editItem.mobile);
+        formData.append("email", this.editItem.email);
+        formData.append("city_id", this.editItem.city.id);
+        formData.append("status", this.editItem.status);
+        formData.append("role_id", this.editItem.role.id);
+        this.editItem.offices.forEach(item => {
+          formData.append(
+          "offices_id[]",item.id)
+        });
+
+
+        formData.append("name", this.editItem.name);
 
         if (this.idEditForm) {
-          formData.append("user_id", this.editUser.userId);
-          if (this.editUser.password)
-            formData.append("password", this.editUser.password);
+          formData.append("user_id", this.editItem.userId);
+          if (this.editItem.password)
+            formData.append("password", this.editItem.password);
           response = await userApi.update(formData);
         } else {
-          formData.append("password", this.editUser.password);
+          formData.append("password", this.editItem.password);
           response = await userApi.create(formData);
         }
         if (response.error) {
@@ -294,7 +344,7 @@ export default {
           // lack to define logic to pass show errors in FormUser 🚨
         } else {
           this.alertMessageStore.show(true, "Poceso exitoso!");
-          this.$router.push("/users");
+          this.$router.push(`/${this.path}`);
           // lack to define logic to pass show alert in TableUser 🚨
         }
       }
@@ -314,10 +364,10 @@ export default {
       const query = name ? `?name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
     },
-    async setEditUser() {
+    async setEditItem() {
       if (!this.idEditForm) return;
       const response = await userApi.read(`?user_id=${this.idEditForm}`);
-      this.editUser = Object.assign(
+      this.editItem = Object.assign(
         {},
         {
           userId: response.data.id,
