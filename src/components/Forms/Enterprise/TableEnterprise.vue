@@ -23,7 +23,7 @@
 <script>
 import EnterpriseApi from '@/services/Forms/EnterpriseApi';
 
-const enterpriseApi = new EnterpriseApi();
+const api = new EnterpriseApi();
 export default {
     name: 'TableEnterprise',
     data: () => ({
@@ -33,10 +33,10 @@ export default {
                 align: "start",
                 key: "id",
             },
-            { title: "Identificación", align: "end", key: "third.identification" },
-            { title: "Código de Verificación", align: "end", key: "third.verification_id" },
-            { title: "Nombre de Empresa", align: "end", key: "third.business_name" },
-            { title: "Dirección", align: "end", key: "third.address" },
+            { title: "Identificación", align: "end", key: "identification" },
+            { title: "Código de Verificación", align: "end", key: "verification_id" },
+            { title: "Nombre de Empresa", align: "end", key: "business_name" },
+            { title: "Dirección", align: "end", key: "address" },
             { title: "Acciones", align: "end", key: "actions" },
         ],
         selectedItems: [],
@@ -45,15 +45,15 @@ export default {
     components: {
     },
     methods: {
-      async fetchUser(){
-        const response = await enterpriseApi.read();
-        console.log('enterprise');
-        console.log('este es el response: ', response);
-        if(response.data) this.records = response.data;
+      async getDataTable(){
+        const response = await api.read();
+        if(response.data && response.statusResponse == 200){
+            this.records = response.data.data;
+        }    
       }
     },
     async mounted(){
-      await this.fetchUser();
+      await this.getDataTable();
     }
 }
 </script>
