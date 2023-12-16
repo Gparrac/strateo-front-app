@@ -1,7 +1,11 @@
 import usersRoute from "./usersRoute";
 import rolesRoute from "./rolesRoute";
- const  formsRoute = [
-  usersRoute,
-  rolesRoute
- ];
- export default formsRoute;
+import enterpriseRoute from "./enterpriseRoute";
+
+const  formsRoute = [
+    usersRoute,
+    rolesRoute,
+    enterpriseRoute
+];
+
+export default formsRoute;

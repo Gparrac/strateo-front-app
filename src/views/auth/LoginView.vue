@@ -18,6 +18,7 @@
           <v-col cols="12" v-if="typeAuth">
             <v-text-field
               label="Correo"
+              v-model="form.email"
               :rules="rulesValidation.email"
             ></v-text-field>
           </v-col>
@@ -95,8 +96,8 @@ export default {
         }
         formData.append("password", this.form.password);
         const response = await authUser.login(formData);
-        console.log('entro');
-        if(response.error){
+
+        if(response.statusResponse != 200){
           var currentUrl = new URL(window.location.href);
           var errorParamExists = currentUrl.searchParams.has('error');
           if (!errorParamExists) {
