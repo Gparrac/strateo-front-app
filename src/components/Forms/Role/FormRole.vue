@@ -140,9 +140,7 @@ export default {
   },
   computed: {
     title() {
-      return this.idEditForm
-        ? `Edición de ${this.nameTable}`
-        : `Creación de ${this.nameTable}`;
+      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
     },
     ...mapStores(useAlertMessageStore),
   },

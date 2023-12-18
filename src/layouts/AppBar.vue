@@ -60,7 +60,9 @@
   import AlertMessage from '@/components/blocks/AlertMessage.vue';
   import AuthUser from '@/services/auth/AuthUser';
   import ModalUserSettings from '@/components/blocks/ModalUserSettings.vue';
+  import FormApi from "@/services/Forms/FormApi";
   const authUser = new AuthUser();
+  const formApi = new FormApi();
 
   export default {
     name: 'AppBar',
@@ -107,16 +109,25 @@
       user: null,
     }),
     mounted(){
-      this.getUserData();
+      this.checkAuthUser();
+      console.log('currently',this.$router.options.routes)
+      this.$router.removeRoute('roles');
+      console.log('currently',this.$router.options.routes)
     },
     methods: {
-      async getUserData() {
+      async checkAuthUser() {
         const userData = await authUser.user();
         if(userData.message == 'Unauthenticated.'){
           this.$router.push('/sign-in');
         }
         this.user = userData;
+      },
+      async getFormsAvailable(){
+        // const response =  await formApi.read();
+
+
       }
+
     }
   }
 </script>

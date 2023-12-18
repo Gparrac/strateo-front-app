@@ -22,7 +22,7 @@ export default {
   name: "RoleView",
   data: () => ({
     titleView: "Parametrización de Roles",
-    nameTable: "usuarios",
+    nameTable: "roles",
     path: "roles",
     isForm: false,
     idEditForm: null,

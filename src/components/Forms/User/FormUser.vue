@@ -293,7 +293,7 @@ export default {
           ];
     },
     title() {
-      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.editItem}`;
+      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
     },
     ...mapStores(useAlertMessageStore),
   },

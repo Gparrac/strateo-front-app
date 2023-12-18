@@ -7,6 +7,7 @@ const rolesRoute = {
       {
         path: '',
         name: 'Roles',
+        idBack:'234',
         component: () => RoleView,
       },
       {
@@ -30,6 +31,10 @@ const rolesRoute = {
         },
       },
     ],
+    beforeEnter(to, from, next) {
+      console.log('data',to)
+      next();
+        }
 };
 
 export default rolesRoute;

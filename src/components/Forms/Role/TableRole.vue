@@ -114,9 +114,9 @@ export default {
   },
   methods: {
     async fetchScore() {
-      const respose = await roleApi.read();
-      if (respose.data)
-        this.records = respose.data.map((item) => {
+      const response = await roleApi.read();
+      if (response.data)
+        this.records = response.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
           return item;
         });
