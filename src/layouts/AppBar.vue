@@ -2,7 +2,9 @@
   <v-app>
 
     <v-layout class="">
-      <v-app-bar title="STRATEO" @click="$router.push('/')">
+      <v-app-bar  >
+        <v-app-bar-title><span @click="$router.push('/')">STRATEO</span></v-app-bar-title>
+
         <template v-slot:prepend>
         <v-app-bar-nav-icon
           variant="text"
@@ -34,7 +36,7 @@
         </template>
 
         <v-list-item-title>
-          <span v-text="item.title"></span>
+          <div v-text="item.title"></div>
         </v-list-item-title>
       </v-list-item>
     </v-list>

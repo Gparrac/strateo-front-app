@@ -5,7 +5,7 @@ export default class RoleApi extends FormsFactory {
     constructor(){
         super();
         this.petition = new Petition();
-        this.route = '/role-parameterization?form_id=3';
+        this.route = '/role-parameterization';
     }
 
     create(body){
