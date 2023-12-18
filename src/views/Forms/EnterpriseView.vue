@@ -2,8 +2,13 @@
   <div>
     <h1 class="pb-7">{{ titleView }}</h1>
     <div>
-      <FormEnterprise v-if="isForm" :idEditForm="idEditForm" />
-      <TableEnterprise v-else />
+      <FormEnterprise
+        v-if="isForm"
+        :idEditForm="idEditForm"
+        :nameTable="nameTable"
+        :path="path"
+      />
+      <TableEnterprise v-else :nameTable="nameTable" :path="path" />
     </div>
     <div></div>
   </div>
@@ -16,8 +21,9 @@ import { getFormRoute } from "@/utils/routes.js";
 export default {
   name: "EnterpriseView",
   data: () => ({
-    titleView: "Parametrización de Empresas",
-
+    titleView: "Parametrización de Empresa",
+    nameTable: "Empresas",
+    path: "enterprises",
     isForm: false,
     idEditForm: null,
   }),

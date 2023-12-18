@@ -15,6 +15,10 @@ export const RulesValidation = {
     (value) =>
       /\S+@\S+\.\S+/.test(value) || "Formato de correo electrónico inválido",
   ],
+  emailOptional: [
+    (value) =>
+      /\S+@\S+\.\S+/.test(value) || "Formato de correo electrónico inválido",
+  ],
   mobile: [
     (value) => !!value || "El teléfono es requirido",
     (value) =>
@@ -28,4 +32,7 @@ export const RulesValidation = {
       (value && value.length >= 4) ||
       "Contraseña debe tener al menos 6 caracteres",
   ],
+  image: [
+    (value) => !value || !value.length || value[0].size < 2000000 || 'La imagen debe pesar menos de 2 MB'
+  ]
 };

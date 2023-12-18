@@ -1,7 +1,7 @@
 <template>
   <v-form ref="form">
     <v-row justify="center">
-      <v-card rounded="3" class="w-100">
+      <v-card rounded="3" class="w-100" :loading="loading">
         <v-card-title>
           <span class="text-h5">{{ title }} </span>
         </v-card-title>
@@ -9,126 +9,133 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12" lg="6">
+            <v-col cols="12" lg="12">
               <v-card rounded="true" elevation="0">
                 <v-card-text>
                   <v-row>
-                    <v-col cols="12" sm="6">
-                      <v-select
-                        label="Tipo de documento"
-                        v-model="editUser.typeDocument"
-                        item-title="label"
-                        item-value="name"
-                        :rules="rulesValidation.select"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" sm="4">
                       <v-text-field
-                        label="Documento"
-                        v-model="editUser.identification"
+                        label="NIT"
+                        v-model="editItem.identification"
                         :rules="rulesValidation.identification"
+                        :loading="loading"
+                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" sm="4">
                       <v-text-field
-                        label="Nombres"
-                        v-model="editUser.names"
+                        label="Número de Verificación"
+                        v-model="editItem.verification_id"
+                        :rules="rulesValidation.identification"
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        label="Nombre de Empresa"
+                        v-model="editItem.business_names"
                         :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" sm="4">
                       <v-text-field
-                        label="Apellidos"
-                        v-model="editUser.surnames"
+                        label="Dirección"
+                        v-model="editItem.address"
                         :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" sm="4">
                       <v-text-field
-                        label="Email"
-                        v-model="editUser.email"
-                        :rules="rulesValidation.email"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-text-field
-                        label="Telefono"
-                        v-model="editUser.mobile"
+                        label="Teléfono"
+                        v-model="editItem.mobile"
                         :rules="rulesValidation.mobile"
+                        :loading="loading"
+                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        label="Correo Principal"
+                        v-model="editItem.email"
+                        placeholder="ejemplo@ejemplo.com"
+                        :rules="rulesValidation.email"
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        label="Correo Secundario (opcional)"
+                        v-model="editItem.email2"
+                        placeholder="ejemplo@ejemplo.com"
+                        :rules="rulesValidation.emailOptional"
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        label="Código Postal"
+                        v-model="editItem.postal_code"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
                       <v-autocomplete
                         label="Ciudad"
-                        v-model="editUser.city"
+                        v-model="editItem.city_id"
                         :items="cities"
                         v-model:search="searchCity"
                         item-title="name"
                         :return-object="true"
                         :rules="rulesValidation.select"
+                        :loading="loading"
+                        :disabled="custom"
                       ></v-autocomplete>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-select
-                        :items="offices"
-                        label="Oficina"
-                        v-model="editUser.offices"
-                        item-title="name"
-                        :return-object="true"
-                        :rules="rulesValidation.select"
-                        multiple
-                      ></v-select>
                     </v-col>
                   </v-row>
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12" lg="6">
-              <v-card title="Usuario" variant="outlined" padding="2">
+            <v-col cols="12" lg="12">
+              <v-card title="Información de la Empresa" variant="outlined" padding="2">
                 <v-card-text>
                   <v-row>
                     <v-col cols="12" sm="12">
-                      <v-text-field
-                        label="Nombre de usuario"
-                        v-model="editUser.name"
+                      <v-file-input
+                        label="Logo"
+                        v-model="editItem.path_logo"
+                        :rules="rulesValidation.image"
+                        :loading="loading"
+                        :disabled="custom"
+                        accept="image/png, image/jpeg, image/bmp"
+                        prepend-icon="mdi-camera"
+                      ></v-file-input>
+                    </v-col>
+                    <v-col cols="12" sm="12">
+                      <v-textarea
+                        label="Encabezado"
+                        v-model="editItem.header"
                         :rules="rulesValidation.text"
-                      ></v-text-field>
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-textarea>
                     </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-select
-                        label="Estado"
-                        :items="status"
-                        v-model="editUser.status"
-                        item-title="label"
-                        item-value="name"
-                        :rules="rulesValidation.select"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-select
-                        :items="roles"
-                        label="Role"
-                        v-model="editUser.role"
-                        item-title="name"
-                        :return-object="true"
-                        :rules="rulesValidation.select"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-text-field
-                        label="Contraseña"
-                        type="password"
-                        v-model="editUser.password"
-                        :rules="passwordRule"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-text-field
-                        label="Confirmar contraseña"
-                        type="password"
-                        v-model="editUser.confirmPassword"
-                        :rules="confirmPasswordRule"
-                      ></v-text-field>
+                    <v-col cols="12" sm="12">
+                      <v-textarea
+                        label="Pie de página"
+                        v-model="editItem.footer"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-textarea>
                     </v-col>
                   </v-row>
                 </v-card-text>
@@ -152,7 +159,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-
+            @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
             Close
@@ -172,163 +179,121 @@
 </template>
 
 <script>
-import UserApi from "@/services/Forms/UserApi.js";
-import RoleApi from "@/services/Forms/RoleApi.js";
+import EnterpriseApi from "@/services/Forms/EnterpriseApi.js";
 import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
+import { mapStores } from "pinia";
+import { useAlertMessageStore } from "@/store/alertMessage";
 
-const userApi = new UserApi();
-const roleApi = new RoleApi();
+const enterpriseApi = new EnterpriseApi();
 const petition = new Petition();
 
 export default {
   name: "FormEnterprise",
-  props: ["idEditForm"],
+  props: {
+    idEditForm: Number,
+    nameTable: String,
+    path: String,
+
+  },
   components: {},
   data: () => ({
+    // required data
     loading: false,
+    editItem: {},
+    // optional data
     cities: [],
-    roles: [],
-    typsDocument: [],
-    offices: [],
     searchCity: "",
-    formRef: null,
-    errorMessages: [],
-    editUser: {},
-    status: [
-      { name: "A", label: "Activo" },
-      { name: "I", label: "Inactivo" },
-    ],
-    rulesValidation: RulesValidation
+    rulesValidation: RulesValidation,
   }),
   async mounted() {
+    this.loading = true;
     try {
-        await Promise.all([
-          this.setEditUser(),
-          this.setCities(),
-          this.setRoles(),
-        ]);
-      } catch (error) {
-        console.error('Alguna de las funciones falló:', error);
-      }
+      await Promise.all([
+        this.setEditItem(),
+        this.setCities(),
+      ]);
+    } catch (error) {
+      console.error("Alguna de las funciones falló:", error);
+    }
+    this.loading = false;
   },
   computed: {
-    passwordRule() {
-      return !this.idEditForm
-        ? [
-            (value) => !!value || "Contraseña es requerida",
-            (value) =>
-              (value && value.length >= 6) ||
-              "Contraseña debe tener al menos 6 caracteres",
-          ]
-        : [];
+    title() {
+      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
     },
-    confirmPasswordRule() {
-      return !this.idEditForm
-        ? [
-            (value) => !!value || "Contraseña es requerida",
-            (value) =>
-              value === this.editUser.password || "Las contraseñas no coinciden",
-          ]
-        : [
-            (value) =>
-              value === this.editUser.password || "Las contraseñas no coinciden",
-          ];
-    },
-    title(){
-      return this.idEditForm ? 'Edición de Usuario' : 'Creación de Usuario';
-    }
+    ...mapStores(useAlertMessageStore),
   },
   watch: {
     async searchCity(to) {
       if (to.length > 3) {
         this.setCities(to);
-  }
+      }
     },
   },
   methods: {
-    async submitForm(){
+    async submitForm() {
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
-  if (valid) {
-    //passing validations 🚥
-    const formData = new FormData();
-    let response = false;
-    formData.append("type_document", this.editUser.typeDocument);
-    formData.append("identification", this.editUser.identification);
-    formData.append("names", this.editUser.names);
-    formData.append("surnames", this.editUser.surnames);
-    formData.append("address", this.editUser.address);
-    formData.append("mobile", this.editUser.mobile);
-    formData.append("email", this.editUser.email);
-    formData.append("city_id", this.editUser.city.id);
-    formData.append("status", this.editUser.status);
-    formData.append("role_id", this.editUser.role.id);
-    formData.append(
-      "offices_id[]",
-      this.editUser.offices.map((item) => +item.id)
-    );
-    formData.append("name", this.editUser.name);
-
-    if (this.idEditForm) {
-      console.log("update", this.editUser);
-      formData.append("user_id", this.editUser.userId);
-      if (this.editUser.password)
-        formData.append("password", this.editUser.password);
-        await userApi.update(formData);
-    } else {
-      formData.append("password", this.editUser.password);
-      await userApi.create(formData);
-    }
-
-    console.log("response", response);
-    if (response.error) {
-      // lack to define logic to pass show errors in FormUser 🚨
-    } else {
-      console.log("consesión exitosa!");
-      this.$router.push('/users');
-      // lack to define logic to pass show alert in TableUser 🚨
-
-    }
-  }
-    this.loading = false;
-
+      if (valid) {
+        //passing validations 🚥
+        const formData = new FormData();
+        let response = {};
+        formData.append("identification", this.editItem.identification);
+        formData.append("verification_id", this.editItem.verification_id);
+        formData.append("business_names", this.editItem.business_names);
+        formData.append("address", this.editItem.address);
+        formData.append("mobile", this.editItem.mobile);
+        formData.append("email", this.editItem.email);
+        formData.append("email2", this.editItem.email2);
+        formData.append("postal_code", this.editItem.postal_code);
+        formData.append("city_id", this.editItem.city_id);
+        formData.append("path_logo", this.editItem.path_logo);
+        formData.append("header", this.editItem.header);
+        formData.append("footer", this.editItem.footer);
+        console.log('esto es formData: ', formData);
+        // if (this.idEditForm) {
+        //   formData.append("enterprise_id", this.editItem.enterpriseId);
+        //   response = await enterpriseApi.update(formData);
+        // } else {
+        //   response = await enterpriseApi.create(formData);
+        // }
+        // if (response.statusResponse != 200) {
+        //   this.alertMessageStore.show(false, "Error en el servidor");
+        //   // lack to define logic to pass show errors in FormUser 🚨
+        // } else {
+        //   this.alertMessageStore.show(true, "Poceso exitoso!");
+        //   this.$router.push(`/${this.path}`);
+        //   // lack to define logic to pass show alert in TableUser 🚨
+        // }
+      }
+      this.loading = false;
     },
-    async setTypesDocument(){
-      this.typsDocument = (await petition.get('/type-document-user')).data;
-    },
-    async setRoles(){
-      this.typsDocument = (await roleApi.read('type-document-user')).data;
-    },
-    async setCities(name=null){
-      const query = name ? `?name=${name}` : '';
-      this.cities = (await petition.get('/cities',query)).data;
-  },
-    async setEditUser() {
+    async setEditItem() {
       if (!this.idEditForm) return;
-      const response = await userApi.read(`&user_id=${this.idEditForm}`);
-        this.editUser = Object.assign(
-          {},
-          {
-            userId: response.data.id,
-            name: response.data.name,
-            typeDocument: response.data.third.type_document,
-            identification: response.data.third.identification,
-            names: response.data.third.names,
-            surnames: response.data.third.surnames,
-            address: response.data.third.address,
-            mobile: response.data.third.mobile,
-            email: response.data.third.email,
-            city: response.data.third.city,
-            status: response.data.status,
-            role: response.data.role,
-            offices: response.data.offices.map((item) => ({
-              id: item.id,
-              name: item.name,
-            })),
-          }
-        );
-
+      const response = await enterpriseApi.read(`?enterprise_id=${this.idEditForm}`);
+      this.editItem = Object.assign(
+        {},
+        {
+          enterpriseId: response.data.id,
+          identification: response.data.identification,
+          verification_id: response.data.verification_id,
+          business_names: response.data.business_names,
+          address: response.data.address,
+          mobile: response.data.mobile,
+          email: response.data.email,
+          email2: response.data.email2,
+          postal_code: response.data.postal_code,
+          city_id: response.data.city_id,
+          path_logo: response.data.path_logo,
+          header: response.data.header,
+          footer: response.data.footer,
+        }
+      );
+    },
+    async setCities(name = null) {
+      const query = name ? `?name=${name}` : "";
+      this.cities = (await petition.get("/cities", query)).data;
     },
   },
 };
