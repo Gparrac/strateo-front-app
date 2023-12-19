@@ -108,8 +108,12 @@ export default {
           }
           return;
         }
-
+        console.log('try',response)
         localStorage.setItem('auth-token', response.data.access_token);
+        localStorage.setItem('user', response.data.user);
+
+        const user = await authUser.user(formData);
+        console.log(user);
         this.$router.push('/');
       }
       this.loader = false;

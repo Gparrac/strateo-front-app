@@ -16,6 +16,7 @@
         <v-spacer></v-spacer>
 
         <v-btn icon @click="() => (toggleSettings = !toggleSettings)">
+          <span>{{ this.user?.name }}</span>
           <v-icon>mdi-account-circle</v-icon>
         </v-btn>
       </v-app-bar>
@@ -27,7 +28,7 @@
         permanent
       >
         <template v-for="(section, i) in sections" :key="`${i}-s-${i.id}`">
-          <v-list-subheader >{{ i+1 + ". " + section.name }}</v-list-subheader>
+          <v-list-subheader>{{ i + 1 + ". " + section.name }}</v-list-subheader>
 
           <v-list :items="section.forms">
             <v-list-item
@@ -54,7 +55,7 @@
         style="min-height: 100vh"
       >
         <alert-message></alert-message>
-        <ModalUserSettings :expand="toggleSettings"></ModalUserSettings>
+        <ModalUserSettings :email="user?.email" :expand="toggleSettings"></ModalUserSettings>
         <div class="w-100 pa-16">
           <router-view />
         </div>
@@ -77,6 +78,7 @@ export default {
     AlertMessage,
   },
   data: () => ({
+    user:{},
     toggleSettings: false,
     drawer: false,
     sections: [
@@ -124,7 +126,7 @@ export default {
   methods: {
     async checkAuthUser() {
       const userData = await authUser.user();
-      if (userData.message == "Unauthenticated.") {
+      if (userData.statusResponse != 200) {
         this.$router.push("/sign-in");
       }
       this.user = userData;
@@ -133,7 +135,15 @@ export default {
       const response = await formApi.read("?format=routes-available");
       if (response.data) {
         this.sections = response.data;
-        console.log('llegando', this.items);
+        console.log("llegando", this.items);
+      }
+    },
+    async getUser() {
+      const savedUser = localStorage.getItem("user");
+
+      if (savedUser) {
+        // Actualizar el estado con los datos recuperados
+        this.user = JSON.parse(savedUser);
       }
     },
   },

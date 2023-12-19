@@ -194,17 +194,20 @@ export default {
       } else {
         this.forms.forEach(
           (item, i) =>
-            (item.selectAll =
+            {item.selectAll =
               this.editItem.forms[i].permissions_id.length ==
               this.permissions.length
                 ? true
-                : false)
+                : false
+              }
         );
       }
       console.log('temp',this.forms)
     },
     async setForms() {
       this.forms = (await formApi.read()).data;
+      if (!this.idEditForm) this.editItem.forms = Array(this.forms.length).fill({permissions_id:[]});
+
     },
     async setPermissions() {
       this.permissions = (await petition.get("/permissions")).data;

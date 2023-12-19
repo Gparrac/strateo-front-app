@@ -2,6 +2,7 @@
   <div class="user-settings">
     <v-expand-transition>
       <v-card v-show="expand" height="100" width="200" class=" ">
+        <v-card-subtitle>{{ email }}</v-card-subtitle>
         <v-list>
           <v-list-subheader>Opciones</v-list-subheader>
 
@@ -25,6 +26,7 @@ export default {
   name: "ModalUserSettings",
   props: {
     expand: Boolean,
+    email: String
   },
   methods: {
     async signOut() {

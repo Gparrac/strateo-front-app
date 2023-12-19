@@ -13,7 +13,7 @@ export default class RoleApi extends FormsFactory {
     }
 
     read(query = ''){
-        return this.petition.get(this.route, query);
+        return this.petition.get(this.route, query, true);
     }
 
     update(body){
