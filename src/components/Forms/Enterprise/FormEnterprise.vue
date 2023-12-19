@@ -39,7 +39,7 @@
                     <v-col cols="12" sm="12">
                       <v-text-field
                         label="Nombre de Empresa"
-                        v-model="editItem.business_names"
+                        v-model="editItem.business_name"
                         :rules="rulesValidation.text"
                         :loading="loading"
                       ></v-text-field>
@@ -49,7 +49,7 @@
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Nombre"
-                        v-model="editItem.business_names"
+                        v-model="editItem.names"
                         :rules="rulesValidation.text"
                         :loading="loading"
                       ></v-text-field>
@@ -57,7 +57,7 @@
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Apellido"
-                        v-model="editItem.business_names"
+                        v-model="editItem.surnames"
                         :rules="rulesValidation.text"
                         :loading="loading"
                       ></v-text-field>
@@ -123,7 +123,7 @@
                         :items="cities"
                         v-model:search="searchCity"
                         item-title="name"
-                        :return-object="true"
+                        item-value="id"
                         :rules="rulesValidation.select"
                         :loading="loading"
                       ></v-autocomplete>
@@ -288,44 +288,56 @@ export default {
         formData.append("type_document", this.editItem.typeDocument);
         formData.append("identification", this.editItem.identification);
         formData.append("verification_id", this.editItem.verification_id);
-        formData.append("business_names", this.editItem.business_names);
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
         formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
-        formData.append("path_logo", this.editItem.path_logo);
         formData.append("header", this.editItem.header);
         formData.append("footer", this.editItem.footer);
-        console.log('esto es formData: ', formData);
-        // if (this.idEditForm) {
-        //   formData.append("enterprise_id", this.editItem.enterpriseId);
-        //   response = await enterpriseApi.update(formData);
-        // } else {
-        //   response = await enterpriseApi.create(formData);
-        // }
-        // if (response.statusResponse != 200) {
-        //   this.alertMessageStore.show(false, "Error en el servidor");
-        //   // lack to define logic to pass show errors in FormUser 🚨
-        // } else {
-        //   this.alertMessageStore.show(true, "Poceso exitoso!");
-        //   this.$router.push(`/${this.path}`);
-        //   // lack to define logic to pass show alert in TableUser 🚨
-        // }
+        formData.append("path_logo", this.showImageSelected);
+
+        if(this.editItem.business_names){
+          formData.append("business_name", this.editItem.business_name);
+        }else{
+          formData.append("names", this.editItem.names);
+          formData.append("surnames", this.editItem.surnames);
+        }
+
+        if (this.idEditForm) {
+          formData.append("enterprise_id", this.editItem.enterpriseId);
+          response = await enterpriseApi.update(formData);
+        } else {
+          response = await enterpriseApi.create(formData);
+        }
+        if (response.statusResponse != 200) {
+          this.alertMessageStore.show(false, "Error en el servidor");
+          // lack to define logic to pass show errors in FormUser 🚨
+        } else {
+          this.alertMessageStore.show(true, "Poceso exitoso!");
+          this.$router.push(`/${this.path}`);
+          // lack to define logic to pass show alert in TableUser 🚨
+        }
       }
       this.loading = false;
     },
     async setEditItem() {
       if (!this.idEditForm) return;
       const response = await enterpriseApi.read(`?enterprise_id=${this.idEditForm}`);
+      if(response.statusResponse != 200) {
+        this.editItem = {};
+        return;
+      }
       this.editItem = Object.assign(
         {},
         {
           enterpriseId: response.data.id,
           identification: response.data.identification,
           verification_id: response.data.verification_id,
-          business_names: response.data.business_names,
+          names: response.data.names ?? null,
+          surnames: response.data.surnames ?? null,
+          business_name: response.data.business_name ?? null,
           address: response.data.address,
           mobile: response.data.mobile,
           email: response.data.email,
