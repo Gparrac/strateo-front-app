@@ -1,11 +1,10 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
-import AppBar from '@/layouts/AppBar.vue';
 import formsRoute from './Forms';
 const routes = [
   {
     path: '/',
-    component: () => AppBar,
+    component: () => import('@/layouts/AppBar.vue'),
     children: [
         {
           path: '',

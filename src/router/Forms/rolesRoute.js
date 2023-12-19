@@ -2,23 +2,23 @@ import RoleView from '@/views/Forms/RoleView.vue';
 
 const rolesRoute = {
     path: 'roles',
-    component: () => RoleView,
+    component: RoleView,
     children: [
       {
         path: '',
         name: 'Roles',
         idBack:'234',
-        component: () => RoleView,
+        component: RoleView,
       },
       {
         path: 'create',
         name: 'RolesCreate',
-        component: () => RoleView,
+        component: RoleView,
       },
       {
         path: 'edit/:RoleId',
         name: 'RolesEdit',
-        component: () => RoleView,
+        component: RoleView,
       },
       {
         // Redirect /Roles/edit to /Roles if there is no RoleId

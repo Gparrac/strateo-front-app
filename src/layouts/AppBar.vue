@@ -81,47 +81,13 @@ export default {
     user:{},
     toggleSettings: false,
     drawer: false,
-    sections: [
-      // {
-      //   title: "Usuarios",
-      //   value: 1,
-      //   icon: "mdi-account-multiple-plus",
-      //   path: "/users",
-      // },
-      // {
-      //   title: "Roles y permisos",
-      //   value: 2,
-      //   icon: "mdi-account-key",
-      //   path: "/roles",
-      // },
-      // {
-      //   title: "Empresa",
-      //   value: 3,
-      //   icon: "mdi-factory",
-      //   path: "/enterprises",
-      // },
-      // {
-      //   title: "Clientes",
-      //   value: 4,
-      //   icon: "mdi-account-switch",
-      //   path: "/customers",
-      // },
-      // {
-      //   title: "Oficinas",
-      //   value: 5,
-      //   icon: "mdi-lan",
-      //   path: "/offices",
-      // },
-    ],
+    sections: [],
 
     user: null,
   }),
   async mounted() {
     await this.checkAuthUser();
     await this.getFormsAvailable();
-    console.log("currently", this.$router.options.routes);
-    this.$router.removeRoute("roles");
-    console.log("currently", this.$router.options.routes);
   },
   methods: {
     async checkAuthUser() {

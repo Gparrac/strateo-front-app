@@ -3,7 +3,7 @@
     <v-alert
       v-show="alertMessageStore.toggleAlert"
       :type="alertMessageStore.them"
-      :icon="alertMessageStore.kind ? $info : $warning"
+      :icon="alertMessageStore.kind ? 'mdi-check-circle' : 'mdi-block-helper'"
       :text="alertMessageStore.message || 'hola cris'"
       variant="tonal"
       :title="alertMessageStore.kind ? 'Exito' : 'Error'"

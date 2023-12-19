@@ -2,22 +2,22 @@ import EnterpriseView from '@/views/Forms/EnterpriseView.vue';
 
 const enterpriseRoute = {
     path: 'enterprises',
-    component: () => EnterpriseView,
+    component: EnterpriseView,
     children: [
       {
         path: '',
         name: 'Enterprises',
-        component: () => EnterpriseView,
+        component: EnterpriseView,
       },
       {
         path: 'create',
         name: 'EnterprisesCreate',
-        component: () => EnterpriseView,
+        component: EnterpriseView,
       },
       {
         path: 'edit/:RoleId',
         name: 'EnterprisesEdit',
-        component: () => EnterpriseView,
+        component: EnterpriseView,
       },
       {
         // Redirect /enterprises/edit to /enterprises if there is no RoleId
