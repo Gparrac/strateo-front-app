@@ -88,6 +88,7 @@ export default {
           align: "start",
           key: "id",
       },
+      { title: "Tipo de documento", align: "end", key: "type_document" },
       { title: "Identificación", align: "end", key: "identification" },
       { title: "Código de Verificación", align: "end", key: "verification_id" },
       { title: "Nombre de Empresa", align: "end", key: "business_name" },

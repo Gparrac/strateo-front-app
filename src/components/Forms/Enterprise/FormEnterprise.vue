@@ -13,13 +13,65 @@
               <v-card rounded="true" elevation="0">
                 <v-card-text>
                   <v-row>
-                    <v-col cols="12" sm="4">
+                    <v-col cols="12" sm="6">
+                      <v-select
+                        label="Tipo de documento"
+                        v-model="editItem.typeDocument"
+                        item-title="label"
+                        item-value="name"
+                        :items="typesDocument"
+                        :rules="rulesValidation.select"
+                        :loading="loading"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6">
                       <v-text-field
-                        label="NIT"
+                        label="Identificación"
                         v-model="editItem.identification"
                         :rules="rulesValidation.identification"
                         :loading="loading"
-                        :disabled="custom"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+
+                  <!-- Business Name or normal name -->
+                  <v-row v-if="editItem.typeDocument && editItem.typeDocument == 'NIT'">
+                    <v-col cols="12" sm="12">
+                      <v-text-field
+                        label="Nombre de Empresa"
+                        v-model="editItem.business_names"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row v-if="editItem.typeDocument && editItem.typeDocument != 'NIT'">
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Nombre"
+                        v-model="editItem.business_names"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Apellido"
+                        v-model="editItem.business_names"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <!-- Business Name or normal name -->
+
+                  <v-row>
+                    <v-col cols="12" sm="12">
+                      <v-text-field
+                        label="Dirección"
+                        v-model="editItem.address"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -28,25 +80,6 @@
                         v-model="editItem.verification_id"
                         :rules="rulesValidation.identification"
                         :loading="loading"
-                        :disabled="custom"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="4">
-                      <v-text-field
-                        label="Nombre de Empresa"
-                        v-model="editItem.business_names"
-                        :rules="rulesValidation.text"
-                        :loading="loading"
-                        :disabled="custom"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="4">
-                      <v-text-field
-                        label="Dirección"
-                        v-model="editItem.address"
-                        :rules="rulesValidation.text"
-                        :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -55,7 +88,6 @@
                         v-model="editItem.mobile"
                         :rules="rulesValidation.mobile"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -65,7 +97,6 @@
                         placeholder="ejemplo@ejemplo.com"
                         :rules="rulesValidation.email"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -75,7 +106,6 @@
                         placeholder="ejemplo@ejemplo.com"
                         :rules="rulesValidation.emailOptional"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -84,7 +114,6 @@
                         v-model="editItem.postal_code"
                         :rules="rulesValidation.text"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -97,7 +126,6 @@
                         :return-object="true"
                         :rules="rulesValidation.select"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-autocomplete>
                     </v-col>
                   </v-row>
@@ -108,24 +136,39 @@
               <v-card title="Información de la Empresa" variant="outlined" padding="2">
                 <v-card-text>
                   <v-row>
-                    <v-col cols="12" sm="12">
-                      <v-file-input
-                        label="Logo"
-                        v-model="editItem.path_logo"
-                        :rules="rulesValidation.image"
-                        :loading="loading"
-                        :disabled="custom"
-                        accept="image/png, image/jpeg, image/bmp"
-                        prepend-icon="mdi-camera"
-                      ></v-file-input>
+                    <v-col cols="12" sm="6" class="d-flex align-center justify-center">
+                        <v-file-input
+                          label="Logo"
+                          v-model="editItem.path_logo"
+                          :rules="rulesValidation.image"
+                          :loading="loading"
+                          accept="image/png, image/jpeg, image/bmp"
+                          prepend-icon="mdi-camera"
+                          @change="handleImageChange"
+                        ></v-file-input>
                     </v-col>
+                    <v-col cols="12" sm="6">
+                      <div class="d-flex align-center justify-center fill-height" v-if="!editItem.path_logo">
+                        <h2>Sin logo seleccionado</h2>
+                      </div>
+                      <div class="d-flex align-center justify-center fill-height" v-else>
+                        <v-img
+                          max-width="500"
+                          max-height="300"
+                          aspect-ratio="16/9"
+                          cover
+                          :src="getImageUrl(showImageSelected)"
+                        ></v-img>
+                      </div>
+                    </v-col>
+                  </v-row>
+                  <v-row>
                     <v-col cols="12" sm="12">
                       <v-textarea
                         label="Encabezado"
                         v-model="editItem.header"
                         :rules="rulesValidation.text"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-textarea>
                     </v-col>
                     <v-col cols="12" sm="12">
@@ -134,7 +177,6 @@
                         v-model="editItem.footer"
                         :rules="rulesValidation.text"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-textarea>
                     </v-col>
                   </v-row>
@@ -201,10 +243,13 @@ export default {
     // required data
     loading: false,
     editItem: {},
+    errorMessages: [],
     // optional data
     cities: [],
     searchCity: "",
     rulesValidation: RulesValidation,
+    showImageSelected: null,
+    typesDocument: [],
   }),
   async mounted() {
     this.loading = true;
@@ -212,6 +257,7 @@ export default {
       await Promise.all([
         this.setEditItem(),
         this.setCities(),
+        this.setTypesDocument(),
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
@@ -239,6 +285,7 @@ export default {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
+        formData.append("type_document", this.editItem.typeDocument);
         formData.append("identification", this.editItem.identification);
         formData.append("verification_id", this.editItem.verification_id);
         formData.append("business_names", this.editItem.business_names);
@@ -295,6 +342,23 @@ export default {
       const query = name ? `?name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
     },
+    async setTypesDocument() {
+      this.typesDocument = (await petition.get("/type-document-user")).data;
+    },
+    // --------------- Show image --------------- 
+    handleImageChange(event) {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const selectedFile = files[0];
+        this.showImageSelected = selectedFile;
+      }
+    },
+    getImageUrl(file) {
+      if (!file) return '';
+      return URL.createObjectURL(file);
+    },
+    // --------------- Show image --------------- 
+
   },
 };
 </script>
