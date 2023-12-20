@@ -3,7 +3,7 @@
     <v-row justify="center">
       <v-card rounded="3" class="w-100" :loading="loading">
         <v-card-title>
-          <span class="text-h5">{{ title }} </span>
+          <span class="text-h5"> Información General </span>
         </v-card-title>
 
         <!----------------------- FORM --------------------------->
@@ -78,7 +78,6 @@
                       <v-text-field
                         label="Número de Verificación"
                         v-model="editItem.verification_id"
-                        :rules="rulesValidation.identification"
                         :loading="loading"
                       ></v-text-field>
                     </v-col>
@@ -204,7 +203,7 @@
             @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
-            Close
+            Cerrar
           </v-btn>
           <v-btn
             color="blue-darken-1"
@@ -212,7 +211,7 @@
             @click="submitForm"
             :loading="loading"
           >
-            Save
+            Guardar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -233,7 +232,6 @@ const petition = new Petition();
 export default {
   name: "FormEnterprise",
   props: {
-    idEditForm: Number,
     nameTable: String,
     path: String,
 
@@ -250,6 +248,7 @@ export default {
     rulesValidation: RulesValidation,
     showImageSelected: null,
     typesDocument: [],
+    isEditForm:false,
   }),
   async mounted() {
     this.loading = true;
@@ -265,9 +264,6 @@ export default {
     this.loading = false;
   },
   computed: {
-    title() {
-      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
-    },
     ...mapStores(useAlertMessageStore),
   },
   watch: {
@@ -305,8 +301,7 @@ export default {
           formData.append("surnames", this.editItem.surnames);
         }
 
-        if (this.idEditForm) {
-          formData.append("enterprise_id", this.editItem.enterpriseId);
+        if (this.isEditForm) {
           response = await enterpriseApi.update(formData);
         } else {
           response = await enterpriseApi.create(formData);
@@ -323,12 +318,12 @@ export default {
       this.loading = false;
     },
     async setEditItem() {
-      if (!this.idEditForm) return;
-      const response = await enterpriseApi.read(`?enterprise_id=${this.idEditForm}`);
+      const response = await enterpriseApi.read();
       if(response.statusResponse != 200) {
         this.editItem = {};
         return;
       }
+      this.isEditForm = true;
       this.editItem = Object.assign(
         {},
         {
