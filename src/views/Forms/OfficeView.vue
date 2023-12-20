@@ -2,28 +2,28 @@
   <div>
     <h1 class="pb-7">{{ titleView }}</h1>
     <div>
-      <FormUser
+      <FormOffice
         v-if="isForm"
         :idEditForm="idEditForm"
         :nameTable="nameTable"
         :path="path"
       />
-      <TableUser v-else :nameTable="nameTable" :path="path" />
+      <TableOffice v-else :nameTable="nameTable" :path="path" />
     </div>
     <div></div>
   </div>
 </template>
 
 <script>
-import { FormUser, TableUser } from "../../components/Forms/User/index.vue";
+import { FormOffice, TableOffice } from "../../components/Forms/Office/index.vue";
 import { getFormRoute } from "@/utils/routes.js";
 
 export default {
   name: "OfficeView",
   data: () => ({
     titleView: "Parametrización de oficinas",
-    nameTable: "oficinas",
-    path: "users",
+    nameTable: "Oficinas",
+    path: "offices",
     isForm: false,
     idEditForm: null,
   }),
@@ -44,8 +44,8 @@ export default {
   },
 
   components: {
-    FormUser,
-    TableUser,
+    FormOffice,
+    TableOffice,
   },
 };
 </script>
