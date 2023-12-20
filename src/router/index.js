@@ -11,6 +11,11 @@ const routes = [
           name: 'Home',
           component: () => import('@/views/Home.vue'),
         },
+        {
+          path: 'change-password',
+          name: 'changePassword',
+          component: () => import('@/views/auth/ChangePasswordView.vue'),
+        },
         ...formsRoute,
       ],
 

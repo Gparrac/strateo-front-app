@@ -80,7 +80,7 @@
             @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
-            Close
+            Cerrar
           </v-btn>
           <v-btn
             color="blue-darken-1"
@@ -88,7 +88,7 @@
             @click="submitForm"
             :loading="loading"
           >
-            Save
+            Guardar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -187,11 +187,13 @@ export default {
     },
     createSelectsAll() {
       if (!this.idEditForm) {
+        this.editItem.forms = Array(this.forms.length).fill({permissions_id:[]});
         this.editItem.forms = this.forms.map((item) => {
           item.selectAll = false;
           return { form_id: item.id, permissions_id: [] };
         });
       } else {
+
         this.forms.forEach(
           (item, i) =>
             {item.selectAll =
@@ -206,8 +208,7 @@ export default {
     },
     async setForms() {
       this.forms = (await formApi.read()).data;
-      if (!this.idEditForm) this.editItem.forms = Array(this.forms.length).fill({permissions_id:[]});
-
+      console.log('forms',this.forms)
     },
     async setPermissions() {
       this.permissions = (await petition.get("/permissions")).data;

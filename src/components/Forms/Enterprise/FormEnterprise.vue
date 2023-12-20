@@ -204,7 +204,7 @@
             @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
-            Close
+            Cerrar
           </v-btn>
           <v-btn
             color="blue-darken-1"
@@ -212,7 +212,7 @@
             @click="submitForm"
             :loading="loading"
           >
-            Save
+            Guardar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -357,7 +357,7 @@ export default {
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;
     },
-    // --------------- Show image --------------- 
+    // --------------- Show image ---------------
     handleImageChange(event) {
       const files = event.target.files;
       if (files.length > 0) {
@@ -369,7 +369,7 @@ export default {
       if (!file) return '';
       return URL.createObjectURL(file);
     },
-    // --------------- Show image --------------- 
+    // --------------- Show image ---------------
 
   },
 };

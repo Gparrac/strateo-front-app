@@ -1,8 +1,7 @@
 <template>
   <div class="user-settings">
     <v-expand-transition>
-      <v-card v-show="expand" height="100" width="200" class=" ">
-        <v-card-subtitle>{{ email }}</v-card-subtitle>
+      <v-card v-show="expand"  width="250" class="pa-5">
         <v-list>
           <v-list-subheader>Opciones</v-list-subheader>
 
@@ -12,6 +11,14 @@
             </template>
             <v-list-item-title>
               <div @click="signOut" v-text="'Cerrar sesión'"></div>
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item>
+            <template v-slot:prepend>
+              <v-icon icon="mdi-key-change"></v-icon>
+            </template>
+            <v-list-item-title>
+              <p @click="$router.push('change-password')" style="white-space: normal;" v-text="'Cambiar contraseña'"></p>
             </v-list-item-title>
           </v-list-item>
         </v-list>
@@ -26,11 +33,13 @@ export default {
   name: "ModalUserSettings",
   props: {
     expand: Boolean,
-    email: String
+
+
   },
   methods: {
     async signOut() {
       await authUser.logout();
+      localStorage.clear();
       this.$router.push("sign-in");
     },
   },
@@ -40,5 +49,6 @@ export default {
 .user-settings {
   position: absolute;
   right: 0;
+  z-index: 10000000;
 }
 </style>

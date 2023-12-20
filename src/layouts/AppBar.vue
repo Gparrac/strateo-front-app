@@ -14,9 +14,16 @@
         </template>
 
         <v-spacer></v-spacer>
-
+        <div class="d-flex flex-column">
+          <span class="d-block text-subtitle-1 text-right">{{
+            this.user?.name
+          }}</span>
+          <span
+            class="d-block text-subtitle-2 text-grey-lighten-1 text-right"
+            >{{ this.user?.email }}</span
+          >
+        </div>
         <v-btn icon @click="() => (toggleSettings = !toggleSettings)">
-          <span>{{ this.user?.name }}</span>
           <v-icon>mdi-account-circle</v-icon>
         </v-btn>
       </v-app-bar>
@@ -55,7 +62,10 @@
         style="min-height: 100vh"
       >
         <alert-message></alert-message>
-        <ModalUserSettings :email="user?.email" :expand="toggleSettings"></ModalUserSettings>
+        <ModalUserSettings
+          :email="user?.email"
+          :expand="toggleSettings"
+        ></ModalUserSettings>
         <div class="w-100 pa-16">
           <router-view />
         </div>
@@ -78,16 +88,15 @@ export default {
     AlertMessage,
   },
   data: () => ({
-    user:{},
+    user: {},
     toggleSettings: false,
     drawer: false,
     sections: [],
-
-    user: null,
   }),
   async mounted() {
     await this.checkAuthUser();
     await this.getFormsAvailable();
+    this.getUser();
   },
   methods: {
     async checkAuthUser() {
@@ -107,9 +116,10 @@ export default {
     async getUser() {
       const savedUser = localStorage.getItem("user");
 
+      console.log("temp", savedUser);
+      this.user = JSON.parse(savedUser);
       if (savedUser) {
         // Actualizar el estado con los datos recuperados
-        this.user = JSON.parse(savedUser);
       }
     },
   },

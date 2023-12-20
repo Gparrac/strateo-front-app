@@ -108,16 +108,13 @@ export default {
           }
           return;
         }
-        console.log('try',response)
+        console.log('try',response.user)
         localStorage.setItem('auth-token', response.data.access_token);
-        localStorage.setItem('user', response.data.user);
-
-        const user = await authUser.user(formData);
-        console.log(user);
+        localStorage.setItem('user', JSON.stringify(response.user));
         this.$router.push('/');
       }
       this.loader = false;
-    }
+     }
   },
 };
 
