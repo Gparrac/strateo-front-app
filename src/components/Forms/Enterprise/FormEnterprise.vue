@@ -147,17 +147,17 @@
                         ></v-file-input>
                     </v-col>
                     <v-col cols="12" sm="6">
-                      <div class="d-flex align-center justify-center fill-height" v-if="!editItem.path_logo">
+                      <div class="d-flex align-center justify-center fill-height" v-if="!editItem.path_logo && !showImageSelected">
                         <h2>Sin logo seleccionado</h2>
                       </div>
-                      <div class="d-flex align-center justify-center fill-height" v-else>
-                        <v-img
-                          max-width="500"
-                          max-height="300"
-                          aspect-ratio="16/9"
-                          cover
-                          :src="getImageUrl(showImageSelected)"
-                        ></v-img>
+                        <div class="d-flex align-center justify-center fill-height" v-else>
+                          <v-img
+                            max-width="500"
+                            max-height="300"
+                            aspect-ratio="16/9"
+                            cover
+                            :src="getImageUrl(showImageSelected)"
+                          ></v-img>
                       </div>
                     </v-col>
                   </v-row>
@@ -339,11 +339,11 @@ export default {
           email2: response.data.email2,
           postal_code: response.data.postal_code,
           city_id: response.data.city_id,
-          path_logo: response.data.path_logo,
           header: response.data.header,
           footer: response.data.footer,
         }
       );
+      this.showImageSelected = response.data.path_logo;
     },
     async setCities(name = null) {
       const query = name ? `?name=${name}` : "";
@@ -362,6 +362,7 @@ export default {
     },
     getImageUrl(file) {
       if (!file) return '';
+      if(typeof file === 'string') return file;
       return URL.createObjectURL(file);
     },
     // --------------- Show image --------------- 
