@@ -18,4 +18,8 @@ export default class AuthUser
   logout(){
     return this.petition.get(`${this.prefix}/logout`,'',true);
   }
+
+  changePassword(body){
+    return this.petition.post(`${this.prefix}/change-password`, body, true);
+  }
 }

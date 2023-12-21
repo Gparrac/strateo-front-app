@@ -49,6 +49,9 @@
             ></v-text-field>
           </v-col>
         </v-row>
+        <div class="d-flex justify-end">
+          <v-btn variant="text" class="text-right text-orange text-body-2" size="sm" @click="$router.push('recovery-password')">Olvidaste tu contraseña?</v-btn>
+        </div>
       </v-card-text>
       <v-card-actions>
         <v-btn color="orange" @click="logIn"> Iniciar </v-btn>
@@ -61,6 +64,7 @@
 import {RulesValidation} from '@/utils/validations';
 import Petition from '@/services/PetitionStructure/Petition';
 import AuthUser from '@/services/auth/AuthUser';
+
 
 const petition = new Petition();
 const authUser = new AuthUser();

@@ -43,10 +43,10 @@
 </template>
 
 <script>
-  import UserApi from "@/services/Forms/UserApi.js";
+  import AuthApi from "@/services/auth/AuthUser";
   import { RulesValidation } from "@/utils/validations";
 
-  const userApi = new UserApi();
+  const authApi = new AuthApi();
 export default {
   data() {
     return {
@@ -85,13 +85,13 @@ export default {
         let response = {};
         formData.append("old_password", this.editItem.typeDocument);
         formData.append("new_password", this.editItem.identification);
-        response = await userApi.update(formData);
+        response = await authApi.changePassword(formData);
         if (response.error) {
           this.alertMessageStore.show(false, "Error en el servidor");
           // lack to define logic to pass show errors in FormUser 🚨
         } else {
           this.alertMessageStore.show(true, "Poceso exitoso!");
-          this.$router.push(`/${this.path}`);
+          this.$router.push(`/`);
           // lack to define logic to pass show alert in TableUser 🚨
         }
       }

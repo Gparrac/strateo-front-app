@@ -23,8 +23,13 @@ const routes = [
   {
     path: '/sign-in',
     component: () => import('@/views/auth/LoginView.vue'),
-    name: 'SignIn'
+    name: 'SignIn',
   },
+  {
+    path: '/recovery-password',
+    name: 'RecoveryPassword',
+    component: () => import('@/views/auth/RecoveryPassword.vue'),
+  }
 ]
 
 const router = createRouter({

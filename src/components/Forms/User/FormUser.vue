@@ -23,37 +23,47 @@
                         :rules="rulesValidation.select"
                         :loading="loading"
                         :disabled="custom"
-
+                        @change="handleVerificationNumber"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
-                        label="Documento"
+                        label="Número de documento"
                         v-model="editItem.identification"
                         :rules="rulesValidation.identification"
                         :loading="loading"
                         :disabled="custom"
-
+                        @change="handleVerificationNumber"
+                        :suffix="verificationNit"
                       ></v-text-field>
                     </v-col>
+                    <template v-if="editItem.typeDocument != 'NIT'">
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          label="Nombres"
+                          v-model="editItem.names"
+                          :rules="rulesValidation.text"
+                          :loading="loading"
+                          :disabled="custom"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          label="Apellidos"
+                          v-model="editItem.surnames"
+                          :rules="rulesValidation.text"
+                          :loading="loading"
+                          :disabled="custom"
+                        ></v-text-field>
+                      </v-col>
+                    </template>
                     <v-col cols="12" sm="6">
                       <v-text-field
-                        label="Nombres"
-                        v-model="editItem.names"
+                        label="Nombre de empresa"
+                        v-model="editItem.business"
                         :rules="rulesValidation.text"
                         :loading="loading"
                         :disabled="custom"
-
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-text-field
-                        label="Apellidos"
-                        v-model="editItem.surnames"
-                        :rules="rulesValidation.text"
-                        :loading="loading"
-                        :disabled="custom"
-
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -64,7 +74,6 @@
                         :rules="rulesValidation.email"
                         :loading="loading"
                         :disabled="custom"
-
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -74,7 +83,6 @@
                         :rules="rulesValidation.mobile"
                         :loading="loading"
                         :disabled="custom"
-
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -88,7 +96,6 @@
                         :rules="rulesValidation.select"
                         :loading="loading"
                         :disabled="custom"
-
                       ></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -101,9 +108,17 @@
                         :rules="rulesValidation.select"
                         :loading="loading"
                         :disabled="custom"
-
                         multiple
                       ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Dirección"
+                        v-model="editItem.address"
+                        :rules="rulesValidation.text"
+                        :loading="loading"
+                        :disabled="custom"
+                      ></v-text-field>
                     </v-col>
                   </v-row>
                 </v-card-text>
@@ -120,7 +135,6 @@
                         :rules="rulesValidation.text"
                         :loading="loading"
                         :disabled="custom"
-
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -133,7 +147,7 @@
                         :rules="rulesValidation.select"
                         :loading="loading"
                         :disabled="custom"
-             ></v-select>
+                      ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-select
@@ -145,7 +159,6 @@
                         :rules="rulesValidation.select"
                         :loading="loading"
                         :disabled="custom"
-
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -156,7 +169,6 @@
                         :rules="passwordRule"
                         :loading="loading"
                         :disabled="custom"
-
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -167,7 +179,6 @@
                         :rules="confirmPasswordRule"
                         :loading="loading"
                         :disabled="custom"
-
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -203,7 +214,7 @@
             @click="submitForm"
             :loading="loading"
           >
-           Guardar
+            Guardar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -231,11 +242,11 @@ export default {
     idEditForm: Number,
     nameTable: String,
     path: String,
-
   },
   components: {},
   data: () => ({
     // required data
+    verificationNit: "",
     loading: false,
     editItem: {},
     // optional data
@@ -293,7 +304,9 @@ export default {
           ];
     },
     title() {
-      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
+      return this.idEditForm
+        ? `Edición de ${this.nameTable}`
+        : `Creación de ${this.nameTable}`;
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -305,6 +318,47 @@ export default {
     },
   },
   methods: {
+    handleVerificationNumber() {
+      console.log('message',this.editItem.typeDocument)
+      if (this.editItem.typeDocument == "NIT") {
+        const strNit = this.editItem.identification.toString();
+        //Vector de numeros primos
+        let iNrosPrimos = new Array(
+          3,
+          7,
+          13,
+          17,
+          19,
+          23,
+          29,
+          37,
+          41,
+          43,
+          47,
+          53,
+          59,
+          67,
+          71
+        );
+        //Variable para realizar las operaciones
+        let iOperacion = 0;
+        //ciclo para multiplicar cada uno de los digitos del NIT con el vector
+        for (let i = 0; i < strNit.length; i++) {
+          iOperacion +=
+            parseInt(strNit.substr(strNit.length - (i + 1), 1)) *
+            iNrosPrimos[i];
+        }
+        //Sacar el residuo de la operacion
+        iOperacion %= 11;
+        if (iOperacion == 0 || iOperacion == 1) {
+          this.verificationNit = ' - ' + iOperacion;
+        } else {
+          this.verificationNit = ' - ' + (11 - iOperacion);
+        }
+      } else {
+        this.verificationNit = "";
+      }
+    },
     async submitForm() {
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
@@ -314,19 +368,18 @@ export default {
         let response = {};
         formData.append("type_document", this.editItem.typeDocument);
         formData.append("identification", this.editItem.identification);
-        formData.append("names", this.editItem.names);
-        formData.append("surnames", this.editItem.surnames);
+        if(this.editItem.names) formData.append("names", this.editItem.names);
+        if(this.editItem.surnames) formData.append("surnames", this.editItem.surnames);
+        if(this.editItem.business) formData.append("business_name", this.editItem.business);
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
         formData.append("city_id", this.editItem.city.id);
         formData.append("status", this.editItem.status);
         formData.append("role_id", this.editItem.role.id);
-        this.editItem.offices.forEach(item => {
-          formData.append(
-          "offices_id[]",item.id)
+        this.editItem.offices.forEach((item) => {
+          formData.append("offices_id[]", item.id);
         });
-
 
         formData.append("name", this.editItem.name);
 
@@ -376,18 +429,20 @@ export default {
           identification: response.data.third.identification,
           names: response.data.third.names,
           surnames: response.data.third.surnames,
-          address: response.data.third.address,
+          address: response.data.third.address || '',
           mobile: response.data.third.mobile,
           email: response.data.third.email,
           city: response.data.third.city,
           status: response.data.status,
           role: response.data.role,
+          business: response.data.business_name,
           offices: response.data.offices.map((item) => ({
             id: item.id,
             name: item.name,
           })),
         }
       );
+      this.handleVerificationNumber();
     },
   },
 };

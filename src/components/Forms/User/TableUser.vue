@@ -116,6 +116,7 @@ export default {
         if (!response.error) {
           await this.fetchScores();
           this.alertMessageStore.show(true, `${this.nameTable} eliminados exitosamente`);
+          this.selectedItems = [];
         } else {
           this.alertMessageStore.show(false, "Error en el servidor");
         }

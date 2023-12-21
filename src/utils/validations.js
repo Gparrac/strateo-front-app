@@ -7,7 +7,7 @@ export const RulesValidation = {
   identification: [
     (value) => !!value || "Identificación es requerida",
     (value) =>
-      (value && value.length >= 7 && value.length <= 10) ||
+      (value && value.length >= 7 && value.length <= 12) ||
       "Identificación tiene que ser entre 7 y 10 caracteres",
   ],
   email: [
