@@ -31,9 +31,7 @@
 <script>
 import {RulesValidation} from '@/utils/validations';
 
-import AuthUser from '@/services/auth/AuthUser';
 
-const authUser = new AuthUser();
 
 export default {
   name: "LoginView",
