@@ -122,13 +122,11 @@ export default {
         });
     },
     async deleteItems(data) {
-      console.log("entrando delete!");
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
         const params = new URLSearchParams({})
         this.selectedItems.forEach(item => params.append(`${this.keyQueryDelete}[]`, item.id));
         const response = await roleApi.delete(`?${params.toString()}`);
-        console.log(response);
         if (!response.error) {
           await this.fetchScores();
           this.alertMessageStore.show(true, `${this.nameTable} eliminados exitosamente`);

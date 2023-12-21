@@ -1,7 +1,17 @@
 <template>
   <div>
     <div class="d-flex pb-5">
-      <h2 class="flex-grow-1">Registros actuales</h2>
+      <h2 class="flex-grow-1 d-flex flex-column">
+        Registros actuales
+        <div>
+          <v-chip variant="tonal" class="ma-1" label :color="'primary'">
+            Inactivo
+          </v-chip>
+          <v-chip variant="tonal" class="ma-1" label color="orange">
+            Activo
+          </v-chip>
+        </div>
+      </h2>
       <div>
         <v-btn
           icon="mdi-plus"
@@ -51,42 +61,47 @@
         </div>
       </template>
       <template v-slot:[`item.status`]="{ item }">
-                <div>
-                    <v-chip variant="tonal" class="ma-1" label :color="item.status == 'A' ? 'orange' : 'primary'">
-                      {{item.status}}
-                    </v-chip>
-                </div>
-            </template>
+        <div>
+          <v-chip
+            variant="tonal"
+            class="ma-1"
+            label
+            :color="item.status == 'A' ? 'orange' : 'primary'"
+          >
+            {{ item.status }}
+          </v-chip>
+        </div>
+      </template>
     </v-data-table>
   </div>
 </template>
 
 <script>
-import OfficeApi from '@/services/Forms/OfficeApi';
+import OfficeApi from "@/services/Forms/OfficeApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 const officeApi = new OfficeApi();
 export default {
   name: "TableOffice",
-  props:{
+  props: {
     nameTable: String,
-    path:String,
+    path: String,
   },
   data: () => ({
     //required data
     keyQueryDelete: "office_id",
-    mainKeyDelete:['name'],
-    secondKeyDelete:['address'],
+    mainKeyDelete: ["name"],
+    secondKeyDelete: ["address"],
     selectedItems: [],
     records: [],
     toggleDelete: false,
     //optional data
     headers: [
       {
-          title: "ID",
-          align: "start",
-          key: "id",
+        title: "ID",
+        align: "start",
+        key: "id",
       },
       { title: "Nombre", align: "end", key: "name" },
       { title: "Dirección", align: "end", key: "address" },
@@ -102,21 +117,26 @@ export default {
   methods: {
     async fetchScores() {
       const respose = await officeApi.read();
-      if (respose.statusResponse == 200){
+      if (respose.statusResponse == 200) {
         this.records = respose.data.data;
-      } 
+      }
     },
     async deleteItems(data) {
       this.toggleDelete = false;
-      if(!data.confirm && this.selectedItems.length == 0) return;
-      console.log("this.selectedItems: ", this.selectedItems);
-      const response = this.selectedItems.length == 1 ?
-      await officeApi.delete(`?office_id=${this.selectedItems[0].id}`):
-      await officeApi.delete(`?office_ids=[${this.selectedItems.map(element => element.id)}]`);
+      if (!data.confirm && this.selectedItems.length == 0) return;
+      const response =
+        this.selectedItems.length == 1
+          ? await officeApi.delete(`?office_id=${this.selectedItems[0].id}`)
+          : await officeApi.delete(
+              `?office_ids=[${this.selectedItems.map((element) => element.id)}]`
+            );
 
       if (response.statusResponse == 200) {
         await this.fetchScores();
-        this.alertMessageStore.show(true, `${this.nameTable} eliminados exitosamente`);
+        this.alertMessageStore.show(
+          true,
+          `${this.nameTable} eliminados exitosamente`
+        );
       } else {
         this.alertMessageStore.show(false, "Error en el servidor");
       }

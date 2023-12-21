@@ -1,8 +1,19 @@
 <template>
   <div>
     <div class="d-flex pb-5">
-      <h2 class="flex-grow-1">Registros actuales</h2>
-      <div>
+      <h2 class="flex-grow-1 d-flex flex-column">
+        Registros actuales
+        <div>
+          <v-chip variant="tonal" class="ma-1" label :color="'primary'">
+            Inactivo
+          </v-chip>
+          <v-chip variant="tonal" class="ma-1" label color="orange">
+            Activo
+          </v-chip>
+        </div>
+      </h2>
+
+      <div class="d-flex align-end">
         <v-btn
           icon="mdi-plus"
           class="mr-3"
@@ -51,12 +62,17 @@
         </div>
       </template>
       <template v-slot:[`item.status`]="{ item }">
-                <div>
-                    <v-chip variant="tonal" class="ma-1" label :color="item.status == 'A' ? 'orange' : 'primary'">
-                      {{item.status}}
-                    </v-chip>
-                </div>
-            </template>
+        <div>
+          <v-chip
+            variant="tonal"
+            class="ma-1"
+            label
+            :color="item.status == 'A' ? 'orange' : 'primary'"
+          >
+            {{ item.status }}
+          </v-chip>
+        </div>
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -69,15 +85,15 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 const userApi = new UserApi();
 export default {
   name: "TableUser",
-  props:{
+  props: {
     nameTable: String,
-    path:String,
+    path: String,
   },
   data: () => ({
     //required data
     keyQueryDelete: "users_id",
-    mainKeyDelete:['name'],
-    secondKeyDelete:['third', 'email'],
+    mainKeyDelete: ["name"],
+    secondKeyDelete: ["third", "email"],
     selectedItems: [],
     records: [],
     toggleDelete: false,
@@ -106,16 +122,19 @@ export default {
       if (respose.data) this.records = respose.data;
     },
     async deleteItems(data) {
-      console.log("entrando delete!");
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
-        const params = new URLSearchParams({})
-        this.selectedItems.forEach(item => params.append(`${this.keyQueryDelete}[]`, item.id));
+        const params = new URLSearchParams({});
+        this.selectedItems.forEach((item) =>
+          params.append(`${this.keyQueryDelete}[]`, item.id)
+        );
         const response = await userApi.delete(`?${params.toString()}`);
-        console.log(response);
         if (!response.error) {
           await this.fetchScores();
-          this.alertMessageStore.show(true, `${this.nameTable} eliminados exitosamente`);
+          this.alertMessageStore.show(
+            true,
+            `${this.nameTable} eliminados exitosamente`
+          );
           this.selectedItems = [];
         } else {
           this.alertMessageStore.show(false, "Error en el servidor");

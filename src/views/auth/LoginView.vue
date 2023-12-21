@@ -1,25 +1,27 @@
 <template>
   <v-form class="d-flex justify-center align-center h-screen" ref="form">
     <v-card width="512" :loading="loader">
-      <v-card-title class="text-h3 pt-5 text-center"> Inicio de sesión </v-card-title>
+      <v-card-title class="text-h3 pt-5 text-center">
+        Inicio de sesión
+      </v-card-title>
 
       <v-card-text>
-
         <v-row>
           <v-col cols="12">
             <v-switch
-          v-model="typeAuth"
-          :label="
-            'Ingreso por ' + (typeAuth ? 'correo' : 'número de documento')
-          "
-          :color="typeAuth ? 'orange' : 'primary'"
-        ></v-switch>
+              v-model="typeAuth"
+              :label="
+                'Ingreso por ' + (typeAuth ? 'correo' : 'número de documento')
+              "
+              :color="typeAuth ? 'orange' : 'primary'"
+            ></v-switch>
           </v-col>
           <v-col cols="12" v-if="typeAuth">
             <v-text-field
+              :maxlength="rulesValidation.email.maxLength"
               label="Correo"
               v-model="form.email"
-              :rules="rulesValidation.email"
+              :rules="rulesValidation.email.rules"
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" v-if="!typeAuth">
@@ -29,28 +31,36 @@
               v-model="form.typesDocument"
               item-title="label"
               item-value="name"
-              :rules="rulesValidation.select"
+              :rules="rulesValidation.select.rules"
             ></v-select>
           </v-col>
           <v-col cols="12" sm="6" v-if="!typeAuth">
             <v-text-field
+              :maxlength="rulesValidation.identification.maxLength"
               label="Identificación"
               v-model="form.identification"
-              :rules="rulesValidation.identification"
+              :rules="rulesValidation.identification.rules"
             >
             </v-text-field>
           </v-col>
           <v-col cols="12">
             <v-text-field
-              label="password"
+              :maxlength="rulesValidation.password.maxLength"
+              label="Contraseña"
               type="password"
-              :rules="rulesValidation.password"
+              :rules="rulesValidation.password.rules"
               v-model="form.password"
             ></v-text-field>
           </v-col>
         </v-row>
         <div class="d-flex justify-end">
-          <v-btn variant="text" class="text-right text-orange text-body-2" size="sm" @click="$router.push('recovery-password')">Olvidaste tu contraseña?</v-btn>
+          <v-btn
+            variant="text"
+            class="text-right text-orange text-body-2"
+            size="sm"
+            @click="$router.push('recovery-password')"
+            >Olvidaste tu contraseña?</v-btn
+          >
         </div>
       </v-card-text>
       <v-card-actions>
@@ -61,10 +71,9 @@
 </template>
 
 <script>
-import {RulesValidation} from '@/utils/validations';
-import Petition from '@/services/PetitionStructure/Petition';
-import AuthUser from '@/services/auth/AuthUser';
-
+import { RulesValidation } from "@/utils/validations";
+import Petition from "@/services/PetitionStructure/Petition";
+import AuthUser from "@/services/auth/AuthUser";
 
 const petition = new Petition();
 const authUser = new AuthUser();
@@ -76,14 +85,14 @@ export default {
     form: {},
     typesDocument: [],
     loader: false,
-    rulesValidation: RulesValidation
+    rulesValidation: RulesValidation,
   }),
-  mounted(){
+  mounted() {
     this.getTypeDocument();
   },
   methods: {
-    async getTypeDocument(){
-      const data = await petition.get('/type-document-user');
+    async getTypeDocument() {
+      const data = await petition.get("/type-document-user");
       this.typesDocument = data.data;
     },
 
@@ -92,7 +101,7 @@ export default {
       const { valid } = await this.$refs.form.validate();
       if (valid) {
         const formData = new FormData();
-        if(!this.typeAuth) {
+        if (!this.typeAuth) {
           formData.append("type_document", this.form.typesDocument);
           formData.append("identification", this.form.identification);
         } else {
@@ -101,25 +110,23 @@ export default {
         formData.append("password", this.form.password);
         const response = await authUser.login(formData);
 
-        if(response.statusResponse != 200){
+        if (response.statusResponse != 200) {
           var currentUrl = new URL(window.location.href);
-          var errorParamExists = currentUrl.searchParams.has('error');
+          var errorParamExists = currentUrl.searchParams.has("error");
           if (!errorParamExists) {
-              currentUrl.searchParams.set('error', 'true');
-              window.location.href = currentUrl.toString();
+            currentUrl.searchParams.set("error", "true");
+            window.location.href = currentUrl.toString();
           } else {
-              window.location.reload(true);
+            window.location.reload(true);
           }
           return;
         }
-        console.log('try',response.user)
-        localStorage.setItem('auth-token', response.data.access_token);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        this.$router.push('/');
+        localStorage.setItem("auth-token", response.data.access_token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        this.$router.push("/");
       }
       this.loader = false;
-     }
+    },
   },
 };
-
 </script>

@@ -32,7 +32,6 @@ const rolesRoute = {
       },
     ],
     beforeEnter(to, from, next) {
-      console.log('data',to)
       next();
         }
 };

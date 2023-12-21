@@ -20,38 +20,39 @@
                         item-title="label"
                         item-value="name"
                         :items="typesDocument"
-                        :rules="rulesValidation.select"
+                        :rules="rulesValidation.select.rules"
                         :loading="loading"
                         :disabled="custom"
-                        @change="handleVerificationNumber"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
+                        :maxlength="rulesValidation.identification.maxLength"
                         label="Número de documento"
                         v-model="editItem.identification"
-                        :rules="rulesValidation.identification"
+                        :rules="rulesValidation.identification.rules"
                         :loading="loading"
                         :disabled="custom"
-                        @change="handleVerificationNumber"
-                        :suffix="verificationNit"
+                        :suffix="verificationNitNumber"
                       ></v-text-field>
                     </v-col>
                     <template v-if="editItem.typeDocument != 'NIT'">
                       <v-col cols="12" sm="6">
                         <v-text-field
+                          :maxlength="rulesValidation.text.maxLength"
                           label="Nombres"
                           v-model="editItem.names"
-                          :rules="rulesValidation.text"
+                          :rules="rulesValidation.text.rules"
                           :loading="loading"
                           :disabled="custom"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6">
                         <v-text-field
+                          :maxlength="rulesValidation.text.maxLength"
                           label="Apellidos"
                           v-model="editItem.surnames"
-                          :rules="rulesValidation.text"
+                          :rules="rulesValidation.text.rules"
                           :loading="loading"
                           :disabled="custom"
                         ></v-text-field>
@@ -59,28 +60,31 @@
                     </template>
                     <v-col cols="12" sm="6">
                       <v-text-field
+                        :maxlength="rulesValidation.text.maxLength"
                         label="Nombre de empresa"
                         v-model="editItem.business"
-                        :rules="rulesValidation.text"
+                        :rules="rulesValidation.text.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
+                        :maxlength="rulesValidation.email.maxLength"
                         label="Email"
                         v-model="editItem.email"
                         placeholder="johndoe@gmail.com"
-                        :rules="rulesValidation.email"
+                        :rules="rulesValidation.email.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
+                        :maxlength="rulesValidation.mobile.maxLength"
                         label="Telefono"
                         v-model="editItem.mobile"
-                        :rules="rulesValidation.mobile"
+                        :rules="rulesValidation.mobile.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-text-field>
@@ -93,7 +97,7 @@
                         v-model:search="searchCity"
                         item-title="name"
                         :return-object="true"
-                        :rules="rulesValidation.select"
+                        :rules="rulesValidation.select.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-autocomplete>
@@ -105,7 +109,7 @@
                         v-model="editItem.offices"
                         item-title="name"
                         :return-object="true"
-                        :rules="rulesValidation.select"
+                        :rules="rulesValidation.select.rules"
                         :loading="loading"
                         :disabled="custom"
                         multiple
@@ -113,9 +117,10 @@
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
+                        :maxlength="rulesValidation.text.maxLength"
                         label="Dirección"
                         v-model="editItem.address"
-                        :rules="rulesValidation.text"
+                        :rules="rulesValidation.text.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-text-field>
@@ -130,9 +135,10 @@
                   <v-row>
                     <v-col cols="12" sm="12">
                       <v-text-field
+                        :maxlength="rulesValidation.text.maxLength"
                         label="Nombre de usuario"
                         v-model="editItem.name"
-                        :rules="rulesValidation.text"
+                        :rules="rulesValidation.text.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-text-field>
@@ -144,7 +150,7 @@
                         v-model="editItem.status"
                         item-title="label"
                         item-value="name"
-                        :rules="rulesValidation.select"
+                        :rules="rulesValidation.select.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-select>
@@ -156,13 +162,14 @@
                         v-model="editItem.role"
                         item-title="name"
                         :return-object="true"
-                        :rules="rulesValidation.select"
+                        :rules="rulesValidation.select.rules"
                         :loading="loading"
                         :disabled="custom"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
+                        :maxlength="rulesValidation.password.maxLength"
                         label="Contraseña"
                         type="password"
                         v-model="editItem.password"
@@ -173,6 +180,7 @@
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
+                        :maxlength="rulesValidation.password.maxLength"
                         label="Confirmar contraseña"
                         type="password"
                         v-model="editItem.confirmPassword"
@@ -230,6 +238,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import OfficeApi from "@/services/Forms/OfficeApi";
+import { castNit } from "@/utils/cast";
 
 const userApi = new UserApi();
 const roleApi = new RoleApi();
@@ -246,7 +255,6 @@ export default {
   components: {},
   data: () => ({
     // required data
-    verificationNit: "",
     loading: false,
     editItem: {},
     // optional data
@@ -279,6 +287,14 @@ export default {
     this.loading = false;
   },
   computed: {
+    verificationNitNumber() {
+      return this.editItem.typeDocument &&
+        this.editItem.typeDocument == "NIT" &&
+        this.editItem.identification &&
+        this.editItem.identification.length > 0
+        ? " - " + castNit(this.editItem.identification)
+        : "";
+    },
     passwordRule() {
       return !this.idEditForm
         ? [
@@ -318,47 +334,6 @@ export default {
     },
   },
   methods: {
-    handleVerificationNumber() {
-      console.log('message',this.editItem.typeDocument)
-      if (this.editItem.typeDocument == "NIT") {
-        const strNit = this.editItem.identification.toString();
-        //Vector de numeros primos
-        let iNrosPrimos = new Array(
-          3,
-          7,
-          13,
-          17,
-          19,
-          23,
-          29,
-          37,
-          41,
-          43,
-          47,
-          53,
-          59,
-          67,
-          71
-        );
-        //Variable para realizar las operaciones
-        let iOperacion = 0;
-        //ciclo para multiplicar cada uno de los digitos del NIT con el vector
-        for (let i = 0; i < strNit.length; i++) {
-          iOperacion +=
-            parseInt(strNit.substr(strNit.length - (i + 1), 1)) *
-            iNrosPrimos[i];
-        }
-        //Sacar el residuo de la operacion
-        iOperacion %= 11;
-        if (iOperacion == 0 || iOperacion == 1) {
-          this.verificationNit = ' - ' + iOperacion;
-        } else {
-          this.verificationNit = ' - ' + (11 - iOperacion);
-        }
-      } else {
-        this.verificationNit = "";
-      }
-    },
     async submitForm() {
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
@@ -368,9 +343,11 @@ export default {
         let response = {};
         formData.append("type_document", this.editItem.typeDocument);
         formData.append("identification", this.editItem.identification);
-        if(this.editItem.names) formData.append("names", this.editItem.names);
-        if(this.editItem.surnames) formData.append("surnames", this.editItem.surnames);
-        if(this.editItem.business) formData.append("business_name", this.editItem.business);
+        if (this.editItem.names) formData.append("names", this.editItem.names);
+        if (this.editItem.surnames)
+          formData.append("surnames", this.editItem.surnames);
+        if (this.editItem.business)
+          formData.append("business_name", this.editItem.business);
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
@@ -411,7 +388,6 @@ export default {
     },
     async setOffices() {
       this.offices = (await officeApi.read("?format=short")).data;
-      console.log("typeDocument", this.offices);
     },
     async setCities(name = null) {
       const query = name ? `?name=${name}` : "";
@@ -429,7 +405,7 @@ export default {
           identification: response.data.third.identification,
           names: response.data.third.names,
           surnames: response.data.third.surnames,
-          address: response.data.third.address || '',
+          address: response.data.third.address || "",
           mobile: response.data.third.mobile,
           email: response.data.third.email,
           city: response.data.third.city,
@@ -442,7 +418,6 @@ export default {
           })),
         }
       );
-      this.handleVerificationNumber();
     },
   },
 };

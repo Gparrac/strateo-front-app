@@ -11,25 +11,28 @@
           <v-row>
             <v-col cols="12" sm="6">
               <v-text-field
+                :maxlength="rulesValidation.text.maxLength"
                 label="Nombre"
                 v-model="editItem.name"
-                :rules="rulesValidation.text"
+                :rules="rulesValidation.text.rules"
                 :loading="loading"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
               <v-text-field
+                :maxlength="rulesValidation.mobile.maxLength"
                 label="Teléfono"
                 v-model="editItem.phone"
-                :rules="rulesValidation.mobile"
+                :rules="rulesValidation.mobile.rules"
                 :loading="loading"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="12">
               <v-text-field
+                :maxlength="rulesValidation.text.maxLength"
                 label="Dirección"
                 v-model="editItem.address"
-                :rules="rulesValidation.text"
+                :rules="rulesValidation.text.rules"
                 :loading="loading"
               ></v-text-field>
             </v-col>
@@ -41,7 +44,7 @@
                 v-model:search="searchCity"
                 item-title="name"
                 item-value="id"
-                :rules="rulesValidation.select"
+                :rules="rulesValidation.select.rules"
                 :loading="loading"
               ></v-autocomplete>
             </v-col>
@@ -52,11 +55,10 @@
                 v-model="editItem.status"
                 item-title="label"
                 item-value="name"
-                :rules="rulesValidation.select"
+                :rules="rulesValidation.select.rules"
                 :loading="loading"
               ></v-select>
             </v-col>
-            
           </v-row>
         </v-card-text>
         <!----------------------- FORM --------------------------->
@@ -129,10 +131,7 @@ export default {
   async mounted() {
     this.loading = true;
     try {
-      await Promise.all([
-        this.setEditItem(),
-        this.setCities(),
-      ]);
+      await Promise.all([this.setEditItem(), this.setCities()]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -140,7 +139,9 @@ export default {
   },
   computed: {
     title() {
-      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
+      return this.idEditForm
+        ? `Edición de ${this.nameTable}`
+        : `Creación de ${this.nameTable}`;
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -185,7 +186,7 @@ export default {
     async setEditItem() {
       if (!this.idEditForm) return;
       const response = await officeApi.read(`?office_id=${this.idEditForm}`);
-      if(response.statusResponse != 200) {
+      if (response.statusResponse != 200) {
         this.editItem = {};
         return;
       }

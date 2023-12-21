@@ -110,13 +110,10 @@ export default {
       const response = await formApi.read("?format=routes-available");
       if (response.data) {
         this.sections = response.data;
-        console.log("llegando", this.items);
       }
     },
     async getUser() {
       const savedUser = localStorage.getItem("user");
-
-      console.log("temp", savedUser);
       this.user = JSON.parse(savedUser);
       if (savedUser) {
         // Actualizar el estado con los datos recuperados

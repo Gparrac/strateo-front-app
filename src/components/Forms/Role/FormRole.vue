@@ -13,7 +13,7 @@
               <v-text-field
                 label="Nombre"
                 v-model="editItem.name"
-                :rules="rulesValidation.text"
+                :rules="rulesValidation.text.rules"
                 :loading="loading"
                 :disabled="custom"
               ></v-text-field>
@@ -22,7 +22,7 @@
               <v-textarea
                 label="Descripción"
                 v-model="editItem.description"
-                :rules="rulesValidation.text"
+                :rules="rulesValidation.text.rules"
                 :loading="loading"
                 :disabled="custom"
               ></v-textarea>
@@ -101,8 +101,8 @@ import RoleApi from "@/services/Forms/RoleApi.js";
 import FormApi from "@/services/Forms/FormApi.js";
 import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
-import { mapStores } from 'pinia';
-import { useAlertMessageStore } from '@/store/alertMessage';
+import { mapStores } from "pinia";
+import { useAlertMessageStore } from "@/store/alertMessage";
 
 const roleApi = new RoleApi();
 const formApi = new FormApi();
@@ -126,43 +126,46 @@ export default {
   }),
   async mounted() {
     this.loading = true;
-    try{
-    await Promise.all([
-    await this.setEditItem(),
-    await this.setPermissions(),
-    await this.setForms()
-    ]);
-    this.createSelectsAll();
-  } catch (error) {
+    try {
+      await Promise.all([
+        await this.setEditItem(),
+        await this.setPermissions(),
+        await this.setForms(),
+      ]);
+      this.createSelectsAll();
+    } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
     this.loading = false;
   },
   computed: {
     title() {
-      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
+      return this.idEditForm
+        ? `Edición de ${this.nameTable}`
+        : `Creación de ${this.nameTable}`;
     },
     ...mapStores(useAlertMessageStore),
   },
   methods: {
     async submitForm() {
-      console.log("return", this.editItem);
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
+
         formData.append("name", this.editItem.name);
         formData.append("description", this.editItem.description);
         this.editItem.forms.forEach((form, index) => {
           // Agregar form_id
           formData.append(`forms[${index}][form_id]`, form.form_id);
           // Iterar sobre el array de permissions_id y agregar cada permission_id como entrada en FormData
+
           form.permissions_id.forEach((permissionId, permissionIndex) => {
             formData.append(
               `forms[${index}][permissions_id][${permissionIndex}]`,
-              permissionId
+              permissionId || []
             );
           });
         });
@@ -187,28 +190,25 @@ export default {
     },
     createSelectsAll() {
       if (!this.idEditForm) {
-        this.editItem.forms = Array(this.forms.length).fill({permissions_id:[]});
+        this.editItem.forms = Array(this.forms.length).fill({
+          permissions_id: [],
+        });
         this.editItem.forms = this.forms.map((item) => {
           item.selectAll = false;
           return { form_id: item.id, permissions_id: [] };
         });
       } else {
-
-        this.forms.forEach(
-          (item, i) =>
-            {item.selectAll =
-              this.editItem.forms[i].permissions_id.length ==
-              this.permissions.length
-                ? true
-                : false
-              }
-        );
+        this.forms.forEach((item, i) => {
+          item.selectAll =
+            this.editItem.forms[i].permissions_id.length ==
+            this.permissions.length
+              ? true
+              : false;
+        });
       }
-      console.log('temp',this.forms)
     },
     async setForms() {
       this.forms = (await formApi.read()).data;
-      console.log('forms',this.forms)
     },
     async setPermissions() {
       this.permissions = (await petition.get("/permissions")).data;
@@ -216,9 +216,6 @@ export default {
     async setEditItem() {
       if (!this.idEditForm) return;
       this.editItem = (await roleApi.read(`?role_id=${this.idEditForm}`)).data;
-      console.log('entrando',this.editItem.forms)
-
-
     },
     validatePermissions(formIndex) {
       this.forms[formIndex].selectAll =

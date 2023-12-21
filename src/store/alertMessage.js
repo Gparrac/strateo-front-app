@@ -1,25 +1,25 @@
 // Utilities
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useAlertMessageStore = defineStore('alertMessage', {
+export const useAlertMessageStore = defineStore("alertMessage", {
   state: () => ({
     toggleAlert: false,
-    message: '',
-    kind: false
+    message: "",
+    kind: false,
   }),
   getters: {
     them: (state) => {
-      return state.kind ? 'info' : 'warning';
-    }
+      return state.kind ? "info" : "warning";
+    },
   },
-  actions:{
-    show(kind, message){
+  actions: {
+    show(kind, message) {
       this.kind = kind;
       this.message = message;
       this.toggleAlert = true;
-      setTimeout(()=>{
+      setTimeout(() => {
         this.toggleAlert = false;
       }, 4000);
-    }
-  }
-})
+    },
+  },
+});

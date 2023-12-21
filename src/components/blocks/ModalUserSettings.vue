@@ -1,7 +1,7 @@
 <template>
   <div class="user-settings">
     <v-expand-transition>
-      <v-card v-show="expand"  width="250" class="pa-5">
+      <v-card v-show="expand" width="250" class="pa-5">
         <v-list>
           <v-list-subheader>Opciones</v-list-subheader>
 
@@ -18,7 +18,11 @@
               <v-icon icon="mdi-key-change"></v-icon>
             </template>
             <v-list-item-title>
-              <p @click="$router.push('change-password')" style="white-space: normal;" v-text="'Cambiar contraseña'"></p>
+              <p
+                @click="$router.push('change-password')"
+                style="white-space: normal"
+                v-text="'Cambiar contraseña'"
+              ></p>
             </v-list-item-title>
           </v-list-item>
         </v-list>
@@ -33,8 +37,6 @@ export default {
   name: "ModalUserSettings",
   props: {
     expand: Boolean,
-
-
   },
   methods: {
     async signOut() {

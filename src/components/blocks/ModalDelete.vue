@@ -49,7 +49,6 @@ export default {
 
   methods: {
     sendResponse(kind) {
-      console.log("model", this.deleteItems);
       this.$emit("confirm-delete", { confirm: kind });
 
     },
