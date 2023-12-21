@@ -3,7 +3,7 @@
     <v-row justify="center">
       <v-card rounded="3" class="w-100" :loading="loading">
         <v-card-title>
-          <span class="text-h5">{{ title }} </span>
+          <span class="text-h5"> Información General </span>
         </v-card-title>
 
         <!----------------------- FORM --------------------------->
@@ -78,7 +78,6 @@
                       <v-text-field
                         label="Número de Verificación"
                         v-model="editItem.verification_id"
-                        :rules="rulesValidation.identification"
                         :loading="loading"
                       ></v-text-field>
                     </v-col>
@@ -148,17 +147,17 @@
                         ></v-file-input>
                     </v-col>
                     <v-col cols="12" sm="6">
-                      <div class="d-flex align-center justify-center fill-height" v-if="!editItem.path_logo">
+                      <div class="d-flex align-center justify-center fill-height" v-if="!editItem.path_logo && !showImageSelected">
                         <h2>Sin logo seleccionado</h2>
                       </div>
-                      <div class="d-flex align-center justify-center fill-height" v-else>
-                        <v-img
-                          max-width="500"
-                          max-height="300"
-                          aspect-ratio="16/9"
-                          cover
-                          :src="getImageUrl(showImageSelected)"
-                        ></v-img>
+                        <div class="d-flex align-center justify-center fill-height" v-else>
+                          <v-img
+                            max-width="500"
+                            max-height="300"
+                            aspect-ratio="16/9"
+                            cover
+                            :src="getImageUrl(showImageSelected)"
+                          ></v-img>
                       </div>
                     </v-col>
                   </v-row>
@@ -233,7 +232,6 @@ const petition = new Petition();
 export default {
   name: "FormEnterprise",
   props: {
-    idEditForm: Number,
     nameTable: String,
     path: String,
 
@@ -250,6 +248,7 @@ export default {
     rulesValidation: RulesValidation,
     showImageSelected: null,
     typesDocument: [],
+    isEditForm:false,
   }),
   async mounted() {
     this.loading = true;
@@ -265,9 +264,6 @@ export default {
     this.loading = false;
   },
   computed: {
-    title() {
-      return this.idEditForm ? `Edición de ${this.nameTable}` : `Creación de ${this.nameTable}`;
-    },
     ...mapStores(useAlertMessageStore),
   },
   watch: {
@@ -305,8 +301,7 @@ export default {
           formData.append("surnames", this.editItem.surnames);
         }
 
-        if (this.idEditForm) {
-          formData.append("enterprise_id", this.editItem.enterpriseId);
+        if (this.isEditForm) {
           response = await enterpriseApi.update(formData);
         } else {
           response = await enterpriseApi.create(formData);
@@ -323,12 +318,12 @@ export default {
       this.loading = false;
     },
     async setEditItem() {
-      if (!this.idEditForm) return;
-      const response = await enterpriseApi.read(`?enterprise_id=${this.idEditForm}`);
+      const response = await enterpriseApi.read();
       if(response.statusResponse != 200) {
         this.editItem = {};
         return;
       }
+      this.isEditForm = true;
       this.editItem = Object.assign(
         {},
         {
@@ -344,11 +339,11 @@ export default {
           email2: response.data.email2,
           postal_code: response.data.postal_code,
           city_id: response.data.city_id,
-          path_logo: response.data.path_logo,
           header: response.data.header,
           footer: response.data.footer,
         }
       );
+      this.showImageSelected = response.data.path_logo;
     },
     async setCities(name = null) {
       const query = name ? `?name=${name}` : "";
@@ -367,6 +362,7 @@ export default {
     },
     getImageUrl(file) {
       if (!file) return '';
+      if(typeof file === 'string') return file;
       return URL.createObjectURL(file);
     },
     // --------------- Show image ---------------

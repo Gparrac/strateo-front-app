@@ -62,22 +62,22 @@
 </template>
 
 <script>
-import EnterpriseApi from '@/services/Forms/EnterpriseApi';
+import OfficeApi from '@/services/Forms/OfficeApi';
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-const enterpriseApi = new EnterpriseApi();
+const officeApi = new OfficeApi();
 export default {
-  name: "TableEnterprise",
+  name: "TableOffice",
   props:{
     nameTable: String,
     path:String,
   },
   data: () => ({
     //required data
-    keyQueryDelete: "enterprise_id",
-    mainKeyDelete:['business_name'],
-    secondKeyDelete:['identification'],
+    keyQueryDelete: "office_id",
+    mainKeyDelete:['name'],
+    secondKeyDelete:['address'],
     selectedItems: [],
     records: [],
     toggleDelete: false,
@@ -88,11 +88,11 @@ export default {
           align: "start",
           key: "id",
       },
-      { title: "Tipo de documento", align: "end", key: "type_document" },
-      { title: "Identificación", align: "end", key: "identification" },
-      { title: "Código de Verificación", align: "end", key: "verification_id" },
-      { title: "Nombre de Empresa", align: "end", key: "business_name" },
+      { title: "Nombre", align: "end", key: "name" },
       { title: "Dirección", align: "end", key: "address" },
+      { title: "Teléfono", align: "end", key: "phone" },
+      { title: "Ciudad", align: "end", key: "city.name" },
+      { title: "Estado", align: "end", key: "status" },
       { title: "Acciones", align: "end", key: "actions" },
     ],
   }),
@@ -101,21 +101,24 @@ export default {
   },
   methods: {
     async fetchScores() {
-      const respose = await enterpriseApi.read();
-      if (respose.data) this.records = respose.data;
+      const respose = await officeApi.read();
+      if (respose.statusResponse == 200){
+        this.records = respose.data.data;
+      } 
     },
     async deleteItems(data) {
       this.toggleDelete = false;
-      if (data.confirm && this.selectedItems.length !== 0) {
-        const params = new URLSearchParams({})
-        this.selectedItems.forEach(item => params.append(`${this.keyQueryDelete}[]`, item.id));
-        const response = await enterpriseApi.delete(`?${params.toString()}`);
-        if (!response.error) {
-          await this.fetchScores();
-          this.alertMessageStore.show(true, `${this.nameTable} eliminados exitosamente`);
-        } else {
-          this.alertMessageStore.show(false, "Error en el servidor");
-        }
+      if(!data.confirm && this.selectedItems.length == 0) return;
+      console.log("this.selectedItems: ", this.selectedItems);
+      const response = this.selectedItems.length == 1 ?
+      await officeApi.delete(`?office_id=${this.selectedItems[0].id}`):
+      await officeApi.delete(`?office_ids=[${this.selectedItems.map(element => element.id)}]`);
+
+      if (response.statusResponse == 200) {
+        await this.fetchScores();
+        this.alertMessageStore.show(true, `${this.nameTable} eliminados exitosamente`);
+      } else {
+        this.alertMessageStore.show(false, "Error en el servidor");
       }
     },
   },
