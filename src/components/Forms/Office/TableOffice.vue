@@ -48,6 +48,7 @@
       v-model="selectedItems"
       show-select
       return-object
+      items-per-page-text="Items por Página"
     >
       <template v-slot:[`item.actions`]="{ item }">
         <div>

@@ -253,7 +253,7 @@
             @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
-            Close
+            Cerrar
           </v-btn>
           <v-btn
             color="blue-darken-1"
@@ -261,7 +261,7 @@
             @click="submitForm"
             :loading="loading"
           >
-            Save
+            Guardar
           </v-btn>
         </v-card-actions>
       </v-card>
