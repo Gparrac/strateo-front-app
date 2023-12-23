@@ -8,7 +8,7 @@ function getFormRoute(route){
 
     return {
         isForm: true,
-        idEditForm: secondPath == 'edit' ? segments[3] : null,
+        idEditForm: secondPath == 'edit' ? parseInt(segments[3]) : null,
     }
 }
 

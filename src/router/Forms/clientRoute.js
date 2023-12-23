@@ -15,7 +15,7 @@ const clientRoute = {
         component: ClientView,
       },
       {
-        path: 'edit/:OfficeId',
+        path: 'edit/:ClientId',
         name: 'ClientEdit',
         component: ClientView,
       },

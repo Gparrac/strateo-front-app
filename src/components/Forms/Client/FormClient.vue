@@ -27,7 +27,6 @@
                 v-model="editItem.identification"
                 :rules="rulesValidation.identification.rules"
                 :loading="loading"
-                :suffix="verificationNitNumber"
               ></v-text-field>
             </v-col>
             <template
@@ -67,7 +66,6 @@
             </template>
             <v-col cols="12" sm="4">
               <v-text-field
-                :maxlength="rulesValidation.text.maxLength"
                 label="Dirección"
                 v-model="editItem.address"
                 :rules="rulesValidation.text.rules"
@@ -85,7 +83,6 @@
             </v-col>
             <v-col cols="12" sm="4">
               <v-text-field
-                :maxlength="rulesValidation.email.maxLength"
                 label="Correo Principal"
                 v-model="editItem.email"
                 placeholder="ejemplo@ejemplo.com"
@@ -95,7 +92,6 @@
             </v-col>
             <v-col cols="12" sm="4">
               <v-text-field
-                :maxlength="rulesValidation.emailOptional.maxLength"
                 label="Correo Secundario (opcional)"
                 v-model="editItem.email2"
                 placeholder="ejemplo@ejemplo.com"
@@ -125,6 +121,8 @@
               ></v-autocomplete>
             </v-col>
           </v-row>
+
+          <!-- Files upload -->
           <v-row>
             <v-col cols="12" sm="4">
               <v-text-field
@@ -143,11 +141,25 @@
                 prepend-icon="mdi-file-document"
                 :rules="rulesValidation.file.rules"
                 :loading="loading"
-                @change="handleFileChange"
+                @change="handleFileCommercialChange"
               ></v-file-input>
             </v-col>
             <v-col cols="12" sm="4" class="d-flex align-center justify-center ">
-              <h3 >asd</h3>
+              <div v-if="!editItem.commercial_registry_file && !showFileCommercialSelected">
+                <h3>No hay archivo seleccionado</h3>
+              </div>
+              <div v-else>
+                <v-btn
+                  class="ma-2" 
+                  outlined 
+                  :href="getFileUrl(showFileCommercialSelected)"
+                  target="_blank"
+                  prepend-icon="mdi-folder-download"
+                  size="x-large"
+                  download>
+                  Descargar
+                </v-btn>
+              </div>
             </v-col>
           </v-row>
           <v-row>
@@ -159,15 +171,32 @@
                 prepend-icon="mdi-file-document"
                 :rules="rulesValidation.file.rules"
                 :loading="loading"
-                @change="handleFileChange"
+                @change="handleFileRutChange"
               ></v-file-input>
             </v-col>
             <v-col cols="12" sm="4" class="d-flex align-center justify-center">
-              <h3>asd</h3>
+              <div v-if="!editItem.rut_file && !showFileRutSelected">
+                <h3>No hay archivo seleccionado</h3>
+              </div>
+              <div v-else>
+                <v-btn
+                  class="ma-2" 
+                  outlined 
+                  :href="getFileUrl(showFileRutSelected)"
+                  download
+                  size="x-large"
+                  target="_blank"
+                  prepend-icon="mdi-folder-download"
+                >
+                Descargar
+                </v-btn>
+              </div>
             </v-col>
           </v-row>
+          <!-- Files upload -->
+
           <v-row>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6">
               <v-text-field
                 label="Nombre de Representante Legal"
                 v-model="editItem.legal_representative_name"
@@ -175,25 +204,16 @@
                 :loading="loading"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="4">
-              <v-text-field
-                label="Nombre de Representante Legal"
-                v-model="editItem.legal_representative_name"
-                :rules="rulesValidation.text.rules"
-                :loading="loading"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6">
               <v-text-field
                 :maxlength="rulesValidation.legal_representative_id"
                 label="Identificación del Representante Legal"
-                v-model="editItem.identification"
+                v-model="editItem.legal_representative_id"
                 :rules="rulesValidation.identification.rules"
                 :loading="loading"
-                :suffix="verificationNitNumber"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6">
               <v-text-field
                 label="Nota"
                 v-model="editItem.note"
@@ -275,16 +295,23 @@ export default {
     // optional data
     cities: [],
     searchCity: "",
+    typesDocument: [],
     rulesValidation: RulesValidation,
     status: [
       { name: "A", label: "Activo" },
       { name: "I", label: "Inactivo" },
     ],
+    showFileCommercialSelected: null,
+    showFileRutSelected: null,
   }),
   async mounted() {
     this.loading = true;
     try {
-      await Promise.all([this.setEditItem(), this.setCities()]);
+      await Promise.all([
+        this.setEditItem(), 
+        this.setCities(),
+        this.setTypesDocument(),
+      ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -313,11 +340,35 @@ export default {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
-        formData.append("name", this.editItem.name);
+        formData.append("type_document", this.editItem.typeDocument);
+        formData.append("identification", this.editItem.identification);
         formData.append("address", this.editItem.address);
-        formData.append("phone", this.editItem.phone);
+        formData.append("mobile", this.editItem.mobile);
+        formData.append("email", this.editItem.email);
+        formData.append("email2", this.editItem.email2);
+        formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
+
+        formData.append("commercial_registry", this.editItem.commercial_registry);
         formData.append("status", this.editItem.status);
+        formData.append("legal_representative_name", this.editItem.legal_representative_name);
+        formData.append("legal_representative_id", this.editItem.legal_representative_id);
+        formData.append("note", this.editItem.note);
+        formData.append("status", this.editItem.status);
+
+        if (typeof this.showFileCommercialSelected != "string"){
+          formData.append("commercial_registry_file", this.showFileCommercialSelected);
+        }
+        if (typeof this.showFileRutSelected != "string"){
+          formData.append("rut_file", this.showFileRutSelected);
+        }
+
+        if (this.editItem.business) {
+          formData.append("business_name", this.editItem.business);
+        } else {
+          formData.append("names", this.editItem.names);
+          formData.append("surnames", this.editItem.surnames);
+        }
 
         if (this.idEditForm) {
           formData.append("client_id", this.editItem.client_id);
@@ -347,18 +398,60 @@ export default {
         {},
         {
           client_id: response.data.id,
-          name: response.data.name,
-          address: response.data.address,
-          phone: response.data.phone,
-          city_id: response.data.city_id,
+          typeDocument: response.data.third.type_document,
+          identification: response.data.third.identification,
+          names: response.data.third.names ?? null,
+          surnames: response.data.third.surnames ?? null,
+          business: response.data.third.business_name ?? null,
+          address: response.data.third.address,
+          mobile: response.data.third.mobile,
+          email: response.data.third.email,
+          email2: response.data.third.email2,
+          postal_code: response.data.third.postal_code,
+          city_id: response.data.third.city_id,
+          status: response.data.third.status,
+
+          commercial_registry: response.data.commercial_registry,
+          legal_representative_name: response.data.legal_representative_name,
+          legal_representative_id: response.data.legal_representative_id,
+          note: response.data.note,
           status: response.data.status,
         }
       );
+      this.showFileCommercialSelected = response.data.commercial_registry_file;
+      this.showFileRutSelected = response.data.rut_file;
     },
     async setCities(name = null) {
       const query = name ? `?name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
     },
+    async setTypesDocument() {
+      this.typesDocument = (await petition.get("/type-document-user")).data;
+    },
+
+    // --------- Upload Files ----------
+    handleFileCommercialChange(event) {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const selectedFile = files[0];
+        this.showFileCommercialSelected = selectedFile;
+      }
+    },
+    handleFileRutChange(event) {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const selectedFile = files[0];
+        this.showFileRutSelected = selectedFile;
+      }
+    },
+    getFileUrl(file) {
+      if (!file) return "";
+      if (typeof file === "string") return file;
+      if (typeof file === "object") return URL.createObjectURL(file);
+      return;
+    },
+
+    // --------- Upload Files ----------
   },
 };
 </script>
