@@ -415,7 +415,7 @@ export default {
           city: response.data.third.city,
           status: response.data.status,
           role: response.data.role,
-          business: response.data.business_name,
+          business: response.data.third.business_name,
           offices: response.data.offices.map((item) => ({
             id: item.id,
             name: item.name,

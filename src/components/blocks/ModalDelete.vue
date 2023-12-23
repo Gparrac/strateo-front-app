@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="modal" width="auto" scrollable>
     <v-card>
-      <v-card-title>Se eliminaran {{ deleteItems.length }} registros</v-card-title>
+      <v-card-title>Se desactivaran {{ deleteItems.length }} registros</v-card-title>
       <v-card-subtitle
         class="pb-5">Listado de {{title}} a inhabilitar:
         </v-card-subtitle

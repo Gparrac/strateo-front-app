@@ -136,7 +136,7 @@ export default {
         await this.fetchScores();
         this.alertMessageStore.show(
           true,
-          `${this.nameTable} eliminados exitosamente`
+          `${this.nameTable} desactivados exitosamente`
         );
       } else {
         this.alertMessageStore.show(false, "Error en el servidor");

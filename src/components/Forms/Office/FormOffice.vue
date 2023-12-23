@@ -61,13 +61,13 @@
             </v-col>
           </v-row>
           <div class="pt-5">
-          <small
+          <!-- <small
             v-for="(error, index) in errorMessages"
             :key="index"
             class="text-orange"
           >
             {{ index + 1 + ". " + error }} <br />
-          </small>
+          </small> -->
         </div>
         </v-card-text>
         <!----------------------- FORM --------------------------->

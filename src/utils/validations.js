@@ -1,6 +1,6 @@
 export const RulesValidation = {
   text: {
-    maxLength: 12,
+    maxLength: 25,
     rules: [
       (value) => !!value || "Este campo es requirido",
       (value) =>
@@ -18,7 +18,7 @@ export const RulesValidation = {
     ],
   },
   email: {
-    maxLength: 20,
+    maxLength: 25,
     rules: [
       (value) => !!value || "Email es requirido",
       (value) =>
@@ -26,7 +26,7 @@ export const RulesValidation = {
     ],
   },
   emailOptional: {
-    maxLength: 12,
+    maxLength: 25,
     rules: [
       (value) =>
         /\S+@\S+\.\S+/.test(value) || "Formato de correo electrónico inválido",

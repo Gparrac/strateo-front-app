@@ -55,6 +55,10 @@
             </v-list-item>
           </v-list>
         </template>
+        <p class="pa-7" v-if="sections.length === 0">
+          <!-- Contenido para cuando no hay elementos -->
+          No hay secciones disponibles...
+        </p>
       </v-navigation-drawer>
 
       <v-main

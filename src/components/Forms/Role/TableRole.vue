@@ -127,12 +127,17 @@ export default {
         const params = new URLSearchParams({})
         this.selectedItems.forEach(item => params.append(`${this.keyQueryDelete}[]`, item.id));
         const response = await roleApi.delete(`?${params.toString()}`);
-        if (!response.error) {
-          await this.fetchScores();
-          this.alertMessageStore.show(true, `${this.nameTable} eliminados exitosamente`);
-        } else {
-          this.alertMessageStore.show(false, "Error en el servidor");
-        }
+        console.log('res',response);
+        if (response.statusResponse == 200) {
+
+        await this.fetchScore();
+        this.alertMessageStore.show(
+          true,
+          `${this.nameTable} desactivados exitosamente`
+        );
+      } else {
+        this.alertMessageStore.show(false, "Error en el servidor");
+      }
       }
     },
   },
