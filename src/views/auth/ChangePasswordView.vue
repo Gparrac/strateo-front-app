@@ -1,5 +1,5 @@
 <template>
-  <v-form class="d-flex justify-center align-center " ref="form">
+  <v-form class="d-flex justify-center align-center" ref="form">
     <v-card width="512" :loading="loader">
       <v-card-title class="text-h4 py-5 text-center">
         Cambiar contraseña
@@ -52,20 +52,19 @@
 </template>
 
 <script>
-  import AuthApi from "@/services/auth/AuthUser";
-  import { RulesValidation } from "@/utils/validations";
-import { errorHandler } from '@/utils/cast';
-import { mapStores } from 'pinia';
-import { useAlertMessageStore } from '@/store/alertMessage';
+import AuthApi from "@/services/auth/AuthUser";
+import { RulesValidation } from "@/utils/validations";
+import { errorHandler } from "@/utils/cast";
+import { mapStores } from "pinia";
+import { useAlertMessageStore } from "@/store/alertMessage";
 
-  const authApi = new AuthApi();
+const authApi = new AuthApi();
 export default {
   data() {
     return {
       editItem: {},
       rulesValidation: RulesValidation,
-      errorMessages: []
-
+      errorMessages: [],
     };
   },
   computed: {
@@ -86,7 +85,8 @@ export default {
           (value && value.length >= 6) ||
           "Contraseña debe tener al menos 6 caracteres",
       ];
-    },...mapStores(useAlertMessageStore),
+    },
+    ...mapStores(useAlertMessageStore),
   },
   methods: {
     async changePassword() {
@@ -99,10 +99,8 @@ export default {
         formData.append("old_password", this.editItem.oldPassword);
         formData.append("new_password", this.editItem.newPassword);
         response = await authApi.changePassword(formData);
-        console.log('pasando?',response)
         if (response.statusResponse != 200) {
-
-          if(response.error){
+          if (response.error) {
             this.errorMessages = errorHandler(response.error);
           }
           this.alertMessageStore.show(false, "Error en el servidor");

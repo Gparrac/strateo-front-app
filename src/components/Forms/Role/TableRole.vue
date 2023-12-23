@@ -77,15 +77,15 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 const roleApi = new RoleApi();
 export default {
   name: "TableUser",
-  props:{
+  props: {
     nameTable: String,
-    path:String,
+    path: String,
   },
   data: () => ({
     //required data
     keyQueryDelete: "roles_id",
-    mainKeyDelete:['name'],
-    secondKeyDelete:['description'],
+    mainKeyDelete: ["name"],
+    secondKeyDelete: ["description"],
     selectedItems: [],
     records: [],
     toggleDelete: false,
@@ -107,10 +107,9 @@ export default {
       { title: "Ultima actualización", align: "center", key: "updated_at" },
       { title: "Acciones", align: "end", key: "actions" },
     ],
-
   }),
   components: {
-    ModalDelete
+    ModalDelete,
   },
   methods: {
     async fetchScore() {
@@ -124,20 +123,20 @@ export default {
     async deleteItems(data) {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
-        const params = new URLSearchParams({})
-        this.selectedItems.forEach(item => params.append(`${this.keyQueryDelete}[]`, item.id));
-        const response = await roleApi.delete(`?${params.toString()}`);
-        console.log('res',response);
-        if (response.statusResponse == 200) {
-
-        await this.fetchScore();
-        this.alertMessageStore.show(
-          true,
-          `${this.nameTable} desactivados exitosamente`
+        const params = new URLSearchParams({});
+        this.selectedItems.forEach((item) =>
+          params.append(`${this.keyQueryDelete}[]`, item.id)
         );
-      } else {
-        this.alertMessageStore.show(false, "Error en el servidor");
-      }
+        const response = await roleApi.delete(`?${params.toString()}`);
+        if (response.statusResponse == 200) {
+          await this.fetchScore();
+          this.alertMessageStore.show(
+            true,
+            `${this.nameTable} desactivados exitosamente`
+          );
+        } else {
+          this.alertMessageStore.show(false, "Error en el servidor");
+        }
       }
     },
   },
@@ -146,6 +145,6 @@ export default {
   },
   computed: {
     ...mapStores(useAlertMessageStore),
-  }
+  },
 };
 </script>

@@ -214,17 +214,16 @@
             </v-col>
           </v-row>
           <div class="pt-5">
-          <small
-            v-for="(error, index) in errorMessages"
-            :key="index"
-            class="text-orange"
-          >
-            {{ index + 1 + ". " + error }} <br />
-          </small>
-        </div>
+            <small
+              v-for="(error, index) in errorMessages"
+              :key="index"
+              class="text-orange"
+            >
+              {{ index + 1 + ". " + error }} <br />
+            </small>
+          </div>
         </v-card-text>
         <!----------------------- FORM --------------------------->
-
 
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -303,14 +302,16 @@ export default {
         ? " - " + castNit(this.editItem.identification)
         : "";
     },
-    verificationSecondEmail(){
+    verificationSecondEmail() {
       return [
-      (value) =>
-      !value || /\S+@\S+\.\S+/.test(value) || "Formato de correo electrónico inválido",
-            (value) =>
-              value !== this.editItem.email ||
-              "El segundo email debe ser diferente. ",
-          ]
+        (value) =>
+          !value ||
+          /\S+@\S+\.\S+/.test(value) ||
+          "Formato de correo electrónico inválido",
+        (value) =>
+          value !== this.editItem.email ||
+          "El segundo email debe ser diferente. ",
+      ];
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -335,7 +336,8 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        if(this.editItem.email2) formData.append("email2", this.editItem.email2);
+        if (this.editItem.email2)
+          formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
         formData.append("header", this.editItem.header);
@@ -356,7 +358,7 @@ export default {
           response = await enterpriseApi.create(formData);
         }
         if (response.statusResponse != 200) {
-          if(response.error){
+          if (response.error) {
             this.errorMessages = errorHandler(response.error);
           }
           this.alertMessageStore.show(false, "Error en el servidor");
