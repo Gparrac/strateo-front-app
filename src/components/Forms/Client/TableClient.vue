@@ -78,22 +78,22 @@
 </template>
 
 <script>
-import OfficeApi from "@/services/Forms/OfficeApi";
+import ClientApi from "@/services/Forms/ClientApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-const officeApi = new OfficeApi();
+const clientApi = new ClientApi();
 export default {
-  name: "TableOffice",
+  name: "TableClient",
   props: {
     nameTable: String,
     path: String,
   },
   data: () => ({
     //required data
-    keyQueryDelete: "office_id",
-    mainKeyDelete: ["name"],
-    secondKeyDelete: ["address"],
+    keyQueryDelete: "client_id",
+    mainKeyDelete: ["third", "identification"],
+    secondKeyDelete: ["third", "email"],
     selectedItems: [],
     records: [],
     toggleDelete: false,
@@ -104,10 +104,10 @@ export default {
         align: "start",
         key: "id",
       },
-      { title: "Nombre", align: "end", key: "name" },
-      { title: "Dirección", align: "end", key: "address" },
-      { title: "Teléfono", align: "end", key: "phone" },
-      { title: "Ciudad", align: "end", key: "city.name" },
+      { title: "Nombre del Representante", align: "end", key: "legal_representative_name" },
+      { title: "Código del representante", align: "end", key: "legal_representative_id" },
+      { title: "Identificación", align: "end", key: "third.identification" },
+      { title: "Correo", align: "end", key: "third.email" },
       { title: "Estado", align: "end", key: "status" },
       { title: "Acciones", align: "end", key: "actions" },
     ],
@@ -117,7 +117,7 @@ export default {
   },
   methods: {
     async fetchScores() {
-      const respose = await officeApi.read();
+      const respose = await clientApi.read();
       if (respose.statusResponse == 200) {
         this.records = respose.data.data;
       }
@@ -127,9 +127,9 @@ export default {
       if (!data.confirm && this.selectedItems.length == 0) return;
       const response =
         this.selectedItems.length == 1
-          ? await officeApi.delete(`?office_id=${this.selectedItems[0].id}`)
-          : await officeApi.delete(
-              `?office_ids=[${this.selectedItems.map((element) => element.id)}]`
+          ? await clientApi.delete(`?client_id=${this.selectedItems[0].id}`)
+          : await clientApi.delete(
+              `?client_ids=[${this.selectedItems.map((element) => element.id)}]`
             );
 
       if (response.statusResponse == 200) {

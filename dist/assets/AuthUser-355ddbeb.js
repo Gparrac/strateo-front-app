@@ -1,1 +1,0 @@
-import{aQ as i}from"./index-b3cd7ec9.js";class o{constructor(){this.petition=new i,this.prefix="/auth"}login(t){return this.petition.post(`${this.prefix}/login`,t)}user(){return this.petition.get(`${this.prefix}/user`,"",!0)}logout(){return this.petition.get(`${this.prefix}/logout`,"",!0)}}export{o as A};

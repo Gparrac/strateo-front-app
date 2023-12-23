@@ -62,4 +62,13 @@ export const RulesValidation = {
         "La imagen debe pesar menos de 2 MB",
     ],
   },
+  file: {
+    rules: [
+      (value) =>
+        !value ||
+        !value.length ||
+        value[0].size < 10000000 ||
+        "El archivo debe pesar menos de 3 MB",
+    ],
+  },
 };
