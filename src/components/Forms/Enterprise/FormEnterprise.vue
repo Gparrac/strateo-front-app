@@ -105,11 +105,11 @@
                     </v-col>
                     <v-col cols="12" sm="4">
                       <v-text-field
-                        :maxlength="rulesValidation.emailOptional.maxLength"
+                        :maxlength="rulesValidation.email.maxLength"
                         label="Correo Secundario (opcional)"
                         v-model="editItem.email2"
                         placeholder="ejemplo@ejemplo.com"
-                        :rules="rulesValidation.emailOptional.rules"
+                        :rules="verificationSecondEmail"
                         :loading="loading"
                       ></v-text-field>
                     </v-col>
@@ -218,10 +218,7 @@
               </v-card>
             </v-col>
           </v-row>
-        </v-card-text>
-        <!----------------------- FORM --------------------------->
-
-        <div class="pt-5">
+          <div class="pt-5">
           <small
             v-for="(error, index) in errorMessages"
             :key="index"
@@ -230,12 +227,16 @@
             {{ index + 1 + ". " + error }} <br />
           </small>
         </div>
+        </v-card-text>
+        <!----------------------- FORM --------------------------->
+
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="() => $router.push(`/${path}`)"
+            @click="() => $router.push(`/`)"
             :loading="loading"
           >
             Cerrar
@@ -260,7 +261,8 @@ import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castNit } from "@/utils/cast";
+import { castNit, errorHandler } from "@/utils/cast";
+
 const enterpriseApi = new EnterpriseApi();
 const petition = new Petition();
 
@@ -306,6 +308,15 @@ export default {
         ? " - " + castNit(this.editItem.identification)
         : "";
     },
+    verificationSecondEmail(){
+      return [
+      (value) =>
+      !value || /\S+@\S+\.\S+/.test(value) || "Formato de correo electrónico inválido",
+            (value) =>
+              value !== this.editItem.email ||
+              "El segundo email debe ser diferente. ",
+          ]
+    },
     ...mapStores(useAlertMessageStore),
   },
   watch: {
@@ -329,7 +340,7 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        formData.append("email2", this.editItem.email2);
+        if(this.editItem.email2) formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
         formData.append("header", this.editItem.header);
@@ -350,10 +361,13 @@ export default {
           response = await enterpriseApi.create(formData);
         }
         if (response.statusResponse != 200) {
+          if(response.error){
+            this.errorMessages = errorHandler(response.error);
+          }
           this.alertMessageStore.show(false, "Error en el servidor");
           // lack to define logic to pass show errors in FormUser 🚨
         } else {
-          this.alertMessageStore.show(true, "Poceso exitoso!");
+          this.alertMessageStore.show(true, "Proceso exitoso!");
           this.$router.push(`/${this.path}`);
           // lack to define logic to pass show alert in TableUser 🚨
         }

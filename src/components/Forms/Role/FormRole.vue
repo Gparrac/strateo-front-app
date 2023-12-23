@@ -70,6 +70,15 @@
               </tr>
             </tbody>
           </v-table>
+          <div class="pt-5">
+          <small
+            v-for="(error, index) in errorMessages"
+            :key="index"
+            class="text-orange"
+          >
+            {{ index + 1 + ". " + error }} <br />
+          </small>
+        </div>
         </v-card-text>
         <!----------------------- FORM --------------------------->
         <v-card-actions>

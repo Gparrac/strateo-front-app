@@ -40,3 +40,9 @@ export function castNit(strNit) {
     return "";
   }
 }
+
+export function errorHandler (errors){
+  return Object.values(errors).reduce((acc, messages) => {
+    return acc.concat(messages);
+  }, []);
+}

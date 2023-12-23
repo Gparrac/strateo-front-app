@@ -194,10 +194,7 @@
               </v-card>
             </v-col>
           </v-row>
-        </v-card-text>
-        <!----------------------- FORM --------------------------->
-
-        <div class="pt-5">
+          <div class="pt-5">
           <small
             v-for="(error, index) in errorMessages"
             :key="index"
@@ -206,6 +203,10 @@
             {{ index + 1 + ". " + error }} <br />
           </small>
         </div>
+        </v-card-text>
+        <!----------------------- FORM --------------------------->
+
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -238,7 +239,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import OfficeApi from "@/services/Forms/OfficeApi";
-import { castNit } from "@/utils/cast";
+import { castNit, errorHandler } from "@/utils/cast";
 
 const userApi = new UserApi();
 const roleApi = new RoleApi();
@@ -369,7 +370,10 @@ export default {
           formData.append("password", this.editItem.password);
           response = await userApi.create(formData);
         }
-        if (response.error) {
+        if (response.statusResponse != 200) {
+          if(response.error){
+            this.errorMessages = errorHandler(response.error);
+          }
           this.alertMessageStore.show(false, "Error en el servidor");
           // lack to define logic to pass show errors in FormUser 🚨
         } else {

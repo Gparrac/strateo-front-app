@@ -21,17 +21,20 @@ const routes = [
       ...formsRoute,
     ],
     beforeEnter: async (to, from, next) => {
+      let path = null;
       try {
-        if (to.path != "/enterprises") {
+        if ( from.path == "/sign-in" && to.path =="/") {
           const response = await petition.get("/check-enterprise", "", true);
-          if (!response.data) {
-            next("/enterprises");
+          if (response.message && response.message == 'Successful') {
+            if( response.data === false){
+              path = '/enterprises';
+            }
           }
         }
       } catch (error) {
         console.error("entrando?", error);
       }
-      next();
+      path ? next(path) : next();
     },
   },
   {

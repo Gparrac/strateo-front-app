@@ -11,7 +11,7 @@
             <v-text-field
               label="Contraseña actual"
               type="password"
-              :rules="rulesValidation.password"
+              :rules="rulesValidation.password.rules"
               v-model="editItem.oldPassword"
             ></v-text-field>
           </v-col>
@@ -34,6 +34,15 @@
             ></v-text-field>
           </v-col>
         </v-row>
+        <div class="pt-5">
+          <small
+            v-for="(error, index) in errorMessages"
+            :key="index"
+            class="text-orange"
+          >
+            {{ index + 1 + ". " + error }} <br />
+          </small>
+        </div>
       </v-card-text>
       <v-card-actions>
         <v-btn color="orange" @click="changePassword"> Guardar </v-btn>
@@ -45,6 +54,9 @@
 <script>
   import AuthApi from "@/services/auth/AuthUser";
   import { RulesValidation } from "@/utils/validations";
+import { errorHandler } from '@/utils/cast';
+import { mapStores } from 'pinia';
+import { useAlertMessageStore } from '@/store/alertMessage';
 
   const authApi = new AuthApi();
 export default {
@@ -52,6 +64,7 @@ export default {
     return {
       editItem: {},
       rulesValidation: RulesValidation,
+      errorMessages: []
 
     };
   },
@@ -73,7 +86,7 @@ export default {
           (value && value.length >= 6) ||
           "Contraseña debe tener al menos 6 caracteres",
       ];
-    },
+    },...mapStores(useAlertMessageStore),
   },
   methods: {
     async changePassword() {
@@ -83,10 +96,15 @@ export default {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
-        formData.append("old_password", this.editItem.typeDocument);
-        formData.append("new_password", this.editItem.identification);
+        formData.append("old_password", this.editItem.oldPassword);
+        formData.append("new_password", this.editItem.newPassword);
         response = await authApi.changePassword(formData);
-        if (response.error) {
+        console.log('pasando?',response)
+        if (response.statusResponse != 200) {
+
+          if(response.error){
+            this.errorMessages = errorHandler(response.error);
+          }
           this.alertMessageStore.show(false, "Error en el servidor");
           // lack to define logic to pass show errors in FormUser 🚨
         } else {
