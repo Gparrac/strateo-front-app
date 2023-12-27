@@ -15,7 +15,6 @@
                 v-model="editItem.name"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
-                :disabled="custom"
               ></v-text-field>
             </v-col>
             <v-col cols="12">
@@ -24,7 +23,6 @@
                 v-model="editItem.description"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
-                :disabled="custom"
               ></v-textarea>
             </v-col>
           </v-row>

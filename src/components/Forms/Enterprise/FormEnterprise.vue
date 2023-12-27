@@ -223,6 +223,20 @@
                       ></v-textarea>
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-col cols="12" :sm="12">
+                      <v-autocomplete
+                        label="Codigo CIIU"
+                        v-model="editItem.ciiu"
+                        :items="ciiuCodes"
+                        v-model:search="searchCiiu"
+                        item-title="description"
+                        :return-object="true"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                      ></v-autocomplete>
+                    </v-col>
+                  </v-row>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -279,6 +293,8 @@ export default {
     // optional data
     cities: [],
     searchCity: "",
+    ciiuCodes: [],
+    searchCiiu: "",
     rulesValidation: RulesValidation,
     showImageSelected: null,
     typesDocument: [],
@@ -291,6 +307,7 @@ export default {
         this.setEditItem(),
         this.setCities(),
         this.setTypesDocument(),
+        this.setCiiuCodes()
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
@@ -325,6 +342,11 @@ export default {
         this.setCities(to);
       }
     },
+    async searchCiiu(to) {
+      if (to.length > 1) {
+        this.setCiiuCodes(to);
+      }
+    },
   },
   methods: {
     async submitForm() {
@@ -350,6 +372,7 @@ export default {
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
+        formData.append("code_ciiu_id", this.editItem.ciiu.id);
         formData.append("header", this.editItem.header);
         formData.append("footer", this.editItem.footer);
         if (typeof this.showImageSelected != "string")
@@ -402,6 +425,7 @@ export default {
           email2: response.data.email2,
           postal_code: response.data.postal_code,
           city_id: response.data.city_id,
+          ciiu: response.data.third.ciiu,
           header: response.data.header,
           footer: response.data.footer,
         }
@@ -411,6 +435,10 @@ export default {
     async setCities(name = null) {
       const query = name ? `?name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
+    },
+    async setCiiuCodes(name = null) {
+      const query = name ? `?name=${name}` : "";
+      this.ciiuCodes = (await petition.get("/ciiu-codes",query)).data;
     },
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;

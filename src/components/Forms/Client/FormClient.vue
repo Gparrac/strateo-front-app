@@ -129,7 +129,6 @@
                 :return-object="true"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
-                :disabled="custom"
               ></v-autocomplete>
             </v-col>
           </v-row>
@@ -385,7 +384,7 @@ export default {
         formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
-        formData.append("ciiu_id", this.editItem.ciiu.id);
+        formData.append("code_ciiu_id", this.editItem.ciiu.id);
 
         formData.append(
           "commercial_registry",

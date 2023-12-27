@@ -22,6 +22,7 @@ export const useAlertMessageStore = defineStore("alertMessage", {
       this.toggleAlert = true;
       setTimeout(() => {
         this.toggleAlert = false;
+        this.listErrors = [];
       }, this.listErrors.length != 0 ? 7000 : 4000);
     },
   },

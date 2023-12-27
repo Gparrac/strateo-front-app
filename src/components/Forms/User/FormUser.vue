@@ -22,7 +22,6 @@
                         :items="typesDocument"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -32,7 +31,6 @@
                         v-model="editItem.identification"
                         :rules="rulesValidation.identification.rules"
                         :loading="loading"
-                        :disabled="custom"
                         :suffix="verificationNitNumber"
                       ></v-text-field>
                     </v-col>
@@ -44,7 +42,6 @@
                           v-model="editItem.names"
                           :rules="rulesValidation.text.rules"
                           :loading="loading"
-                          :disabled="custom"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6">
@@ -54,7 +51,6 @@
                           v-model="editItem.surnames"
                           :rules="rulesValidation.text.rules"
                           :loading="loading"
-                          :disabled="custom"
                         ></v-text-field>
                       </v-col>
                     </template>
@@ -66,7 +62,6 @@
                         v-model="editItem.business"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     </template>
@@ -78,7 +73,6 @@
                         placeholder="johndoe@gmail.com"
                         :rules="rulesValidation.email.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -88,7 +82,6 @@
                         v-model="editItem.mobile"
                         :rules="rulesValidation.mobile.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -101,7 +94,6 @@
                         :return-object="true"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -113,7 +105,6 @@
                         :return-object="true"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
-                        :disabled="custom"
                         multiple
                       ></v-select>
                     </v-col>
@@ -124,7 +115,6 @@
                         v-model="editItem.address"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -142,7 +132,6 @@
                         v-model="editItem.name"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -154,7 +143,6 @@
                         item-value="name"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -166,7 +154,6 @@
                         :return-object="true"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -177,7 +164,6 @@
                         v-model="editItem.password"
                         :rules="passwordRule"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -188,7 +174,6 @@
                         v-model="editItem.confirmPassword"
                         :rules="confirmPasswordRule"
                         :loading="loading"
-                        :disabled="custom"
                       ></v-text-field>
                     </v-col>
                   </v-row>
