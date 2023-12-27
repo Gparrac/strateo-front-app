@@ -27,12 +27,11 @@
                 v-model="editItem.identification"
                 :rules="rulesValidation.identification.rules"
                 :loading="loading"
+                :suffix="verificationNitNumber"
               ></v-text-field>
             </v-col>
             <template
-              v-if="
-                editItem.typeDocument && editItem.typeDocument != 'NIT'
-              "
+              v-if="editItem.typeDocument && editItem.typeDocument != 'NIT'"
             >
               <v-col cols="12" sm="4">
                 <v-text-field
@@ -95,7 +94,7 @@
                 label="Correo Secundario (opcional)"
                 v-model="editItem.email2"
                 placeholder="ejemplo@ejemplo.com"
-                :rules="rulesValidation.emailOptional.rules"
+                :rules="verificationSecondEmail"
                 :loading="loading"
               ></v-text-field>
             </v-col>
@@ -118,6 +117,19 @@
                 item-value="id"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+              ></v-autocomplete>
+            </v-col>
+            <v-col cols="12" :sm="editItem.typeDocument == 'NIT' ? '12' : '8'">
+              <v-autocomplete
+                label="Codigo CIIU"
+                v-model="editItem.ciiu"
+                :items="ciiuCodes"
+                v-model:search="searchCiiu"
+                item-title="description"
+                :return-object="true"
+                :rules="rulesValidation.select.rules"
+                :loading="loading"
+                :disabled="custom"
               ></v-autocomplete>
             </v-col>
           </v-row>
@@ -144,8 +156,13 @@
                 @change="handleFileCommercialChange"
               ></v-file-input>
             </v-col>
-            <v-col cols="12" sm="4" class="d-flex align-center justify-center ">
-              <div v-if="!editItem.commercial_registry_file && !showFileCommercialSelected">
+            <v-col cols="12" sm="4" class="d-flex align-center justify-center">
+              <div
+                v-if="
+                  !editItem.commercial_registry_file &&
+                  !showFileCommercialSelected
+                "
+              >
                 <h3>No hay archivo seleccionado</h3>
               </div>
               <div v-else>
@@ -156,7 +173,8 @@
                   target="_blank"
                   prepend-icon="mdi-folder-download"
                   size="x-large"
-                  download>
+                  download
+                >
                   Descargar
                 </v-btn>
               </div>
@@ -188,7 +206,7 @@
                   target="_blank"
                   prepend-icon="mdi-folder-download"
                 >
-                Descargar
+                  Descargar
                 </v-btn>
               </div>
             </v-col>
@@ -265,6 +283,7 @@ import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
+import { castNit } from "@/utils/cast";
 
 const clientApi = new ClientApi();
 const petition = new Petition();
@@ -283,6 +302,8 @@ export default {
     editItem: {},
     // optional data
     cities: [],
+    ciiuCodes: [],
+    searchCiiu: "",
     searchCity: "",
     typesDocument: [],
     rulesValidation: RulesValidation,
@@ -300,6 +321,7 @@ export default {
         this.setEditItem(),
         this.setCities(),
         this.setTypesDocument(),
+        this.setCiiuCodes()
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
@@ -307,6 +329,25 @@ export default {
     this.loading = false;
   },
   computed: {
+    verificationSecondEmail() {
+      return [
+        (value) =>
+          !value ||
+          /\S+@\S+\.\S+/.test(value) ||
+          "Formato de correo electrónico inválido",
+        (value) =>
+          value !== this.editItem.email ||
+          "El segundo email debe ser diferente. ",
+      ];
+    },
+    verificationNitNumber() {
+      return this.editItem.typeDocument &&
+        this.editItem.typeDocument == "NIT" &&
+        this.editItem.identification &&
+        this.editItem.identification.length > 0
+        ? " - " + castNit(this.editItem.identification)
+        : "";
+    },
     title() {
       return this.idEditForm
         ? `Edición de ${this.nameTable}`
@@ -318,6 +359,13 @@ export default {
     async searchCity(to) {
       if (to.length > 1) {
         this.setCities(to);
+      }else{
+        this.setCities();
+      }
+    },
+    async searchCiiu(to) {
+      if (to.length > 1) {
+        this.setCiiuCodes(to);
       }
     },
   },
@@ -337,18 +385,31 @@ export default {
         formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
+        formData.append("ciiu_id", this.editItem.ciiu.id);
 
-        formData.append("commercial_registry", this.editItem.commercial_registry);
+        formData.append(
+          "commercial_registry",
+          this.editItem.commercial_registry
+        );
         formData.append("status", this.editItem.status);
-        formData.append("legal_representative_name", this.editItem.legal_representative_name);
-        formData.append("legal_representative_id", this.editItem.legal_representative_id);
+        formData.append(
+          "legal_representative_name",
+          this.editItem.legal_representative_name
+        );
+        formData.append(
+          "legal_representative_id",
+          this.editItem.legal_representative_id
+        );
         formData.append("note", this.editItem.note);
         formData.append("status", this.editItem.status);
 
-        if (typeof this.showFileCommercialSelected != "string"){
-          formData.append("commercial_registry_file", this.showFileCommercialSelected);
+        if (typeof this.showFileCommercialSelected != "string") {
+          formData.append(
+            "commercial_registry_file",
+            this.showFileCommercialSelected
+          );
         }
-        if (typeof this.showFileRutSelected != "string"){
+        if (typeof this.showFileRutSelected != "string") {
           formData.append("rut_file", this.showFileRutSelected);
         }
 
@@ -367,16 +428,19 @@ export default {
         }
         // logic to show alert 🚨
         if (response.statusResponse != 200) {
-          if(response.error && typeof response.error === 'object'){
-            this.alertMessageStore.show(false, "Error en la solicitud.", response.error);
-          }else{
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Error en la solicitud.",
+              response.error
+            );
+          } else {
             this.alertMessageStore.show(false, "Error en el servidor.");
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
           this.$router.push(`/${this.path}`);
         }
-
       }
       this.loading = false;
     },
@@ -402,6 +466,7 @@ export default {
           email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
           city_id: response.data.third.city_id,
+          ciiu: response.data.third.ciiu,
           // status: response.data.third.status, Estas repitiendo atributos ⚠️
 
           commercial_registry: response.data.commercial_registry,
@@ -417,6 +482,10 @@ export default {
     async setCities(name = null) {
       const query = name ? `?name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
+    },
+    async setCiiuCodes(name = null) {
+      const query = name ? `?name=${name}` : "";
+      this.ciiuCodes = (await petition.get("/ciiu-codes",query)).data;
     },
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;

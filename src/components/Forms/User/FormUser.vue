@@ -69,7 +69,6 @@
                         :disabled="custom"
                       ></v-text-field>
                     </v-col>
-
                     </template>
                     <v-col cols="12" sm="6">
                       <v-text-field
