@@ -362,6 +362,7 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
+        formData.append("code_ciiu_id", this.editItem.ciiu.id);
         if (this.editItem.typeDocument == "NIT") {
           formData.append("business_name", this.editItem.business);
         } else {
@@ -378,11 +379,10 @@ export default {
         if (typeof this.showImageSelected != "string")
           formData.append("path_logo", this.showImageSelected);
 
-        if (this.editItem.business) {
-          formData.append("business_name", this.editItem.business);
+        if (this.isEditForm) {
+          response = await enterpriseApi.update(formData);
         } else {
-          formData.append("names", this.editItem.names);
-          formData.append("surnames", this.editItem.surnames);
+          response = await enterpriseApi.create(formData);
         }
         // logic to show alert 🚨
         if (response.statusResponse != 200) {
@@ -408,6 +408,7 @@ export default {
         this.editItem = {};
         return;
       }
+      console.log('pasando=?',response.data);
       this.isEditForm = true;
       this.editItem = Object.assign(
         {},
@@ -425,11 +426,12 @@ export default {
           email2: response.data.email2,
           postal_code: response.data.postal_code,
           city_id: response.data.city_id,
-          ciiu: response.data.third.ciiu,
+          ciiu: response.data.ciiu,
           header: response.data.header,
           footer: response.data.footer,
         }
       );
+      console.log('####',this.editItem);
       this.showImageSelected = response.data.path_logo;
     },
     async setCities(name = null) {
