@@ -34,15 +34,6 @@
             ></v-text-field>
           </v-col>
         </v-row>
-        <div class="pt-5">
-          <small
-            v-for="(error, index) in errorMessages"
-            :key="index"
-            class="text-orange"
-          >
-            {{ index + 1 + ". " + error }} <br />
-          </small>
-        </div>
       </v-card-text>
       <v-card-actions>
         <v-btn color="orange" @click="changePassword"> Guardar </v-btn>
@@ -54,7 +45,6 @@
 <script>
 import AuthApi from "@/services/auth/AuthUser";
 import { RulesValidation } from "@/utils/validations";
-import { errorHandler } from "@/utils/cast";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 
@@ -64,7 +54,6 @@ export default {
     return {
       editItem: {},
       rulesValidation: RulesValidation,
-      errorMessages: [],
     };
   },
   computed: {
@@ -99,16 +88,20 @@ export default {
         formData.append("old_password", this.editItem.oldPassword);
         formData.append("new_password", this.editItem.newPassword);
         response = await authApi.changePassword(formData);
+        // logic to show alert 🚨
         if (response.statusResponse != 200) {
-          if (response.error) {
-            this.errorMessages = errorHandler(response.error);
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Error en la petición",
+              response.error
+            );
+          } else {
+            this.alertMessageStore.show(false, "Error en el servidor.");
           }
-          this.alertMessageStore.show(false, "Error en el servidor");
-          // lack to define logic to pass show errors in FormUser 🚨
         } else {
-          this.alertMessageStore.show(true, "Poceso exitoso!");
-          this.$router.push(`/`);
-          // lack to define logic to pass show alert in TableUser 🚨
+          this.alertMessageStore.show(true, "Proceso exitoso!");
+
         }
       }
       this.loading = false;

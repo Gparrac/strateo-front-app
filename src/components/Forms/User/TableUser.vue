@@ -82,6 +82,7 @@ import UserApi from "@/services/Forms/UserApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
+import { castDate } from "@/utils/cast";
 const userApi = new UserApi();
 export default {
   name: "TableUser",
@@ -104,12 +105,12 @@ export default {
         align: "start",
         key: "id",
       },
-      { title: "Nombres", align: "end", key: "third.names" },
-      { title: "Apellidos", align: "end", key: "third.surnames" },
+      { title: "Usuario", align: "end", key: "name" },
       { title: "Email", align: "end", key: "third.email" },
       { title: "Estado", align: "end", key: "status" },
       { title: "Telefono", align: "end", key: "third.mobile" },
       { title: "Role", align: "end", key: "role.name" },
+      { title: "Ultima actulización", align: "center", key: "updated_at" },
       { title: "Acciones", align: "end", key: "actions" },
     ],
   }),
@@ -118,8 +119,12 @@ export default {
   },
   methods: {
     async fetchScores() {
-      const respose = await userApi.read();
-      if (respose.data) this.records = respose.data;
+      const response = await userApi.read();
+      if (response.data)
+        this.records = response.data.map((item) => {
+          item.updated_at = castDate(item.updated_at);
+          return item;
+        });
     },
     async deleteItems(data) {
       this.toggleDelete = false;
@@ -129,15 +134,24 @@ export default {
           params.append(`${this.keyQueryDelete}[]`, item.id)
         );
         const response = await userApi.delete(`?${params.toString()}`);
-        if (!response.error) {
-          await this.fetchScores();
+        // logic to show alert 🚨
+        if (response.statusResponse != 200) {
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Error en la solicitud.",
+              response.error
+            );
+          } else {
+            this.alertMessageStore.show(false, "Error en el servidor.");
+          }
+        } else {
           this.alertMessageStore.show(
             true,
             `${this.nameTable} desactivados exitosamente`
           );
+          await this.fetchScores();
           this.selectedItems = [];
-        } else {
-          this.alertMessageStore.show(false, "Error en el servidor");
         }
       }
     },

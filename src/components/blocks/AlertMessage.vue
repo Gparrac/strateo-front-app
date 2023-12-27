@@ -4,12 +4,22 @@
       v-show="alertMessageStore.toggleAlert"
       :type="alertMessageStore.them"
       :icon="alertMessageStore.kind ? 'mdi-check-circle' : 'mdi-block-helper'"
-      :text="alertMessageStore.message || 'hola cris'"
       variant="tonal"
-      :title="alertMessageStore.kind ? 'Exito' : 'Error'"
       border="start"
-      class="custom-alert"
-    ></v-alert>
+      class="custom-alert">
+      <template v-slot:title>
+      <p class="text-h6">{{alertMessageStore.message}}</p>
+     </template>
+      <div class="pt-2">
+        <small
+          v-for="(error, index) in alertMessageStore.listErrors"
+          :key="index"
+          class="text-orange"
+        >
+          {{ index + 1 + ". " + error }} <br />
+        </small>
+      </div>
+    </v-alert>
   </v-expand-transition>
 </template>
 <script>

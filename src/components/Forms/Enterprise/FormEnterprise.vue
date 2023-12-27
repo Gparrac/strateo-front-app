@@ -61,7 +61,7 @@
                       </v-col>
                     </template>
                     <!-- Business Name or normal name -->
-                    <v-col cols="12" sm="4">
+                    <v-col cols="12" sm="4" v-else>
                       <v-text-field
                         :maxlength="rulesValidation.text.maxLength"
                         label="Nombre de empresa"
@@ -88,7 +88,14 @@
                         :loading="loading"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="4">
+                    <v-col
+                      cols="12"
+                      :sm="
+                        editItem.typeDocument && editItem.typeDocument != 'NIT'
+                          ? '6'
+                          : '4'
+                      "
+                    >
                       <v-text-field
                         :maxlength="rulesValidation.email.maxLength"
                         label="Correo Principal"
@@ -98,7 +105,14 @@
                         :loading="loading"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="4">
+                    <v-col
+                      cols="12"
+                      :sm="
+                        editItem.typeDocument && editItem.typeDocument != 'NIT'
+                          ? '6'
+                          : '4'
+                      "
+                    >
                       <v-text-field
                         :maxlength="rulesValidation.email.maxLength"
                         label="Correo Secundario (opcional)"
@@ -213,15 +227,6 @@
               </v-card>
             </v-col>
           </v-row>
-          <div class="pt-5">
-            <small
-              v-for="(error, index) in errorMessages"
-              :key="index"
-              class="text-orange"
-            >
-              {{ index + 1 + ". " + error }} <br />
-            </small>
-          </div>
         </v-card-text>
         <!----------------------- FORM --------------------------->
 
@@ -255,7 +260,7 @@ import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castNit, errorHandler } from "@/utils/cast";
+import { castNit } from "@/utils/cast";
 
 const enterpriseApi = new EnterpriseApi();
 const petition = new Petition();
@@ -271,7 +276,6 @@ export default {
     // required data
     loading: false,
     editItem: {},
-    errorMessages: [],
     // optional data
     cities: [],
     searchCity: "",
@@ -336,6 +340,12 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
+        if (this.editItem.typeDocument == "NIT") {
+          formData.append("business_name", this.editItem.business);
+        } else {
+          formData.append("names", this.editItem.names);
+          formData.append("surnames", this.editItem.surnames);
+        }
         if (this.editItem.email2)
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
@@ -351,22 +361,20 @@ export default {
           formData.append("names", this.editItem.names);
           formData.append("surnames", this.editItem.surnames);
         }
-
-        if (this.isEditForm) {
-          response = await enterpriseApi.update(formData);
-        } else {
-          response = await enterpriseApi.create(formData);
-        }
+        // logic to show alert 🚨
         if (response.statusResponse != 200) {
-          if (response.error) {
-            this.errorMessages = errorHandler(response.error);
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Error en la solicitud.",
+              response.error
+            );
+          } else {
+            this.alertMessageStore.show(false, "Error en el servidor.");
           }
-          this.alertMessageStore.show(false, "Error en el servidor");
-          // lack to define logic to pass show errors in FormUser 🚨
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
           this.$router.push(`/${this.path}`);
-          // lack to define logic to pass show alert in TableUser 🚨
         }
       }
       this.loading = false;

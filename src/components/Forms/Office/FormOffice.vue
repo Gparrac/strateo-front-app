@@ -60,27 +60,9 @@
               ></v-select>
             </v-col>
           </v-row>
-          <div class="pt-5">
-          <!-- <small
-            v-for="(error, index) in errorMessages"
-            :key="index"
-            class="text-orange"
-          >
-            {{ index + 1 + ". " + error }} <br />
-          </small> -->
-        </div>
         </v-card-text>
         <!----------------------- FORM --------------------------->
 
-        <div class="pt-5">
-          <small
-            v-for="(error, index) in errorMessages"
-            :key="index"
-            class="text-orange"
-          >
-            {{ index + 1 + ". " + error }} <br />
-          </small>
-        </div>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -111,7 +93,7 @@ import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { errorHandler } from '@/utils/cast';
+
 
 const officeApi = new OfficeApi();
 const petition = new Petition();
@@ -128,7 +110,6 @@ export default {
     // required data
     loading: false,
     editItem: {},
-    errorMessages: [],
     // optional data
     cities: [],
     searchCity: "",
@@ -182,17 +163,18 @@ export default {
         } else {
           response = await officeApi.create(formData);
         }
+        // logic to show alert 🚨
         if (response.statusResponse != 200) {
-          if(response.error){
-            this.errorMessages = errorHandler(response.error);
+          if(response.error && typeof response.error === 'object'){
+            this.alertMessageStore.show(false, "Error en la solicitud.",response.error);
+          }else{
+            this.alertMessageStore.show(false, "Error en el servidor.");
           }
-          this.alertMessageStore.show(false, "Error en el servidor");
-          // lack to define logic to pass show errors in FormUser 🚨
         } else {
-          this.alertMessageStore.show(true, "Poceso exitoso!");
+          this.alertMessageStore.show(true, "Proceso exitoso!");
           this.$router.push(`/${this.path}`);
-          // lack to define logic to pass show alert in TableUser 🚨
         }
+
       }
       this.loading = false;
     },

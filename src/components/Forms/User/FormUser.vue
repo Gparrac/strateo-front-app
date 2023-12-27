@@ -37,7 +37,7 @@
                       ></v-text-field>
                     </v-col>
                     <template v-if="editItem.typeDocument != 'NIT'">
-                      <v-col cols="12" sm="6">
+                      <v-col cols="12">
                         <v-text-field
                           :maxlength="rulesValidation.text.maxLength"
                           label="Nombres"
@@ -58,7 +58,8 @@
                         ></v-text-field>
                       </v-col>
                     </template>
-                    <v-col cols="12" sm="6">
+                    <template v-else>
+                      <v-col cols="12" sm="6">
                       <v-text-field
                         :maxlength="rulesValidation.text.maxLength"
                         label="Nombre de empresa"
@@ -68,6 +69,8 @@
                         :disabled="custom"
                       ></v-text-field>
                     </v-col>
+
+                    </template>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         :maxlength="rulesValidation.email.maxLength"
@@ -129,8 +132,8 @@
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12" lg="6">
-              <v-card title="Usuario" variant="outlined" padding="2">
+            <v-col cols="12" lg="6" class="d-flex align-center">
+              <v-card title="Usuario" variant="outlined" padding="2" class="w-100">
                 <v-card-text>
                   <v-row>
                     <v-col cols="12" sm="12">
@@ -194,15 +197,6 @@
               </v-card>
             </v-col>
           </v-row>
-          <div class="pt-5">
-          <small
-            v-for="(error, index) in errorMessages"
-            :key="index"
-            class="text-orange"
-          >
-            {{ index + 1 + ". " + error }} <br />
-          </small>
-        </div>
         </v-card-text>
         <!----------------------- FORM --------------------------->
 
@@ -239,7 +233,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import OfficeApi from "@/services/Forms/OfficeApi";
-import { castNit, errorHandler } from "@/utils/cast";
+import { castNit } from "@/utils/cast";
 
 const userApi = new UserApi();
 const roleApi = new RoleApi();
@@ -265,7 +259,6 @@ export default {
     offices: [],
     searchCity: "",
     formRef: null,
-    errorMessages: [],
     status: [
       { name: "A", label: "Activo" },
       { name: "I", label: "Inactivo" },
@@ -344,11 +337,13 @@ export default {
         let response = {};
         formData.append("type_document", this.editItem.typeDocument);
         formData.append("identification", this.editItem.identification);
-        if (this.editItem.names) formData.append("names", this.editItem.names);
-        if (this.editItem.surnames)
-          formData.append("surnames", this.editItem.surnames);
-        if (this.editItem.business)
+        if (this.editItem.typeDocument == 'NIT'){
           formData.append("business_name", this.editItem.business);
+        }else{
+          formData.append("names", this.editItem.names);
+          formData.append("surnames", this.editItem.surnames);
+
+        }
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
@@ -370,16 +365,16 @@ export default {
           formData.append("password", this.editItem.password);
           response = await userApi.create(formData);
         }
+        // logic to show alert 🚨
         if (response.statusResponse != 200) {
-          if(response.error){
-            this.errorMessages = errorHandler(response.error);
+          if(response.error && typeof response.error === 'object'){
+            this.alertMessageStore.show(false, "Error en la solicitud.", response.error);
+          }else{
+            this.alertMessageStore.show(false, "Error en el servidor.");
           }
-          this.alertMessageStore.show(false, "Error en el servidor");
-          // lack to define logic to pass show errors in FormUser 🚨
         } else {
-          this.alertMessageStore.show(true, "Poceso exitoso!");
+          this.alertMessageStore.show(true, "Proceso exitoso!");
           this.$router.push(`/${this.path}`);
-          // lack to define logic to pass show alert in TableUser 🚨
         }
       }
       this.loading = false;

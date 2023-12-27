@@ -150,8 +150,8 @@
               </div>
               <div v-else>
                 <v-btn
-                  class="ma-2" 
-                  outlined 
+                  class="ma-2"
+                  outlined
                   :href="getFileUrl(showFileCommercialSelected)"
                   target="_blank"
                   prepend-icon="mdi-folder-download"
@@ -180,8 +180,8 @@
               </div>
               <div v-else>
                 <v-btn
-                  class="ma-2" 
-                  outlined 
+                  class="ma-2"
+                  outlined
                   :href="getFileUrl(showFileRutSelected)"
                   download
                   size="x-large"
@@ -235,16 +235,6 @@
           </v-row>
         </v-card-text>
         <!----------------------- FORM --------------------------->
-
-        <div class="pt-5">
-          <small
-            v-for="(error, index) in errorMessages"
-            :key="index"
-            class="text-orange"
-          >
-            {{ index + 1 + ". " + error }} <br />
-          </small>
-        </div>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -291,7 +281,6 @@ export default {
     // required data
     loading: false,
     editItem: {},
-    errorMessages: [],
     // optional data
     cities: [],
     searchCity: "",
@@ -308,7 +297,7 @@ export default {
     this.loading = true;
     try {
       await Promise.all([
-        this.setEditItem(), 
+        this.setEditItem(),
         this.setCities(),
         this.setTypesDocument(),
       ]);
@@ -376,14 +365,18 @@ export default {
         } else {
           response = await clientApi.create(formData);
         }
+        // logic to show alert 🚨
         if (response.statusResponse != 200) {
-          this.alertMessageStore.show(false, "Error en el servidor");
-          // lack to define logic to pass show errors in FormUser 🚨
+          if(response.error && typeof response.error === 'object'){
+            this.alertMessageStore.show(false, "Error en la solicitud.", response.error);
+          }else{
+            this.alertMessageStore.show(false, "Error en el servidor.");
+          }
         } else {
-          this.alertMessageStore.show(true, "Poceso exitoso!");
+          this.alertMessageStore.show(true, "Proceso exitoso!");
           this.$router.push(`/${this.path}`);
-          // lack to define logic to pass show alert in TableUser 🚨
         }
+
       }
       this.loading = false;
     },
@@ -409,7 +402,7 @@ export default {
           email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
           city_id: response.data.third.city_id,
-          status: response.data.third.status,
+          // status: response.data.third.status, Estas repitiendo atributos ⚠️
 
           commercial_registry: response.data.commercial_registry,
           legal_representative_name: response.data.legal_representative_name,

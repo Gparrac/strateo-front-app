@@ -70,15 +70,6 @@
               </tr>
             </tbody>
           </v-table>
-          <div class="pt-5">
-          <small
-            v-for="(error, index) in errorMessages"
-            :key="index"
-            class="text-orange"
-          >
-            {{ index + 1 + ". " + error }} <br />
-          </small>
-        </div>
         </v-card-text>
         <!----------------------- FORM --------------------------->
         <v-card-actions>
@@ -129,7 +120,6 @@ export default {
     loading: false,
     forms: [],
     permissions: [],
-    errorMessages: [],
     editItem: {},
     rulesValidation: RulesValidation,
   }),
@@ -183,16 +173,22 @@ export default {
           formData.append("role_id", this.editItem.id);
           response = await roleApi.update(formData);
         } else {
-          formData.append("password", this.editItem.password);
           response = await roleApi.create(formData);
         }
-        if (response.error) {
-          this.alertMessageStore.show(false, "Error en el servidor");
-          // lack to define logic to pass show errors in FormUser 🚨
+        // logic to show alert 🚨
+        if (response.statusResponse != 200) {
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Error en la solicitud.",
+              response.error
+            );
+          } else {
+            this.alertMessageStore.show(false, "Error en el servidor.");
+          }
         } else {
-          this.alertMessageStore.show(true, "Poceso exitoso!");
+          this.alertMessageStore.show(true, "Proceso exitoso!");
           this.$router.push(`/${this.path}`);
-          // lack to define logic to pass show alert in TableUser 🚨
         }
       }
       this.loading = false;

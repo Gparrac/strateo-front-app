@@ -74,6 +74,8 @@
 import { RulesValidation } from "@/utils/validations";
 import Petition from "@/services/PetitionStructure/Petition";
 import AuthUser from "@/services/auth/AuthUser";
+import { mapStores } from 'pinia';
+import { useAlertMessageStore } from "@/store/alertMessage";
 
 const petition = new Petition();
 const authUser = new AuthUser();
@@ -89,6 +91,9 @@ export default {
   }),
   mounted() {
     this.getTypeDocument();
+  },
+  computed:{
+    ...mapStores(useAlertMessageStore),
   },
   methods: {
     async getTypeDocument() {
@@ -113,6 +118,11 @@ export default {
         if (response.statusResponse != 200) {
           var currentUrl = new URL(window.location.href);
           var errorParamExists = currentUrl.searchParams.has("error");
+          if(response.error && typeof response.error === 'object'){
+            this.alertMessageStore.show(false, "Verifica los campos.",response.error);
+          }else{
+            this.alertMessageStore.show(false, "Error en el servidor.");
+          }
           if (!errorParamExists) {
             currentUrl.searchParams.set("error", "true");
             window.location.href = currentUrl.toString();
@@ -120,7 +130,10 @@ export default {
             window.location.reload(true);
           }
           return;
+                  // logic to show alert 🚨
+
         }
+        this.alertMessageStore.show(true, "Autenticación exitosa!");
         localStorage.setItem("auth-token", response.data.access_token);
         localStorage.setItem("user", JSON.stringify(response.user));
         this.$router.push("/");
