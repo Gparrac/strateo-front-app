@@ -38,6 +38,7 @@
                 >
                   {{ item.name }}
                 </th>
+                <th>TODOS</th>
               </tr>
             </thead>
             <tbody>
