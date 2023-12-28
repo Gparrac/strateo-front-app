@@ -381,7 +381,6 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
         formData.append("code_ciiu_id", this.editItem.ciiu.id);
@@ -401,6 +400,10 @@ export default {
         );
         formData.append("note", this.editItem.note);
         formData.append("status", this.editItem.status);
+
+        if(this.editItem.email2 && this.editItem.email2 != ''){
+          formData.append("email2", this.editItem.email2);
+        }
 
         if (typeof this.showFileCommercialSelected != "string") {
           formData.append(
