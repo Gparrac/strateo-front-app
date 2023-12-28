@@ -30,7 +30,7 @@
             <thead>
               <tr class="text-left">
                 <th>SECCIONES</th>
-                <th>FORMULARIOS</th>
+                <th >FORMULARIOS</th>
                 <th
                   v-for="item in permissions"
                   :key="item.id"
@@ -38,7 +38,7 @@
                 >
                   {{ item.name }}
                 </th>
-                <th>TODOS</th>
+                <th class="text-center">TODOS</th>
               </tr>
             </thead>
             <tbody>
