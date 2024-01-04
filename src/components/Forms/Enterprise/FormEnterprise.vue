@@ -408,7 +408,6 @@ export default {
         this.editItem = {};
         return;
       }
-      console.log('pasando=?',response.data);
       this.isEditForm = true;
       this.editItem = Object.assign(
         {},
@@ -431,7 +430,6 @@ export default {
           footer: response.data.footer,
         }
       );
-      console.log('####',this.editItem);
       this.showImageSelected = response.data.path_logo;
     },
     async setCities(name = null) {
