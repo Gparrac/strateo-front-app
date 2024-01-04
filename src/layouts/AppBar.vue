@@ -16,11 +16,11 @@
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
           <span class="d-block text-subtitle-1 text-right">{{
-            this.user?.name
+            userAuthStore.user?.name
           }}</span>
           <span
             class="d-block text-subtitle-2 text-grey-lighten-1 text-right"
-            >{{ this.user?.email }}</span
+            >{{ userAuthStore.user?.email }}</span
           >
         </div>
         <v-btn icon @click="() => (toggleSettings = !toggleSettings)">
@@ -79,10 +79,11 @@
 </template>
 <script>
 import AlertMessage from "@/components/blocks/AlertMessage.vue";
-import AuthUser from "@/services/auth/AuthUser";
 import ModalUserSettings from "@/components/blocks/ModalUserSettings.vue";
 import FormApi from "@/services/Forms/FormApi";
-const authUser = new AuthUser();
+import { useUserAuthStore } from '@/store/userAuth';
+import { mapStores } from 'pinia';
+
 const formApi = new FormApi();
 
 export default {
@@ -92,35 +93,23 @@ export default {
     AlertMessage,
   },
   data: () => ({
-    user: {},
     toggleSettings: false,
     drawer: false,
     sections: [],
   }),
   async mounted() {
-    await this.checkAuthUser();
     await this.getFormsAvailable();
-    this.getUser();
+    console.log('name',this.userAuthStore.user)
+
+  },
+  computed:{
+    ...mapStores(useUserAuthStore),
   },
   methods: {
-    async checkAuthUser() {
-      const userData = await authUser.user();
-      if (userData.statusResponse != 200) {
-        this.$router.push("/sign-in");
-      }
-      this.user = userData;
-    },
     async getFormsAvailable() {
       const response = await formApi.read("?format=routes-available");
       if (response.data) {
         this.sections = response.data;
-      }
-    },
-    async getUser() {
-      const savedUser = localStorage.getItem("user");
-      this.user = JSON.parse(savedUser);
-      if (savedUser) {
-        // Actualizar el estado con los datos recuperados
       }
     },
   },

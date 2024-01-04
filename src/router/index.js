@@ -2,6 +2,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import formsRoute from "./Forms";
 import Petition from "@/services/PetitionStructure/Petition";
+import AuthUser from "@/services/auth/AuthUser";
+import { useUserAuthStore } from "@/store/userAuth";
+const authUser = new AuthUser();
 const petition = new Petition();
 const routes = [
   {
@@ -23,11 +26,24 @@ const routes = [
     beforeEnter: async (to, from, next) => {
       let path = null;
       try {
-        if ( from.path == "/sign-in" && to.path =="/") {
-          const response = await petition.get("/check-enterprise", "", true);
-          if (response.message && response.message == 'Successful') {
-            if( response.data === false){
-              path = '/enterprises';
+        //check auth 🚨
+        const userData = await authUser.user();
+        console.log("auth",userData);
+        if (userData.statusResponse != 200) {
+          const userStore = useUserAuthStore();
+          localStorage.clear();
+          userStore.$reset();
+          path = "/sign-in";
+        } else {
+          if (from.path == "/sign-in" && to.path == "/") {
+
+            console.log("enterprise");
+            //check enterprise 🚨
+            const response = await petition.get("/check-enterprise", "", true);
+            if (response.message && response.message == "Successful") {
+              if (response.data === false) {
+                path = "/enterprises";
+              }
             }
           }
         }

@@ -1,4 +1,5 @@
 <template>
+  <alert-message></alert-message>
   <v-form class="d-flex justify-center align-center h-screen" ref="form">
     <v-card width="512" :loading="loader">
       <v-card-title class="text-h3 pt-5 text-center">
@@ -74,14 +75,18 @@
 import { RulesValidation } from "@/utils/validations";
 import Petition from "@/services/PetitionStructure/Petition";
 import AuthUser from "@/services/auth/AuthUser";
-import { mapStores } from 'pinia';
+import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-
+import { useUserAuthStore } from "@/store/userAuth";
+import AlertMessage from "@/components/blocks/AlertMessage";
 const petition = new Petition();
 const authUser = new AuthUser();
 
 export default {
   name: "LoginView",
+  components: {
+    AlertMessage,
+  },
   data: () => ({
     typeAuth: false,
     form: {},
@@ -92,8 +97,8 @@ export default {
   mounted() {
     this.getTypeDocument();
   },
-  computed:{
-    ...mapStores(useAlertMessageStore),
+  computed: {
+    ...mapStores(useAlertMessageStore, useUserAuthStore),
   },
   methods: {
     async getTypeDocument() {
@@ -116,27 +121,26 @@ export default {
         const response = await authUser.login(formData);
 
         if (response.statusResponse != 200) {
-          var currentUrl = new URL(window.location.href);
-          var errorParamExists = currentUrl.searchParams.has("error");
-          if(response.error && typeof response.error === 'object'){
-            this.alertMessageStore.show(false, "Verifica los campos.",response.error);
-          }else{
+          // var errorParamExists = currentUrl.searchParams.has("error");
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Verifica los campos.",
+              response.error
+            );
+          } else {
             this.alertMessageStore.show(false, "Error en el servidor.");
           }
-          if (!errorParamExists) {
-            currentUrl.searchParams.set("error", "true");
-            window.location.href = currentUrl.toString();
-          } else {
-            window.location.reload(true);
-          }
-          return;
-                  // logic to show alert 🚨
-
+        } else {
+          this.alertMessageStore.show(true, "Autenticación exitosa!");
+          this.userAuthStore.saveCredentials({
+            user: response.user,
+            ...response.data,
+          });
+          localStorage.setItem("auth-token", response.data.access_token);
+          localStorage.setItem("user", JSON.stringify(response.user));
+          this.$router.push("/");
         }
-        this.alertMessageStore.show(true, "Autenticación exitosa!");
-        localStorage.setItem("auth-token", response.data.access_token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-        this.$router.push("/");
       }
       this.loader = false;
     },
