@@ -71,4 +71,26 @@ export const RulesValidation = {
         "El archivo debe pesar menos de 3 MB",
     ],
   },
+  quantity: {
+    rules: [
+      (value) =>
+        !isNaN(value) ||
+        typeof value == 'number' ||
+        "La cantidad debe ser de tipo númerica",
+        (value) =>
+        value < 10000 && value >= 0 ||
+        "Rango de cantidad no valida",
+    ],
+  },
+  price: {
+    rules: [
+      (value) =>
+        !isNaN(value) ||
+        typeof value == 'number' ||
+        "La cantidad debe ser de tipo númerica",
+        (value) =>
+        value < 100000000 && value >= 0 ||
+        "Rango de cantidad no valida",
+    ],
+  }
 };
