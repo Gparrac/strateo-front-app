@@ -8,6 +8,18 @@ export const RulesValidation = {
         "Este campo debe de ser de almenos 3 caracteres",
     ],
   },
+  longText: {
+    maxLength: 300,
+    rules: [
+      (value) => !!value || "Este campo es requirido",
+      (value) =>
+        (value && value.length >= 3) ||
+        "Este campo debe de ser de almenos 3 caracteres",
+      (value) =>
+        (value && value.length < 300) ||
+        "Este campo debe de ser menor de 300 caracteres",
+    ],
+  },
   identification: {
     maxLength: 12,
     rules: [

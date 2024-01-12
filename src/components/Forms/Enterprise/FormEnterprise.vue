@@ -210,7 +210,8 @@
                       <v-textarea
                         label="Encabezado"
                         v-model="editItem.header"
-                        :rules="rulesValidation.text.rules"
+                        :maxLength="rulesValidation.longText.maxLength"
+                        :rules="rulesValidation.longText.rules"
                         :loading="loading"
                       ></v-textarea>
                     </v-col>
@@ -218,15 +219,17 @@
                       <v-textarea
                         label="Pie de página"
                         v-model="editItem.footer"
-                        :rules="rulesValidation.text.rules"
+                        :maxLength="rulesValidation.longText.maxLength"
+                        :rules="rulesValidation.longText.rules"
                         :loading="loading"
                       ></v-textarea>
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col cols="12" :sm="12">
+                      <strong class="text-caption d-block mb-2">* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a 5 letras para completar la busqueda...</strong>
                       <v-autocomplete
-                        label="Codigo CIIU"
+                        label="Codigo principal CIIU"
                         v-model="editItem.ciiu"
                         :items="ciiuCodes"
                         v-model:search="searchCiiu"
@@ -237,6 +240,7 @@
                       ></v-autocomplete>
                     </v-col>
                   </v-row>
+                  <ciiu-secondary-field></ciiu-secondary-field>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -272,6 +276,7 @@
 import EnterpriseApi from "@/services/Forms/EnterpriseApi.js";
 import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
+import CiiuSecondaryField from "./CiiuSecondaryField.vue"
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castNit } from "@/utils/cast";
@@ -285,7 +290,9 @@ export default {
     nameTable: String,
     path: String,
   },
-  components: {},
+  components: {
+    CiiuSecondaryField
+  },
   data: () => ({
     // required data
     loading: false,
@@ -343,7 +350,7 @@ export default {
       }
     },
     async searchCiiu(to) {
-      if (to.length > 1) {
+      if (to.length > 3 && to.length < 5) {
         this.setCiiuCodes(to);
       }
     },

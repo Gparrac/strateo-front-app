@@ -51,6 +51,7 @@
                   class="text-center"
                 >
                   <v-checkbox
+                    v-if="editItem.forms && editItem.forms.length >= findex"
                     color="primary"
                     v-model="editItem.forms[findex].permissions_id"
                     class="d-flex justify-center"
@@ -192,11 +193,12 @@ export default {
       }
       this.loading = false;
     },
-    createSelectsAll() {
+    async createSelectsAll() {
+
       if (!this.idEditForm) {
-        this.editItem.forms = Array(this.forms.length).fill({
-          permissions_id: [],
-        });
+        // this.editItem.forms = Array(this.forms.length).fill({
+        //   permissions_id: [],
+        // });
         this.editItem.forms = this.forms.map((item) => {
           item.selectAll = false;
           return { form_id: item.id, permissions_id: [] };

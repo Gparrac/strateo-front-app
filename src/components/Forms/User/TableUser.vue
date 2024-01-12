@@ -1,75 +1,16 @@
 <template>
   <div>
-    <div class="d-flex pb-5">
-      <h2 class="flex-grow-1 d-flex flex-column">
-        Registros actuales
-        <div>
-          <v-chip variant="tonal" class="ma-1" label :color="'primary'">
-            Inactivo
-          </v-chip>
-          <v-chip variant="tonal" class="ma-1" label color="orange">
-            Activo
-          </v-chip>
-        </div>
-      </h2>
-
-      <div class="d-flex align-center justify-center">
-        <v-select
-        :loading="loading"
-        density="compact"
-        variant="solo"
-        class="mr-3 "
-        label="Atributo"
-        item-value="title"
-        item-title="label"
-        :items="typeskeyword"
-        v-model="typeKeyword"
-        single-line
-        hide-details
-        />
-
-
-        <v-text-field
-        :loading="loading"
-        density="compact"
-        variant="solo"
-        class="mr-3 min-w-20"
-        label="Palabra clave"
-        append-inner-icon="mdi-magnify"
-        single-line
-        hide-details
-        v-model="keyword"
-        @click:append-inner="loadItems"
-      ></v-text-field>
-        <v-btn
-
-          :icon="'mdi-filter-remove'"
-          color="success"
-          variant="tonal"
-          class="mr-3"
-          :disabled="!filter"
-          @click="cleanFilter"
-        >
-        </v-btn>
-        <v-btn
-          icon="mdi-plus"
-          class="mr-3"
-          color="primary"
-          variant="tonal"
-          @click="() => $router.push(`${path}/create`)"
-        >
-        </v-btn>
-        <v-btn
-          icon="mdi-delete"
-          color="warning"
-          variant="tonal"
-          :disabled="selectedItems.length == 0 ? true : false"
-          @click="() => (toggleDelete = true)"
-        >
-        </v-btn>
-
-      </div>
-    </div>
+    <header-table
+      :loading="loading"
+      :typeskeyword="typeskeyword"
+      :typeKeyword="typeKeyword"
+      :path="path"
+      :filterCleaner="filterCleaner"
+      :disableDelete="selectedItems.length == 0 ? true : false"
+      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
+      @clean-filter="loadItems({})"
+      @toggle-delete="() => (toggleDelete = true)"
+    ></header-table>
     <modal-delete
       v-if="toggleDelete"
       @confirm-delete="deleteItems"
@@ -88,6 +29,7 @@
       :items-length="totalRecords"
       v-model:items-per-page="recordsPerPage"
       :loading="loading"
+      items-per-page-text="Items por Página"
       show-select
       return-object
     >
@@ -119,6 +61,7 @@
 </template>
 
 <script>
+import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import UserApi from "@/services/Forms/UserApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
@@ -131,25 +74,31 @@ export default {
     nameTable: String,
     path: String,
   },
+  components: {
+    ModalDelete,
+    HeaderTable,
+  },
   data: () => ({
     //required data
     records: [],
     //search word
-    filter:false,
-    keyword: "",
-    typeKeyword:"",
-    typeskeyword:[{title:'id',label:'ID'},{title:'name',label:'Usuario'}],
+    filterCleaner: false,
+    typeskeyword: [
+      { title: "id", label: "ID" },
+      { title: "name", label: "Usuario" },
+    ],
+    //pagination
+    totalRecords: 0,
+    recordsPerPage: 5,
+    currentlyPage: 1,
+    loading: false,
     //delete items
     keyQueryDelete: "users_id",
     mainKeyDelete: ["name"],
     secondKeyDelete: ["third", "email"],
     selectedItems: [],
     toggleDelete: false,
-    //pagination
-    totalRecords: 0,
-    recordsPerPage: 5,
-    currentlyPage: 1,
-    loading: false,
+
     //optional data
     headers: [
       {
@@ -172,28 +121,28 @@ export default {
       { title: "Acciones", align: "end", key: "actions", sortable: false },
     ],
   }),
-  components: {
-    ModalDelete,
-  },
   methods: {
-    async cleanFilter(){
-      this.filter = '';
-      this.typeKeyword = '';
-      this.keyword = '';
-      await this.loadItems({});
-    },
-    async loadItems({ page = this.currentlyPage, itemsPerPage = this.recordsPerPage, sortBy = [] }) {
+    async loadItems(
+      {
+        page = this.currentlyPage,
+        itemsPerPage = this.recordsPerPage,
+        sortBy = [],
+      },
+      keyword = null,
+      typeKeyword = null
+    ) {
       this.loading = true;
-      const params = new URLSearchParams();//loading params
-      console.log(this.filter,this.typeKeyword,this.keyword)
-      if(this.typeKeyword && this.keyword){
-        this.filter = true;
-        params.append('typeKeyword', this.typeKeyword);
-        params.append('keyword', this.keyword);
+      const params = new URLSearchParams();
+      if (typeKeyword && keyword) {
+        this.filterCleaner = true;
+        params.append("typeKeyword", typeKeyword);
+        params.append("keyword", keyword);
+      } else {
+        this.filterCleaner = sortBy.length !== 0;
       }
-      if(sortBy.length != 0) this.filter = true;
-      params.append('page',page);
-      params.append('pagination',itemsPerPage);
+
+      params.append("page", page);
+      params.append("pagination", itemsPerPage);
       sortBy.forEach((item, index) => {
         Object.keys(item).forEach((key) => {
           params.append(`sorters[${index}][${key}]`, item[key]);
@@ -210,6 +159,7 @@ export default {
       this.totalRecords = response.data.total;
       this.loading = false;
     },
+
     async deleteItems(data) {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
@@ -234,20 +184,14 @@ export default {
             true,
             `${this.nameTable} desactivados exitosamente`
           );
-          await this.loadItems();
+          await this.loadItems({});
           this.selectedItems = [];
         }
       }
     },
   },
-  async mounted() {},
   computed: {
     ...mapStores(useAlertMessageStore),
   },
 };
 </script>
-<style scoped>
-.min-w-20{
-  min-width: 150px;
-}
-</style>

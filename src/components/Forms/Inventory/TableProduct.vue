@@ -108,8 +108,6 @@ export default {
   methods: {
     async fetchScores() {},
     deleteItem() {
-      console.log('seleccionados',this.selectedItems)
-
       this.records = this.records.filter((element) =>
         !this.selectedItems.includes(element)
       );
