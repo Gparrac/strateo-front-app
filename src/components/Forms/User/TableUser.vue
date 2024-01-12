@@ -13,7 +13,44 @@
         </div>
       </h2>
 
-      <div class="d-flex align-end">
+      <div class="d-flex align-center justify-center">
+        <v-select
+        :loading="loading"
+        density="compact"
+        variant="solo"
+        class="mr-3 "
+        label="Atributo"
+        item-value="title"
+        item-title="label"
+        :items="typeskeyword"
+        v-model="typeKeyword"
+        single-line
+        hide-details
+        />
+
+
+        <v-text-field
+        :loading="loading"
+        density="compact"
+        variant="solo"
+        class="mr-3 min-w-20"
+        label="Palabra clave"
+        append-inner-icon="mdi-magnify"
+        single-line
+        hide-details
+        v-model="keyword"
+        @click:append-inner="loadItems"
+      ></v-text-field>
+        <v-btn
+
+          :icon="'mdi-filter-remove'"
+          color="success"
+          variant="tonal"
+          class="mr-3"
+          :disabled="!filter"
+          @click="cleanFilter"
+        >
+        </v-btn>
         <v-btn
           icon="mdi-plus"
           class="mr-3"
@@ -30,6 +67,7 @@
           @click="() => (toggleDelete = true)"
         >
         </v-btn>
+
       </div>
     </div>
     <modal-delete
@@ -41,12 +79,15 @@
       :secondKey="secondKeyDelete"
       :title="nameTable"
     ></modal-delete>
-    <v-data-table
+    <v-data-table-server
       :headers="headers"
       :items="records"
-      items-per-page="5"
       item-selectable="selectable"
       v-model="selectedItems"
+      @update:options="loadItems"
+      :items-length="totalRecords"
+      v-model:items-per-page="recordsPerPage"
+      :loading="loading"
       show-select
       return-object
     >
@@ -73,7 +114,7 @@
           </v-chip>
         </div>
       </template>
-    </v-data-table>
+    </v-data-table-server>
   </div>
 </template>
 
@@ -92,39 +133,82 @@ export default {
   },
   data: () => ({
     //required data
+    records: [],
+    //search word
+    filter:false,
+    keyword: "",
+    typeKeyword:"",
+    typeskeyword:[{title:'id',label:'ID'},{title:'name',label:'Usuario'}],
+    //delete items
     keyQueryDelete: "users_id",
     mainKeyDelete: ["name"],
     secondKeyDelete: ["third", "email"],
     selectedItems: [],
-    records: [],
     toggleDelete: false,
+    //pagination
+    totalRecords: 0,
+    recordsPerPage: 5,
+    currentlyPage: 1,
+    loading: false,
     //optional data
     headers: [
       {
         title: "ID",
         align: "start",
         key: "id",
+        sortable: true,
       },
-      { title: "Usuario", align: "end", key: "name" },
-      { title: "Email", align: "end", key: "third.email" },
-      { title: "Estado", align: "end", key: "status" },
-      { title: "Telefono", align: "end", key: "third.mobile" },
-      { title: "Role", align: "end", key: "role.name" },
-      { title: "Ultima actulización", align: "center", key: "updated_at" },
-      { title: "Acciones", align: "end", key: "actions" },
+      { title: "Usuario", align: "end", key: "name", sortable: true },
+      { title: "Email", align: "end", key: "third.email", sortable: false },
+      { title: "Estado", align: "end", key: "status", sortable: false },
+      { title: "Telefono", align: "end", key: "third.mobile", sortable: false },
+      { title: "Role", align: "end", key: "role.name", sortable: false },
+      {
+        title: "Ultima actulización",
+        align: "center",
+        key: "updated_at",
+        sortable: true,
+      },
+      { title: "Acciones", align: "end", key: "actions", sortable: false },
     ],
   }),
   components: {
     ModalDelete,
   },
   methods: {
-    async fetchScores() {
-      const response = await userApi.read();
-      if (response.data)
-        this.records = response.data.map((item) => {
+    async cleanFilter(){
+      this.filter = '';
+      this.typeKeyword = '';
+      this.keyword = '';
+      await this.loadItems({});
+    },
+    async loadItems({ page = this.currentlyPage, itemsPerPage = this.recordsPerPage, sortBy = [] }) {
+      this.loading = true;
+      const params = new URLSearchParams();//loading params
+      console.log(this.filter,this.typeKeyword,this.keyword)
+      if(this.typeKeyword && this.keyword){
+        this.filter = true;
+        params.append('typeKeyword', this.typeKeyword);
+        params.append('keyword', this.keyword);
+      }
+      if(sortBy.length != 0) this.filter = true;
+      params.append('page',page);
+      params.append('pagination',itemsPerPage);
+      sortBy.forEach((item, index) => {
+        Object.keys(item).forEach((key) => {
+          params.append(`sorters[${index}][${key}]`, item[key]);
+        });
+      });
+      const response = await userApi.read(params.toString());
+      if (response.data && response.data.data)
+        this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
           return item;
         });
+      this.currentlyPage = page;
+      this.recordsPerPage = response.data.per_page;
+      this.totalRecords = response.data.total;
+      this.loading = false;
     },
     async deleteItems(data) {
       this.toggleDelete = false;
@@ -150,17 +234,20 @@ export default {
             true,
             `${this.nameTable} desactivados exitosamente`
           );
-          await this.fetchScores();
+          await this.loadItems();
           this.selectedItems = [];
         }
       }
     },
   },
-  async mounted() {
-    await this.fetchScores();
-  },
+  async mounted() {},
   computed: {
     ...mapStores(useAlertMessageStore),
   },
 };
 </script>
+<style scoped>
+.min-w-20{
+  min-width: 150px;
+}
+</style>

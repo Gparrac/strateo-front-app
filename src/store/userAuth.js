@@ -27,7 +27,6 @@ export const useUserAuthStore = defineStore("userAuth", {
 
     loadState() {
      // Lee el estado del localStorage al iniciar la aplicación
-     console.log('onCreate?')
       const authToken = localStorage.getItem("auth-token");
       const user = localStorage.getItem("user");
       if (authToken && user) {

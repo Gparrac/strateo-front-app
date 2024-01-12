@@ -12,6 +12,7 @@ export default class Petition {
      * @returns return a promise that gives the backend's data or and error with its message
      */
     get(url, query = '', token = false){
+      if(query.length != 0) query = `?${query}`
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'GET',

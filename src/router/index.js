@@ -28,7 +28,6 @@ const routes = [
       try {
         //check auth 🚨
         const userData = await authUser.user();
-        console.log("auth",userData);
         if (userData.statusResponse != 200) {
           const userStore = useUserAuthStore();
           localStorage.clear();
@@ -36,8 +35,6 @@ const routes = [
           path = "/sign-in";
         } else {
           if (from.path == "/sign-in" && to.path == "/") {
-
-            console.log("enterprise");
             //check enterprise 🚨
             const response = await petition.get("/check-enterprise", "", true);
             if (response.message && response.message == "Successful") {

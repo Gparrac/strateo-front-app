@@ -99,7 +99,6 @@ export default {
   }),
   async mounted() {
     await this.getFormsAvailable();
-    console.log('name',this.userAuthStore.user)
 
   },
   computed:{
