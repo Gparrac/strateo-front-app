@@ -88,7 +88,6 @@ export default {
     cleanFilter(){
       this.keyword='';
       this.typeKeyword='';
-      console.log('temp',this.keyword, this.typeKeyword)
       this.$emit('load-items');
     }
   }

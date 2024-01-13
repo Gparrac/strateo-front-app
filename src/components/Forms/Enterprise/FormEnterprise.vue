@@ -240,7 +240,7 @@
                       ></v-autocomplete>
                     </v-col>
                   </v-row>
-                  <ciiu-secondary-field></ciiu-secondary-field>
+                  <ciiu-secondary-field v-if="editItem.secondaryCiius" :records="editItem.secondaryCiius" @update:records="(item) => editItem.secondaryCiius = item"></ciiu-secondary-field>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -385,7 +385,11 @@ export default {
         formData.append("footer", this.editItem.footer);
         if (typeof this.showImageSelected != "string")
           formData.append("path_logo", this.showImageSelected);
-
+        if(this.editItem.secondaryCiius && this.editItem.secondaryCiius.length > 0){
+          this.editItem.secondaryCiius.forEach((item, index) => {
+            formData.append(`secondary_ciiu_ids[${index}]`,item.id);
+          });
+        }
         if (this.isEditForm) {
           response = await enterpriseApi.update(formData);
         } else {
@@ -435,6 +439,7 @@ export default {
           ciiu: response.data.ciiu,
           header: response.data.header,
           footer: response.data.footer,
+          secondaryCiius: response.data.secondary_ciius
         }
       );
       this.showImageSelected = response.data.path_logo;

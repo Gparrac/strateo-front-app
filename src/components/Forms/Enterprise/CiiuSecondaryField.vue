@@ -14,7 +14,6 @@
           v-model:search="searchCiiu"
           item-title="description"
           :return-object="true"
-          :rules="rulesValidation.select.rules"
           :loading="loading"
         ></v-autocomplete>
         <v-btn
@@ -33,7 +32,7 @@
         <v-col
           cols="12"
           md="6"
-          v-for="record in savedRecords"
+          v-for="record in records"
           :key="record.code"
         >
         <v-card :title="record.code" :subtitle="record.description">
@@ -47,7 +46,7 @@
   </v-row>
   <div class="d-flex align-center">
     <strong class="text-overline d-block mt-3">Total de registros seleccionados: </strong>
-    <span class="text-primary d-block text-h5 pt-3 pl-3">{{ savedRecords.length }}</span>
+    <span class="text-primary d-block text-h5 pt-3 pl-3">{{ records.length }}</span>
   </div>
 </template>
 <script>
@@ -55,8 +54,10 @@ import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
 const petition = new Petition();
 export default {
+  props:{
+    records:Array
+  },
   data: () => ({
-    savedRecords: [{id:0, code: "1222", description: "Un cultivo del bien" }],
     ciiu: null,
     ciiuCodes: [],
     searchCiiu: "",
@@ -75,12 +76,14 @@ export default {
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
     },
     appendCiiu(){
-    console.log('ciiu',this.ciiu)
-    this.savedRecords = [this.ciiu,...this.savedRecords];
-    this.ciiu = null;
+      this.emitCiiuRecords([this.ciiu,...this.records]);
+      this.ciiu = null;
   },
   deleteItem(ciiu){
-    this.savedRecords = this.savedRecords.filter(item => item.id != ciiu.id)
+    this.emitCiiuRecords(this.records.filter(item => item.id != ciiu.id));
+  },
+  emitCiiuRecords(newRecords){
+    this.$emit('update:records',newRecords);
   }
   },
   async mounted() {
