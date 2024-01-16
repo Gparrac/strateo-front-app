@@ -13,7 +13,7 @@ import App from './App.vue'
 // Composables
 import { createApp } from 'vue'
 
-import { useUserAuthStore } from './store/userAuth'
+// import { useUserAuthStore } from './store/userAuth'
 
 const app = createApp(App)
 
@@ -22,5 +22,5 @@ registerPlugins(app)
 // app.use(pinia)
 
 app.mount('#app')
-useUserAuthStore().loadState();
+
 

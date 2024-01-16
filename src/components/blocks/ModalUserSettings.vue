@@ -21,13 +21,21 @@
               <p
                 @click="$router.push('change-password')"
                 style="white-space: normal"
-                v-text="'Cambiar contraseña'"
+                v-text="'Nueva contraseña'"
               ></p>
             </v-list-item-title>
           </v-list-item>
           <v-list-item>
             <v-list-item-title>
-              <v-switch v-model="darkTheme" label="Cambiar tema" inset color="red-darken-3" @change="toggleTheme"></v-switch>
+              <v-switch v-model="darkTheme"  color="primary" @change="toggleTheme">
+              <template v-slot:label>
+                <div class="d-flex flex-column">
+                  <span class="d-block text-body">Cambiar Tema</span>
+                  <span :class="'d-block text-caption '+ (darkTheme ? 'text-primary' : 'text-warning')">{{darkTheme ? 'Claro' : 'Oscuro'}}</span>
+                </div>
+
+              </template>
+              </v-switch>
 
 
             </v-list-item-title>
@@ -60,7 +68,7 @@ export default {
       this.$router.push("sign-in");
     },
     toggleTheme() {
-      this.theme.global.name = !this.theme.global.current.dark ? 'light' : 'dark'
+      this.theme.global.name = this.theme.global.current.dark ? 'light' : 'dark'
     }
   },
   onMounted(){
