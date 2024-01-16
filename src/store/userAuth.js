@@ -19,21 +19,11 @@ export const useUserAuthStore = defineStore("userAuth", {
       this.persistState();
     },
     persistState() {
-
       // Guarda el estado actual en el localStorage
       localStorage.setItem("auth-token", this.authToken);
       localStorage.setItem("user", JSON.stringify(this.user));
     },
 
-    loadState() {
-     // Lee el estado del localStorage al iniciar la aplicación
-      const authToken = localStorage.getItem("auth-token");
-      const user = localStorage.getItem("user");
-      if (authToken && user) {
-        this.authToken = authToken;
-        this.user = JSON.parse(user);
-      }
-    },
   },
 
 });

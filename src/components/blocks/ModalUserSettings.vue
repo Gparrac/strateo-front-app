@@ -25,6 +25,13 @@
               ></p>
             </v-list-item-title>
           </v-list-item>
+          <v-list-item>
+            <v-list-item-title>
+              <v-switch v-model="darkTheme" label="Cambiar tema" inset color="red-darken-3" @change="toggleTheme"></v-switch>
+
+
+            </v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-card>
     </v-expand-transition>
@@ -33,10 +40,18 @@
 <script>
 import AuthUser from "@/services/auth/AuthUser.js";
 const authUser = new AuthUser();
+import { useTheme } from 'vuetify'
+
 export default {
   name: "ModalUserSettings",
   props: {
     expand: Boolean,
+  },
+  data:function(){
+    return{
+      theme: useTheme(),
+      darkTheme:false
+    }
   },
   methods: {
     async signOut() {
@@ -44,7 +59,17 @@ export default {
       localStorage.clear();
       this.$router.push("sign-in");
     },
+    toggleTheme() {
+      this.theme.global.name = !this.theme.global.current.dark ? 'light' : 'dark'
+    }
   },
+  onMounted(){
+    this.theme.global.name = localStorage.getItem('theme') || 'light';
+    this.darkTheme = this.theme.global.current.dark;
+  },
+  unmounted(){
+    localStorage.setItem("theme", this.theme.global.name);
+  }
 };
 </script>
 <style scoped>
