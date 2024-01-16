@@ -5,39 +5,34 @@
         <v-list>
           <v-list-subheader>Opciones</v-list-subheader>
 
-          <v-list-item>
+          <v-list-item @click="signOut" color="primary">
             <template v-slot:prepend>
               <v-icon icon="mdi-exit-to-app"></v-icon>
             </template>
             <v-list-item-title>
-              <div @click="signOut" v-text="'Cerrar sesión'"></div>
+              <div  v-text="'Cerrar sesión'"></div>
             </v-list-item-title>
           </v-list-item>
-          <v-list-item>
+          <v-list-item @click="$router.push('change-password')">
             <template v-slot:prepend>
               <v-icon icon="mdi-key-change"></v-icon>
             </template>
             <v-list-item-title>
               <p
-                @click="$router.push('change-password')"
                 style="white-space: normal"
                 v-text="'Nueva contraseña'"
               ></p>
             </v-list-item-title>
           </v-list-item>
-          <v-list-item>
+          <v-list-item @click="toggleTheme" color="primary">
+            <template v-slot:prepend>
+              <v-icon :icon="darkTheme ? 'mdi-lightbulb-on' : 'mdi-lightbulb-outline'"></v-icon>
+            </template>
             <v-list-item-title>
-              <v-switch v-model="darkTheme"  color="primary" @change="toggleTheme">
-              <template v-slot:label>
-                <div class="d-flex flex-column">
-                  <span class="d-block text-body">Cambiar Tema</span>
-                  <span :class="'d-block text-caption '+ (darkTheme ? 'text-primary' : 'text-warning')">{{darkTheme ? 'Claro' : 'Oscuro'}}</span>
+              <div class="d-flex flex-column">
+                  <span class="d-block text-body text-dark">Cambiar Tema</span>
+                  <span :class="'d-block text-caption '+ (darkTheme ? 'text-primary' : 'text-warning')">{{!darkTheme ? 'Claro' : 'Oscuro'}}</span>
                 </div>
-
-              </template>
-              </v-switch>
-
-
             </v-list-item-title>
           </v-list-item>
         </v-list>
@@ -69,6 +64,7 @@ export default {
     },
     toggleTheme() {
       this.theme.global.name = this.theme.global.current.dark ? 'light' : 'dark'
+      this.darkTheme = !this.darkTheme;
     }
   },
   onMounted(){
