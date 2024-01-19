@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     async getFormsAvailable() {
-      const response = await formApi.read("?format=routes-available");
+      const response = await formApi.read("format=routes-available");
       if (response.data) {
         this.sections = response.data;
       }

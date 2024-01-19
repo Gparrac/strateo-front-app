@@ -217,7 +217,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import OfficeApi from "@/services/Forms/OfficeApi";
-import { castNit } from "@/utils/cast";
+import { castNit, statusAllowed } from "@/utils/cast";
 
 const userApi = new UserApi();
 const roleApi = new RoleApi();
@@ -243,10 +243,7 @@ export default {
     offices: [],
     searchCity: "",
     formRef: null,
-    status: [
-      { name: "A", label: "Activo" },
-      { name: "I", label: "Inactivo" },
-    ],
+    status: statusAllowed,
     rulesValidation: RulesValidation,
   }),
   async mounted() {

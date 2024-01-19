@@ -4,6 +4,8 @@ import enterpriseRoute from "./enterpriseRoute";
 import clientRoute from "./clientRoute";
 import officeRoute from "./officeRoute";
 import entryInventoryRoute from "./entryInventoryRoute";
+import servicesRoute from "./ServiceRoute";
+import fieldsRoute from "./FieldRoute";
 
 const  formsRoute = [
     usersRoute,
@@ -11,7 +13,9 @@ const  formsRoute = [
     enterpriseRoute,
     officeRoute,
     clientRoute,
-    entryInventoryRoute
+    entryInventoryRoute,
+    servicesRoute,
+    fieldsRoute
 
 ];
 

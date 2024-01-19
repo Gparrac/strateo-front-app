@@ -40,6 +40,12 @@ export function castNit(strNit) {
     return "";
   }
 }
+export function statusAllowed(){
+  return [
+    { name: "A", label: "Activo" },
+    { name: "I", label: "Inactivo" },
+  ]
+}
 
 export function errorHandler (errors){
   return Object.values(errors).reduce((acc, messages) => {

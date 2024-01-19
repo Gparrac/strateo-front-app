@@ -227,7 +227,12 @@
                   </v-row>
                   <v-row>
                     <v-col cols="12" :sm="12">
-                      <strong class="text-caption d-block mb-2">* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a 5 letras para completar la busqueda...</strong>
+                      <strong class="text-caption d-block mb-2"
+                        >*
+                        <span class="text-overline">Campo dinamico. </span>
+                        Escribe entre 3 a 5 letras para completar la
+                        busqueda...</strong
+                      >
                       <v-autocomplete
                         label="Codigo principal CIIU"
                         v-model="editItem.ciiu"
@@ -240,7 +245,11 @@
                       ></v-autocomplete>
                     </v-col>
                   </v-row>
-                  <ciiu-secondary-field v-if="editItem.secondaryCiius" :records="editItem.secondaryCiius" @update:records="(item) => editItem.secondaryCiius = item"></ciiu-secondary-field>
+                  <ciiu-secondary-field
+                    v-if="editItem.secondaryCiius"
+                    :records="editItem.secondaryCiius"
+                    @update:records="(item) => (editItem.secondaryCiius = item)"
+                  ></ciiu-secondary-field>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -276,7 +285,7 @@
 import EnterpriseApi from "@/services/Forms/EnterpriseApi.js";
 import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
-import CiiuSecondaryField from "./CiiuSecondaryField.vue"
+import CiiuSecondaryField from "./CiiuSecondaryField.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castNit } from "@/utils/cast";
@@ -291,7 +300,7 @@ export default {
     path: String,
   },
   components: {
-    CiiuSecondaryField
+    CiiuSecondaryField,
   },
   data: () => ({
     // required data
@@ -314,7 +323,7 @@ export default {
         this.setEditItem(),
         this.setCities(),
         this.setTypesDocument(),
-        this.setCiiuCodes()
+        this.setCiiuCodes(),
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
@@ -385,9 +394,12 @@ export default {
         formData.append("footer", this.editItem.footer);
         if (typeof this.showImageSelected != "string")
           formData.append("path_logo", this.showImageSelected);
-        if(this.editItem.secondaryCiius && this.editItem.secondaryCiius.length > 0){
+        if (
+          this.editItem.secondaryCiius &&
+          this.editItem.secondaryCiius.length > 0
+        ) {
           this.editItem.secondaryCiius.forEach((item, index) => {
-            formData.append(`secondary_ciiu_ids[${index}]`,item.id);
+            formData.append(`secondary_ciiu_ids[${index}]`, item.id);
           });
         }
         if (this.isEditForm) {
@@ -439,7 +451,7 @@ export default {
           ciiu: response.data.ciiu,
           header: response.data.header,
           footer: response.data.footer,
-          secondaryCiius: response.data.secondary_ciius
+          secondaryCiius: response.data.secondary_ciius,
         }
       );
       this.showImageSelected = response.data.path_logo;
@@ -450,7 +462,7 @@ export default {
     },
     async setCiiuCodes(name = null) {
       const query = name ? `?name=${name}` : "";
-      this.ciiuCodes = (await petition.get("/ciiu-codes",query)).data;
+      this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
     },
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;
