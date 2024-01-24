@@ -285,7 +285,7 @@
 import EnterpriseApi from "@/services/Forms/EnterpriseApi.js";
 import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
-import CiiuSecondaryField from "./CiiuSecondaryField.vue";
+import CiiuSecondaryField from "@/components/blocks/CiiuSecondaryField.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castNit } from "@/utils/cast";

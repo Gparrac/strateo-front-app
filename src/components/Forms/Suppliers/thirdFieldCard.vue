@@ -1,0 +1,251 @@
+<template>
+              <v-card rounded="true" elevation="0">
+                <v-card-text>
+                  <!-- Business Name or normal name -->
+                  <v-row>
+                    <v-col cols="12" sm="4">
+                      <v-select
+                        label="Tipo de documento"
+                        v-model="editItem.typeDocument"
+                        item-title="label"
+                        item-value="name"
+                        :items="typesDocument"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.identification.maxLength"
+                        label="Número de documento"
+                        v-model="editItem.identification"
+                        :rules="rulesValidation.identification.rules"
+                        :loading="loading"
+                        :suffix="verificationNitNumber"
+                      ></v-text-field>
+                    </v-col>
+                    <template
+                      v-if="
+                        editItem.typeDocument && editItem.typeDocument != 'NIT'
+                      "
+                    >
+                      <v-col cols="12" sm="4">
+                        <v-text-field
+                          :maxlength="rulesValidation.text.maxLength"
+                          label="Nombres"
+                          v-model="editItem.names"
+                          :rules="rulesValidation.text.rules"
+                          :loading="loading"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="4">
+                        <v-text-field
+                          :maxlength="rulesValidation.text.maxLength"
+                          label="Apellidos"
+                          v-model="editItem.surnames"
+                          :rules="rulesValidation.text.rules"
+                          :loading="loading"
+                        ></v-text-field>
+                      </v-col>
+                    </template>
+                    <!-- Business Name or normal name -->
+                    <v-col cols="12" sm="4" v-else>
+                      <v-text-field
+                        :maxlength="rulesValidation.text.maxLength"
+                        label="Nombre de empresa"
+                        v-model="editItem.business"
+                        :rules="rulesValidation.text.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.text.maxLength"
+                        label="Dirección"
+                        v-model="editItem.address"
+                        :rules="rulesValidation.text.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.mobile.maxLength"
+                        label="Teléfono"
+                        v-model="editItem.mobile"
+                        :rules="rulesValidation.mobile.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      :sm="
+                        editItem.typeDocument && editItem.typeDocument != 'NIT'
+                          ? '6'
+                          : '4'
+                      "
+                    >
+                      <v-text-field
+                        :maxlength="rulesValidation.email.maxLength"
+                        label="Correo Principal"
+                        v-model="editItem.email"
+                        placeholder="ejemplo@ejemplo.com"
+                        :rules="rulesValidation.email.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      :sm="
+                        editItem.typeDocument && editItem.typeDocument != 'NIT'
+                          ? '6'
+                          : '4'
+                      "
+                    >
+                      <v-text-field
+                        :maxlength="rulesValidation.email.maxLength"
+                        label="Correo Secundario (opcional)"
+                        v-model="editItem.email2"
+                        placeholder="ejemplo@ejemplo.com"
+                        :rules="verificationSecondEmail"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      :sm="
+                        editItem.typeDocument && editItem.typeDocument != 'NIT'
+                          ? 6
+                          : 4
+                      "
+                    >
+                      <v-text-field
+                        :maxlength="rulesValidation.text.maxLength"
+                        label="Código Postal"
+                        v-model="editItem.postal_code"
+                        :rules="rulesValidation.text.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      :sm="
+                        editItem.typeDocument && editItem.typeDocument != 'NIT'
+                          ? 6
+                          : 4
+                      "
+                    >
+                      <v-autocomplete
+                        label="Ciudad"
+                        v-model="editItem.city_id"
+                        :items="cities"
+                        v-model:search="searchCity"
+                        item-title="name"
+                        item-value="id"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                      ></v-autocomplete>
+                    </v-col>
+                  </v-row>
+                  <ciiu-secondary-field
+                    v-if="editItem.secondaryCiius"
+                    :records="editItem.secondaryCiius"
+                    @update:records="(item) => (editItem.secondaryCiius = item)"
+                  ></ciiu-secondary-field>
+                </v-card-text>
+              </v-card>
+</template>
+<script>
+  import { castNit } from "@/utils/cast";
+  import Petition from "@/services/PetitionStructure/Petition.js";
+  import { RulesValidation } from "@/utils/validations";
+  import CiiuSecondaryField from "@/components/blocks/CiiuSecondaryField.vue";
+  const petition = new Petition();
+export default {
+  props:{
+    records: Object,
+  },
+  components:{
+    CiiuSecondaryField
+  },
+  data:()=>({
+    editItem:{},
+    searchCity:"",
+    ciiucodes: [],
+    typesDocument: [],
+    cities:[],
+    loading: false,
+    rulesValidation: RulesValidation,
+  }),
+
+
+  methods:{
+     emitRecords(){
+      this.$emit('update:records',this.editItem);
+    },
+    async setEditItem(){
+      this.editItem = this.records;
+    },
+    async setCities(name = null) {
+      const query = name ? `?name=${name}` : "";
+      this.cities = (await petition.get("/cities", query)).data;
+    },
+    async setCiiuCodes(name = null) {
+      const query = name ? `?name=${name}` : "";
+      this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
+    },
+    async setTypesDocument() {
+      this.typesDocument = (await petition.get("/type-document-user")).data;
+    },
+  },
+  computed: {
+    verificationNitNumber() {
+      return this.editItem.typeDocument &&
+        this.editItem.typeDocument == "NIT" &&
+        this.editItem.identification &&
+        this.editItem.identification.length > 0
+        ? " - " + castNit(this.editItem.identification)
+        : "";
+    },
+    verificationSecondEmail() {
+      return [
+        (value) =>
+          !value ||
+          /\S+@\S+\.\S+/.test(value) ||
+          "Formato de correo electrónico inválido",
+        (value) =>
+          value !== this.editItem.email ||
+          "El segundo email debe ser diferente. ",
+      ];
+    },
+
+  },
+  watch: {
+    async searchCity(to) {
+      if (to.length > 3) {
+        this.setCities(to);
+      }
+    },
+    async searchCiiu(to) {
+      if (to.length > 3 && to.length < 5) {
+        this.setCiiuCodes(to);
+      }
+    },
+  },
+  async mounted() {
+      this.emm
+    this.loading = true;
+    try {
+      await Promise.all([
+        this.setEditItem(),
+        this.setCities(),
+        this.setTypesDocument(),
+        this.setCiiuCodes(),
+      ]);
+    } catch (error) {
+      console.error("Alguna de las funciones falló:", error);
+    }
+    this.loading = false;
+  },
+}
+
+</script>
