@@ -158,7 +158,6 @@ export default {
       const { valid } = await this.$refs.form.validate();
       if (valid) {
         //passing validations 🚥
-        console.log('entranod',this.editItem.fields);
         const formData = new FormData();
         let response = {};
         formData.append("name", this.editItem.name);

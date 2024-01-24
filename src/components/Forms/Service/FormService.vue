@@ -59,14 +59,36 @@
                 class="w-100"
               >
                 <v-card-text>
+                  <!------------------------------- DYNAMIC ITEM --------------------------->
                   <dynamic-field-list
                     v-if="editItem.fields"
                     :records="editItem.fields"
                     @update:records="(item) => (editItem.fields = item)"
-                  />
+                  >
+                    <template #dynamic-item-icon="{ raw }">
+                      <v-avatar color="grey-lighten-1">
+                        <v-icon color="white">{{ raw.type.icon }}</v-icon>
+                      </v-avatar>
+                    </template>
+                    <template #dynamic-item="{ raw }">
+                      <v-list-item-subtitle class="d-flex">
+                        <span class="d-block">{{ raw.type.name }}</span>
+                        <v-spacer></v-spacer>
+                        <span class="d-block"
+                          >Tamaño maximo: {{ raw.length }}
+                        </span>
+                      </v-list-item-subtitle>
+                    </template>
+                    <v-chip class="ma-2" color="primary" label>
+                      <v-icon start :icon="record.type.icon"></v-icon>
+                      {{ record.type.name }}
+                    </v-chip>
+                  </dynamic-field-list>
+                  <!------------------------------- END DYNAMIC ITEM --------------------------->
                 </v-card-text>
               </v-card>
             </v-col>
+            <v-col cols="12"> </v-col>
           </v-row>
         </v-card-text>
         <!----------------------- FORM --------------------------->
@@ -101,8 +123,8 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
-import dynamicFieldList from "./dynamicFieldList.vue";
-
+//import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
+import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 const serviceApi = new ServiceApi();
 
 export default {
@@ -143,6 +165,7 @@ export default {
   },
   methods: {
     async submitForm() {
+      console.log("return", this.editItem.fields);
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {
