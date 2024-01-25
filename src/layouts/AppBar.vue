@@ -67,7 +67,6 @@
       >
         <alert-message></alert-message>
         <ModalUserSettings
-          :email="user?.email"
           :expand="toggleSettings"
         ></ModalUserSettings>
         <div class="w-100 pa-16">

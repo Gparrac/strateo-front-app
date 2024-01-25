@@ -3,7 +3,6 @@
     <header-table
       :loading="loading"
       :typeskeyword="typeskeyword"
-      :typeKeyword="typeKeyword"
       :path="path"
       :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
@@ -101,6 +100,7 @@ export default {
       { title: "id", label: "ID" },
       { title: "name", label: "Campo" },
     ],
+
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,

@@ -3,7 +3,6 @@
     <header-table
       :loading="loading"
       :typeskeyword="typeskeyword"
-      :typeKeyword="typeKeyword"
       :path="path"
       :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"

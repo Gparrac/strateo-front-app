@@ -7,7 +7,7 @@
         </v-card-title>
 
         <!----------------------- FORM --------------------------->
-        <v-card-text>
+         <v-card-text>
           <v-row>
             <v-col cols="12" lg="6">
               <v-card rounded="true" elevation="0">
@@ -24,7 +24,7 @@
                         :loading="loading"
                       ></v-select>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                     <v-col cols="12" sm="6">
                       <v-text-field
                         :maxlength="rulesValidation.identification.maxLength"
                         label="Número de documento"
@@ -84,7 +84,7 @@
                         :loading="loading"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                   <v-col cols="12" sm="6">
                       <v-autocomplete
                         label="Ciudad"
                         v-model="editItem.city"
@@ -134,7 +134,7 @@
                         :loading="loading"
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                   <v-col cols="12" sm="6">
                       <v-select
                         label="Estado"
                         :items="status"
@@ -145,7 +145,7 @@
                         :loading="loading"
                       ></v-select>
                     </v-col>
-                    <v-col cols="12" sm="6">
+                     <v-col cols="12" sm="6">
                       <v-select
                         :items="roles"
                         label="Role"
@@ -243,12 +243,13 @@ export default {
     offices: [],
     searchCity: "",
     formRef: null,
-    status: statusAllowed,
+    status: [],
     rulesValidation: RulesValidation,
   }),
   async mounted() {
     this.loading = true;
     try {
+      this.status = statusAllowed();
       await Promise.all([
         this.setEditItem(),
         this.setCities(),
@@ -364,18 +365,18 @@ export default {
       this.typesDocument = (await petition.get("/type-document-user")).data;
     },
     async setRoles() {
-      this.roles = (await roleApi.read("")).data;
+      this.roles = (await roleApi.read("format=short")).data;
     },
     async setOffices() {
-      this.offices = (await officeApi.read("?format=short")).data;
+      this.offices = (await officeApi.read("format=short")).data;
     },
     async setCities(name = null) {
-      const query = name ? `?name=${name}` : "";
+      const query = name ? `name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
     },
     async setEditItem() {
       if (!this.idEditForm) return;
-      const response = await userApi.read(`?user_id=${this.idEditForm}`);
+      const response = await userApi.read(`user_id=${this.idEditForm}`);
       this.editItem = Object.assign(
         {},
         {

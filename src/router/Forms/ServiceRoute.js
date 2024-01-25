@@ -11,12 +11,12 @@ const servicesRoute = {
       },
       {
         path: 'create',
-        name: 'UsersCreate',
+        name: 'ServicesCreate',
         component: ServiceView,
       },
       {
         path: 'edit/:userId',
-        name: 'UsersEdit',
+        name: 'servicesEdit',
         component: ServiceView,
       },
       {

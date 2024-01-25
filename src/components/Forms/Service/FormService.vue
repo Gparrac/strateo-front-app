@@ -9,7 +9,7 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12" lg="6">
+            <v-col cols="12" >
               <v-card rounded="true" elevation="0">
                 <v-card-text>
                   <v-row>
@@ -22,7 +22,6 @@
                             v-model="editItem.name"
                             :rules="rulesValidation.text.rules"
                             :loading="loading"
-                            :suffix="verificationNitNumber"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12">
@@ -51,7 +50,7 @@
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12" lg="6" class="d-flex align-center">
+            <v-col cols="12" class="d-flex align-center">
               <v-card
                 title="Campos personalizados"
                 variant="outlined"
@@ -124,7 +123,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
-import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
+import DynamicFieldList from "@/components/Forms/Service/DynamicFieldList.vue";
 const serviceApi = new ServiceApi();
 
 export default {
@@ -134,7 +133,7 @@ export default {
     path: String,
   },
   components: {
-    dynamicFieldList,
+    DynamicFieldList,
   },
   data: () => ({
     // required data

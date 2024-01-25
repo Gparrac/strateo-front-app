@@ -47,7 +47,7 @@
     </v-col>
     <v-col class="max-w-custom">
       <v-row>
-        <v-col cols="12" xl="6" v-for="record in records" :key="record.code">
+        <v-col cols="12" lg="6" v-for="record in records" :key="record.code">
           <v-card
             :title="record.name"
             :subtitle="'Tamaño maximo: ' + record.length"
@@ -104,6 +104,7 @@ export default {
     options: [],
     searchItem: "",
     rulesValidation: RulesValidation,
+    loading:false,
   }),
   watch: {
     async searchItem(to) {
@@ -114,10 +115,12 @@ export default {
   },
   methods: {
     async loadItems(name = null) {
+      this.loading = true;
       const query = name
-        ? `keyword=${name}&typeKeyword=name&format=short`
-        : "format=short";
+      ? `keyword=${name}&typeKeyword=name&format=short`
+      : "format=short";
       this.options = (await fieldApi.read(query)).data;
+      this.loading = false;
     },
     appendItem() {
       this.emitRecords([this.itemSelected, ...this.records]);

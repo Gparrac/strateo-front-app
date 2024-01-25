@@ -23,7 +23,7 @@ export default {
   data: () => ({
     titleView: "Parametrización de Usuarios",
     nameTable: "usuarios",
-    path: "users",
+    path: "Users",
     isForm: false,
     idEditForm: null,
   }),

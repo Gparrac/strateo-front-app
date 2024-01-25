@@ -3,7 +3,6 @@
     <header-table
       :loading="loading"
       :typeskeyword="typeskeyword"
-      :typeKeyword="typeKeyword"
       :path="path"
       :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
@@ -40,10 +39,10 @@
           </v-chip>
         </div>
       </template>
-      <template v-slot:[`item.suppliers_count`]="{ item }">
+      <template v-slot:[`item.services_count`]="{ item }">
         <div>
           <v-chip variant="tonal" color="primary">
-            {{ item.suppliers_count }}
+            {{ item.services_count }}
           </v-chip>
         </div>
       </template>
@@ -76,12 +75,12 @@
 
 <script>
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
-import ServiceApi from "@/services/Forms/ServiceApi";
+import SupplierApi from "@/services/Forms/SupplierApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castDate } from "@/utils/cast";
-const serviceApi = new ServiceApi();
+const supplierApi = new SupplierApi();
 export default {
   props: {
     nameTable: String,
@@ -98,7 +97,7 @@ export default {
     filterCleaner: false,
     typeskeyword: [
       { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
+      { title: "name", label: "Provedor" },
     ],
     //pagination
     totalRecords: 0,
@@ -120,10 +119,10 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Provedor", align: "end", key: "name", sortable: true },
-      { title: "Registro comercial", align: "end", key: "comercial_registry", sortable: false },
+      { title: "Provedor", align: "end", key: "third.supplier", sortable: false },
+      { title: "Registro comercial", align: "end", key: "commercial_registry", sortable: false },
       { title: "Estado", align: "end", key: "status", sortable: false },
-      { title: "Provedores", align: "end", key: "services_count", sortable: false },
+      { title: "Servicios", align: "end", key: "services_count", sortable: false },
       { title: "Campos", align: "end", key: "fields_count", sortable: false },
       {
         title: "Ultima actulización",
@@ -161,7 +160,7 @@ export default {
           params.append(`sorters[${index}][${key}]`, item[key]);
         });
       });
-      const response = await serviceApi.read(params.toString());
+      const response = await supplierApi.read(params.toString());
       if (response.data && response.data.data)
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
@@ -180,7 +179,7 @@ export default {
         this.selectedItems.forEach((item) =>
           params.append(`${this.keyQueryDelete}[]`, item.id)
         );
-        const response = await serviceApi.delete(`?${params.toString()}`);
+        const response = await supplierApi.delete(`?${params.toString()}`);
         // logic to show alert 🚨
         if (response.statusResponse != 200) {
           if (response.error && typeof response.error === "object") {
