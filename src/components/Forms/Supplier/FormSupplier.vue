@@ -8,54 +8,138 @@
 
         <!----------------------- FORM --------------------------->
         <v-card-text>
-
           <v-row>
             <v-col cols="12">
-              <thirdFieldCard :records="editItem" @update:records="(item) => editItem = {...item, ...editItem}"></thirdFieldCard>
+              <thirdFieldCard
+                :key="thirdKeyCard"
+                :records="editItem"
+                @update:records="
+                  (item) => (editItem = { ...editItem, ...item })
+                "
+              ></thirdFieldCard>
             </v-col>
-            <v-col cols="12" lg="6">
-              <v-card rounded="true" elevation="0">
+            <v-col cols="12">
+              <v-card rounded="true" elevation="0" title="Datos del provedor">
                 <v-card-text>
                   <v-row>
                     <v-col cols="12" sm="6">
                       <v-row>
+                        <!-- ----- start commercial registry --------------------->
                         <v-col cols="12">
                           <v-text-field
                             :maxlength="rulesValidation.text.maxLength"
-                            label="Nombre"
-                            v-model="editItem.name"
+                            label="Registro Comercial"
+                            v-model="editItem.commercialRegistryNumber"
                             :rules="rulesValidation.text.rules"
                             :loading="loading"
-                            :suffix="verificationNitNumber"
                           ></v-text-field>
                         </v-col>
+                        <v-col cols="8">
+                          <v-file-input
+                            v-model="editItem.commercialFile"
+                            accept=".doc, .docx, .pdf"
+                            label="Registro Comercial"
+                            prepend-icon="mdi-file-document"
+                            :rules="rulesValidation.file.rules"
+                            :loading="loading"
+                            @change="
+                              handleFileFields($event, 'pathCommercialFile')
+                            "
+                          ></v-file-input>
+                        </v-col>
+                        <v-col
+                          cols="4"
+                          class="d-flex align-start justify-center"
+                        >
+                          <div
+                            v-if="
+                              !editItem.commercialFile &&
+                              !editItem.pathCommercialFile
+                            "
+                          >
+                            <h3>No hay archivo seleccionado</h3>
+                          </div>
+                          <div v-else>
+                            <v-btn
+                              class="ma-2"
+                              outlined
+                              :href="getFileUrl(editItem.pathCommercialFile)"
+                              target="_blank"
+                              icon="mdi-folder-download"
+                              size="small"
+                              download
+                            >
+                            </v-btn>
+                          </div>
+                        </v-col>
+                        <!-- ----- end commercial registry --------------------->
+                        <!-- ----- start commercial registry --------------------->
+                        <v-col cols="8">
+                          <v-file-input
+                            v-model="editItem.rutFile"
+                            accept=".doc, .docx, .pdf"
+                            label="RUT"
+                            prepend-icon="mdi-file-document"
+                            :rules="rulesValidation.file.rules"
+                            :loading="loading"
+                            @change="handleFileFields($event, 'pathRutFile')"
+                          ></v-file-input>
+                        </v-col>
+                        <v-col
+                          cols="4"
+                          class="d-flex align-start justify-center"
+                        >
+                          <div
+                            v-if="!editItem.rutFile && !editItem.pathRutFile"
+                          >
+                            <h3>No hay archivo seleccionado</h3>
+                          </div>
+                          <div v-else>
+                            <v-btn
+                              class="ma-2"
+                              outlined
+                              :href="getFileUrl(editItem.pathRutFile)"
+                              download
+                              size="small"
+                              target="_blank"
+                              icon="mdi-folder-download"
+                            >
+                            </v-btn>
+                          </div>
+                        </v-col>
+                        <!-- ----- end commercial registry --------------------->
+                      </v-row>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-row>
                         <v-col cols="12">
                           <v-select
                             label="Estado"
+                            :items="status"
                             v-model="editItem.status"
                             item-title="label"
                             item-value="name"
-                            :items="status"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
                           ></v-select>
                         </v-col>
+                        <v-col>
+                          <v-textarea
+                            label="Descripción sdf"
+                            v-model="editItem.description"
+                            :maxLength="rulesValidation.longText.maxLength"
+                            :rules="rulesValidation.longText.rules"
+                            :loading="loading"
+                            rows="7"
+                          ></v-textarea>
+                        </v-col>
                       </v-row>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-textarea
-                        label="Descripción"
-                        v-model="editItem.description"
-                        :maxLength="rulesValidation.longText.maxLength"
-                        :rules="rulesValidation.longText.rules"
-                        :loading="loading"
-                      ></v-textarea>
                     </v-col>
                   </v-row>
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12" lg="6" class="d-flex align-center">
+            <v-col cols="12" class="d-flex align-center">
               <v-card
                 title="Campos personalizados"
                 variant="outlined"
@@ -65,9 +149,11 @@
                 <v-card-text>
                   <!------------------------------- DYNAMIC ITEM --------------------------->
                   <dynamic-field-list
-                    v-if="editItem.fields"
-                    :records="editItem.fields"
-                    @update:records="(item) => (editItem.fields = item)"
+                    v-if="editItem.services"
+                    :records="editItem.services"
+                    @update:records="(item) => (editItem.services = item)"
+                    :errorMessage="customAlertError"
+
                   >
                     <template #dynamic-item-icon="{ raw }">
                       <v-avatar color="grey-lighten-1">
@@ -140,7 +226,7 @@ export default {
   },
   components: {
     dynamicFieldList,
-    thirdFieldCard
+    thirdFieldCard,
   },
   data: () => ({
     // required data
@@ -149,7 +235,11 @@ export default {
     // optional data
     formRef: null,
     status: [],
+    showFileCommercialSelected: null,
+    showFileRutSelected: null,
     rulesValidation: RulesValidation,
+    customAlertError: {},
+    thirdKeyCard:0
   }),
   async mounted() {
     this.loading = true;
@@ -170,20 +260,82 @@ export default {
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+    handleFileFields(event, item) {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const selectedFile = files[0];
+        this.editItem[item] = selectedFile;
+      }
+    },
     async submitForm() {
-      console.log("return", this.editItem.fields);
+      console.log("return", this.editItem);
+
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
+      if (!this.editItem.services || this.editItem.services.length == 0) {
+        this.customAlertError.type = "services";
+        this.customAlertError.message = "Debes seleccionar almenos un servicio";
+      } else {
+        this.customAlertError = {};
+      }
       if (valid) {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
-        formData.append("name", this.editItem.name);
+        // third fields 🚥
+        formData.append("type_document", this.editItem.typeDocument);
+        formData.append("identification", this.editItem.identification);
+        formData.append("verification_id", this.editItem.verification_id);
+        formData.append("address", this.editItem.address);
+        formData.append("mobile", this.editItem.mobile);
+        formData.append("email", this.editItem.email);
+        formData.append("code_ciiu_id", this.editItem.ciiu.id);
+        if (this.editItem.typeDocument == "NIT") {
+          formData.append("business_name", this.editItem.business);
+        } else {
+          formData.append("names", this.editItem.names);
+          formData.append("surnames", this.editItem.surnames);
+        }
+        if (this.editItem.email2)
+          formData.append("email2", this.editItem.email2);
+        formData.append("postal_code", this.editItem.postal_code);
+        formData.append("city_id", this.editItem.city_id);
+        this.editItem.secondaryCiius.forEach((item, cindex) => {
+          formData.append(`secondary_ciiu_ids[${cindex}]`, item.id);
+        });
+
+        // supplier fields 🚥
+        formData.append(
+          "commercial_registry",
+          this.editItem.commercialRegistryNumber
+        );
+        formData.append("note", this.editItem.description);
         formData.append("status", this.editItem.status);
-        formData.append("description", this.editItem.description);
-        this.editItem.fields.forEach((item, index) => {
-          formData.append(`fields[${index}][field_id]`, item.id);
-          formData.append(`fields[${index}][required]`, item.required ? 1 : 2);
+        if (
+          this.editItem.commercialFile &&
+          typeof this.commercialFile != "string"
+        ) {
+          formData.append(
+            "commercial_registry_file",
+            this.editItem.pathCommercialFile
+          );
+        }
+        if (this.editItem.rutFile && typeof this.rutFile != "string") {
+          console.log("rutfile", typeof this.editItem.rutFile);
+          formData.append("rut_file", this.editItem.pathRutFile);
+        }
+        this.editItem.services.forEach((service, index) => {
+          formData.append(`services[${index}][service_id]`, service.id);
+          service.fields.forEach((field, findex) => {
+            formData.append(
+              `services[${index}][fields][${findex}][field_id]`,
+              field.id
+            );
+            formData.append(
+              `services[${index}][fields][${findex}][content]`,
+              field.pathFile
+            );
+          });
         });
 
         if (this.idEditForm) {
@@ -210,29 +362,49 @@ export default {
       }
       this.loading = false;
     },
-
+    getFileUrl(file) {
+      if (!file) return "";
+      if (typeof file === "string") return file;
+      if (typeof file === "object") return URL.createObjectURL(file);
+      return;
+    },
     async setEditItem() {
       if (!this.idEditForm) {
-        this.editItem.fields = [];
+        this.editItem.services = [];
+
         return;
       }
-      const response = await supplierApi.read(`?supplier_id=${this.idEditForm}`);
+      const response = await supplierApi.read(
+        `?supplier_id=${this.idEditForm}`
+      );
       this.editItem = Object.assign(
         {},
         {
+          //supplier attributes
           supplierId: response.data.id,
-          name: response.data.name,
-          description: response.data.description,
+          description: response.data.note,
           status: response.data.status,
-          fields: response.data.fields.map((item) => ({
-            id: item.id,
-            name: item.name,
-            required: item.pivot.required == 1 ? true : false,
-            type: item.type,
-            length: item.length,
-          })),
+          pathCommercialFile: response.data.commercial_registry_file,
+          pathRutFile: response.data.rut_file,
+          commercialRegistryNumber: response.data.commercial_registry,
+          //third attributes
+          typeDocument: response.data.third.type_document,
+          identification: response.data.third.identification,
+          names: response.data.third.names,
+          surnames: response.data.third.surnames,
+          address: response.data.third.address,
+          mobile: response.data.third.mobile,
+          email: response.data.third.email,
+          postal_code: response.data.third.postal_code,
+          city_id: response.data.third.city_id,
+          ciiu: response.data.third.ciiu,
+          secondaryCiius: response.data.third.secondary_ciius,
+          services: response.data.services,
         }
       );
+
+      this.thirdKeyCard = this.thirdKeyCard + 1 ;
+
     },
   },
 };

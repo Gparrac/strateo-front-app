@@ -62,6 +62,7 @@ export default {
     ciiuCodes: [],
     searchCiiu: "",
     rulesValidation: RulesValidation,
+    loading:false
   }),
   watch: {
     async searchCiiu(to) {

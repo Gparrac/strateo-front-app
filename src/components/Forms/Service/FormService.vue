@@ -165,6 +165,7 @@ export default {
   methods: {
     async submitForm() {
       console.log("return", this.editItem.fields);
+
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {

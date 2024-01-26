@@ -1,5 +1,5 @@
 <template>
-              <v-card rounded="true" elevation="0">
+              <v-card rounded="true" elevation="0" title="Datos personales">
                 <v-card-text>
                   <!-- Business Name or normal name -->
                   <v-row>
@@ -12,6 +12,7 @@
                         :items="typesDocument"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -22,6 +23,7 @@
                         :rules="rulesValidation.identification.rules"
                         :loading="loading"
                         :suffix="verificationNitNumber"
+                        @update:model-value="emitRecords"
                       ></v-text-field>
                     </v-col>
                     <template
@@ -36,6 +38,7 @@
                           v-model="editItem.names"
                           :rules="rulesValidation.text.rules"
                           :loading="loading"
+                          @update:model-value="emitRecords"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="4">
@@ -45,6 +48,7 @@
                           v-model="editItem.surnames"
                           :rules="rulesValidation.text.rules"
                           :loading="loading"
+                          @update:model-value="emitRecords"
                         ></v-text-field>
                       </v-col>
                     </template>
@@ -56,6 +60,7 @@
                         v-model="editItem.business"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -65,6 +70,7 @@
                         v-model="editItem.address"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -74,6 +80,7 @@
                         v-model="editItem.mobile"
                         :rules="rulesValidation.mobile.rules"
                         :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -91,6 +98,7 @@
                         placeholder="ejemplo@ejemplo.com"
                         :rules="rulesValidation.email.rules"
                         :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -108,6 +116,7 @@
                         placeholder="ejemplo@ejemplo.com"
                         :rules="verificationSecondEmail"
                         :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -124,6 +133,7 @@
                         v-model="editItem.postal_code"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -143,13 +153,33 @@
                         item-value="id"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        @update:model-value="emitRecords"
+                      ></v-autocomplete>
+                    </v-col>
+                    <v-col cols="12">
+                      <strong class="text-caption d-block mb-2"
+                        >*
+                        <span class="text-overline">Campo dinamico. </span>
+                        Escribe entre 3 a 5 letras para completar la
+                        busqueda...</strong
+                      >
+                      <v-autocomplete
+                        label="Codigo principal CIIU"
+                        v-model="editItem.ciiu"
+                        :items="ciiuCodes"
+                        v-model:search="searchCiiu"
+                        item-title="description"
+                        :return-object="true"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                        @update:model-value="emitRecords"
                       ></v-autocomplete>
                     </v-col>
                   </v-row>
                   <ciiu-secondary-field
                     v-if="editItem.secondaryCiius"
                     :records="editItem.secondaryCiius"
-                    @update:records="(item) => (editItem.secondaryCiius = item)"
+                    @update:records="(item) => (changeSecondaryCiius(item))"
                   ></ciiu-secondary-field>
                 </v-card-text>
               </v-card>
@@ -170,20 +200,28 @@ export default {
   data:()=>({
     editItem:{},
     searchCity:"",
-    ciiucodes: [],
+    ciiuCodes: [],
     typesDocument: [],
     cities:[],
     loading: false,
+    searchCiiu:"",
     rulesValidation: RulesValidation,
   }),
 
 
   methods:{
+    changeSecondaryCiius(item){
+      this.editItem.secondaryCiius = item;
+      this.emitRecords();
+    },
      emitRecords(){
       this.$emit('update:records',this.editItem);
     },
     async setEditItem(){
+
       this.editItem = this.records;
+      console.log('cargando',this.records);
+      if(!this.editItem.secondaryCiius) this.editItem.secondaryCiius = []
     },
     async setCities(name = null) {
       const query = name ? `?name=${name}` : "";
@@ -232,15 +270,14 @@ export default {
     },
   },
   async mounted() {
-      this.emm
     this.loading = true;
     try {
       await Promise.all([
-        this.setEditItem(),
         this.setCities(),
         this.setTypesDocument(),
         this.setCiiuCodes(),
       ]);
+      await this.setEditItem();
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }

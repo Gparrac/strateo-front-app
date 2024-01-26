@@ -18,18 +18,8 @@
         >
           <template v-slot:item="{ props, item }">
             <v-list-item v-bind="props">
-              <template v-slot:prepend>
-                <v-avatar color="grey-lighten-1">
-                  <!-- <v-icon color="white">{{item.raw.type.icon}}</v-icon> -->
-                  <v-icon color="white">{{ item.raw.type.icon }}</v-icon>
-                </v-avatar>
-              </template>
               <v-list-item-subtitle class="d-flex">
-                <span class="d-block">{{ item.raw.type.name }}</span>
-                <v-spacer></v-spacer>
-                <span class="d-block"
-                  >Tamaño maximo: {{ item.raw.length }}
-                </span>
+                <span class="d-block">{{ item.raw.description }}</span>
               </v-list-item-subtitle>
             </v-list-item>
           </template>
@@ -46,12 +36,9 @@
       </div>
     </v-col>
     <v-col class="max-w-custom">
-      <v-row>
-        <v-col cols="12" xl="6" v-for="record in records" :key="record.code">
-          <v-card
-            :title="record.name"
-            :subtitle="'Tamaño maximo: ' + record.length"
-          >
+      <v-row v-if="records && records.length > 0">
+        <v-col cols="12" v-for="record in records" :key="record.code">
+          <v-card :title="record.name" :subtitle="record.description">
             <template v-slot:prepend>
               <v-btn
                 icon="mdi-delete"
@@ -61,21 +48,56 @@
               >
               </v-btn>
             </template>
-            <template v-slot:append>
-              <v-chip class="ma-2" color="primary" label>
-                <v-icon start :icon="record.type.icon"></v-icon>
-                {{ record.type.name }}
-              </v-chip>
-            </template>
-            <v-card-text class="d-flex justify-end">
-              <div>
-                <v-checkbox
-                  label="Requerido"
-                  single-line
-                  hide-details
-                  v-model="record.required"
-                ></v-checkbox>
-              </div>
+            <v-card-text>
+              <h4 class="text-center pb-3 text-overline">
+                Campos relacionados
+              </h4>
+              <v-row v-if="record.fields && record.fields.length > 0">
+                <v-col
+
+                  v-for="(field, findex) in record.fields"
+                  :key="field.id + '-field'"
+                  cols="12" lg="6"
+                >
+                  <div v-if="field.type.id == 'F'" class="d-flex">
+                    <v-file-input
+                      class="w-75"
+                      v-model="record.fields[findex].data"
+                      accept=".doc, .docx, .pdf"
+                      label="Registro Comercial"
+                      :rules="field.rules"
+                      :loading="loading"
+                      @change="handleFileFields($event, field)"
+                    ></v-file-input>
+                    <div class="w-25 px-5" v-if="!record.fields[findex].data && !record.fields[findex].pathFile">
+                      <h3 class="text-center">No hay archivo seleccionado</h3>
+                    </div>
+                    <div v-else>
+                      <v-btn
+                        class="ma-2"
+                        outlined
+                        :href="getFileUrl(field.pathFile)"
+                        target="_blank"
+                        icon="mdi-folder-download"
+                        size="small"
+                        download
+                      >
+                      </v-btn>
+                    </div>
+                  </div>
+                  <div v-else >
+                    <v-text-field
+                      :maxlength="field.length"
+                      :label="field.name"
+                      :rules="field.rules"
+                      :loading="loading"
+                      :prepend-inner-icon="field.type.icon"
+                      v-model="record.fields[findex].data"
+                    ></v-text-field>
+                  </div>
+                </v-col>
+              </v-row>
+
             </v-card-text>
           </v-card>
         </v-col>
@@ -90,19 +112,36 @@
       records.length
     }}</span>
   </div>
+  <span v-if="errorMessage.type && errorMessage.type == 'services'" class="text-error text-caption">
+  {{ errorMessage.message }}
+  </span>
 </template>
 <script>
 import { RulesValidation } from "@/utils/validations";
-import FieldApi from "@/services/Forms/FieldApi";
-const fieldApi = new FieldApi();
+import ServiceApi from "@/services/Forms/ServiceApi";
+const serviceApi = new ServiceApi();
+const fieldText = [
+(value) =>
+        (value && value.length >= 3) ||
+        "Este campo debe de ser de almenos 3 caracteres",
+];
+const fieldFile = [
+(value) =>
+        !value ||
+        !value.length ||
+        value[0].size < 2000000 ||
+        "La imagen debe pesar menos de 2 MB",
+];
 export default {
   props: {
     records: Array,
+    errorMessage: Object
   },
   data: () => ({
     itemSelected: null,
     options: [],
     searchItem: "",
+    loading:false,
     rulesValidation: RulesValidation,
   }),
   watch: {
@@ -117,11 +156,28 @@ export default {
       const query = name
         ? `keyword=${name}&typeKeyword=name&format=short`
         : "format=short";
-      this.options = (await fieldApi.read(query)).data;
+      this.options = (await serviceApi.read(query)).data;
     },
     appendItem() {
+      this.addRules(this.itemSelected.fields)
       this.emitRecords([this.itemSelected, ...this.records]);
       this.itemSelected = null;
+    },
+    addRules(items){
+      console.log('entrando?')
+      items.forEach(item => {
+        switch (item.type.id) {
+          case 'T':
+            item.rules = fieldText;
+            break;
+          case 'F':
+            item.rules = fieldFile;
+            break;
+          default:
+            break;
+        }
+        if (item.required == 1) item.rules = [(value) => !!value || "Este campo es requerido es requerida",...item.rules];
+      });
     },
     deleteItem(itemSelected) {
       this.emitRecords(
@@ -131,15 +187,35 @@ export default {
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);
     },
+    handleFileFields(event, item){
+      const files = event.target.files;
+      if (files.length > 0) {
+        const selectedFile = files[0];
+        item.pathFile = selectedFile;
+      }
+    },
+    getFileUrl(file) {
+      if (!file) return "";
+      if (typeof file === "string") return file;
+      if (typeof file === "object") return URL.createObjectURL(file);
+      return;
+    },
+
   },
   async mounted() {
+    if(this.records && this.records.length > 0 )
+    this.records.map( item => {
+      this.addRules(item.fields);
+  })
+    console.log('services°°°°°°°°°°°°°°°°°°°°°°°°°°',this.records);
     await this.loadItems();
+
   },
 };
 </script>
 <style>
 .max-w-custom {
-  max-height: 200px;
+  max-height: 230px;
   overflow-y: scroll;
 }
 </style>

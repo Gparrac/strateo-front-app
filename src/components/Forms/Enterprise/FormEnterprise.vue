@@ -226,7 +226,7 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col cols="12" :sm="12">
+                    <v-col cols="12">
                       <strong class="text-caption d-block mb-2"
                         >*
                         <span class="text-overline">Campo dinamico. </span>
@@ -389,7 +389,8 @@ export default {
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
-        formData.append("code_ciiu_id", this.editItem.ciiu.id);
+
+        //data enterprise
         formData.append("header", this.editItem.header);
         formData.append("footer", this.editItem.footer);
         if (typeof this.showImageSelected != "string")
