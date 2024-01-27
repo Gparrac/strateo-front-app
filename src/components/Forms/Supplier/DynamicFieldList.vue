@@ -192,6 +192,7 @@ export default {
       if (files.length > 0) {
         const selectedFile = files[0];
         item.pathFile = selectedFile;
+        this.$emit(item);
       }
     },
     getFileUrl(file) {
@@ -207,7 +208,6 @@ export default {
     this.records.map( item => {
       this.addRules(item.fields);
   })
-    console.log('services°°°°°°°°°°°°°°°°°°°°°°°°°°',this.records);
     await this.loadItems();
 
   },

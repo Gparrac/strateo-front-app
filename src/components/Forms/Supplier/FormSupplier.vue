@@ -331,15 +331,25 @@ export default {
               `services[${index}][fields][${findex}][field_id]`,
               field.id
             );
-            formData.append(
-              `services[${index}][fields][${findex}][content]`,
-              field.pathFile
-            );
+            if(field.type.id == 'F'){
+              if(field.data) {
+                formData.append(
+                `services[${index}][fields][${findex}][content]`,
+                field.pathFile
+              );
+              console.log('entrando');
+              }
+            }else{
+              formData.append(
+                `services[${index}][fields][${findex}][content]`,
+                field.data
+              );
+            }
           });
         });
 
         if (this.idEditForm) {
-          formData.append("service_id", this.editItem.serviceId);
+          formData.append("supplier_id", this.editItem.supplierId);
           response = await supplierApi.update(formData);
         } else {
           response = await supplierApi.create(formData);
