@@ -65,15 +65,13 @@ export default {
     toggleTheme() {
       this.theme.global.name = this.theme.global.current.dark ? 'light' : 'dark'
       this.darkTheme = !this.darkTheme;
+      localStorage.setItem("theme", this.theme.global.name);
     }
   },
-  onMounted(){
-    this.theme.global.name = localStorage.getItem('theme') || 'light';
+  mounted(){
+    this.theme.global.name = localStorage.getItem('theme') ?? 'light';
     this.darkTheme = this.theme.global.current.dark;
   },
-  unmounted(){
-    localStorage.setItem("theme", this.theme.global.name);
-  }
 };
 </script>
 <style scoped>
