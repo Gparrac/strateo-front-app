@@ -1,32 +1,39 @@
 <template>
   <div>
-    <h1 class="pb-7">{{ titleView }}</h1>
-    <div>
-      <FormEntryStock
+    <div class="d-flex pb-5 flex-wrap align-cente">
+      <h1 class="pr-10">{{ titleView }}</h1>
+
+
+    <div class="d-flex align-center justify-center flex-wrap">
+    </div>
+  </div>
+          <FormInventoryTrade
         v-if="isForm"
         :idEditForm="idEditForm"
         :nameTable="nameTable"
         :path="path"
       />
-      <TableEntryStock v-else :nameTable="nameTable" :path="path" />
+      <TableInventoryTrade v-else :nameTable="nameTable" :path="path" />
+    <div>
+
     </div>
     <div></div>
   </div>
 </template>
 
 <script>
-import { FormEntryStock, TableEntryStock } from "@/components/Forms/Inventory/index.vue";
+import { FormInventoryTrade, TableInventoryTrade } from "@/components/Forms/Inventory/index.vue";
 
 import { getFormRoute } from "@/utils/routes.js";
 
 export default {
-  name: "UserView",
   data: () => ({
     titleView: "Inventario",
     nameTable: "Entrada de inventario",
     path: "entry-inventory",
     isForm: false,
     idEditForm: null,
+    tab:'one'
   }),
   methods: {
     checkRoute(route) {
@@ -45,8 +52,8 @@ export default {
   },
 
   components: {
-    FormEntryStock,
-    TableEntryStock
+    FormInventoryTrade,
+    TableInventoryTrade
   },
 };
 </script>

@@ -92,8 +92,8 @@ export default {
   data: () => ({
     //required data
     keyQueryDelete: "office_id",
-    mainKeyDelete: ["name"],
-    secondKeyDelete: ["address"],
+    mainKeyDelete: ["supplier","third", "name"],
+    secondKeyDelete: ["transaction_date"],
     selectedItems: [],
     records: [],
     toggleDelete: false,
@@ -104,12 +104,12 @@ export default {
         align: "start",
         key: "id",
       },
-      { title: "Comercio", align: "end", key: "name" },
-      { title: "Tienda", align: "end", key: "address" },
-      { title: "Fecha", align: "end", key: "phone" },
-      { title: "Tipo de entrada", align: "end", key: "city.name" },
-      { title: "Usuario", align: "end", key: "status" },
-      { title: "Estado", align: "end", key: "actions" },
+      { title: "Registro comercial", align: "end", key: "commercial_registry" },
+      { title: "Contacto", align: "end", key: "third.names" },
+      { title: "Costo total", align: "end", key: "total_cost" },
+      { title: "Descuento", align: "end", key: "total_descount" },
+      { title: "Proposito", align: "end", key: "status" },
+      { title: "Fecha", align: "end", key: "transaction_date" }
     ],
   }),
   components: {

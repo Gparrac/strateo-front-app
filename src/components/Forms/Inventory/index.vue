@@ -1,9 +1,9 @@
 <script>
-    import FormEntryStock from './FormEntryStock.vue';
-    import TableEntryStock from './TableEntryStock.vue';
+    import FormInventoryTrade from './FormInventoryTrade.vue';
+    import TableInventoryTrade from './TableInventoryTrade.vue';
 
     export {
-        FormEntryStock,
-        TableEntryStock
+        FormInventoryTrade,
+        TableInventoryTrade
     };
 </script>
