@@ -215,7 +215,7 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import dynamicFieldList from "@/components/Forms/Supplier/DynamicFieldList.vue";
-import thirdFieldCard from "@/components/Forms/Supplier/ThirdFieldCard.vue";
+import thirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
 const supplierApi = new SupplierApi();
 
 export default {
@@ -375,7 +375,7 @@ export default {
         return;
       }
       const response = await supplierApi.read(
-        `?supplier_id=${this.idEditForm}`
+        `supplier_id=${this.idEditForm}`
       );
       this.editItem = Object.assign(
         {},

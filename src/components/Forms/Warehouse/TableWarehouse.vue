@@ -60,15 +60,15 @@
 </template>
 
 <script>
-import BrandApi from "@/services/Forms/BrandApi";
+import WarehouseApi from "@/services/Forms/WarehouseApi";
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castDate } from '@/utils/cast';
-const brandApi = new BrandApi();
+const warehouseApi = new WarehouseApi();
 export default {
-  name: "TableBrand",
+  name: "TableWarehouse",
   props: {
     nameTable: String,
     path: String,
@@ -92,9 +92,9 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "brand_id",
+    keyQueryDelete: "warehouse_id",
     mainKeyDelete: ["name"],
-    secondKeyDelete: ["code"],
+    secondKeyDelete: ["symbol"],
     selectedItems: [],
     toggleDelete: false,
     //optional data
@@ -105,8 +105,9 @@ export default {
         key: "id",
         sortable: true
       },
-      { title: "Nombre", align: "center", key: "name", sortable:true },
-      { title: "Código", align: "center", key: "code", sortable:false },
+      { title: "Nota", align: "center", key: "note", sortable:true },
+      { title: "Ciudad", align: "center", key: "city.name", sortable:false },
+      { title: "Dirección", align: "center", key: "address", sortable:false },
       { title: "Estado", align: "end", key: "status", sortable:false },
       { title: "Acciones", align: "end", key: "actions", sortable:false },
     ],
@@ -138,13 +139,14 @@ export default {
           params.append(`sorters[${index}][${key}]`, item[key]);
         });
       });
-      const response = await brandApi.read(params.toString());
+      const response = await warehouseApi.read(params.toString());
       if (response.data && response.data.data){
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
           return item;
         });
       }
+
       this.currentlyPage = page;
       this.recordsPerPage = response.data.per_page;
       this.totalRecords = response.data.total;
@@ -155,9 +157,9 @@ export default {
       if (!data.confirm && this.selectedItems.length == 0) return;
       const response =
         this.selectedItems.length == 1
-          ? await brandApi.delete(`?brand_id=${this.selectedItems[0].id}`)
-          : await brandApi.delete(
-              `?${this.selectedItems.map((element) => `brand_ids[]=${element.id}&`).join("")}`
+          ? await warehouseApi.delete(`?warehouse_id=${this.selectedItems[0].id}`)
+          : await warehouseApi.delete(
+              `?${this.selectedItems.map((element) => `warehouse_ids[]=${element.id}&`).join("")}`
             );
 
       if (response.statusResponse == 200) {

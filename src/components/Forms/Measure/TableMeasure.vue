@@ -140,11 +140,12 @@ export default {
         });
       });
       const response = await measureApi.read(params.toString());
-      if (response.data && response.data.data)
+      if (response.data && response.data.data){
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
           return item;
         });
+      }
       this.currentlyPage = page;
       this.recordsPerPage = response.data.per_page;
       this.totalRecords = response.data.total;
