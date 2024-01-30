@@ -8,6 +8,12 @@ export const RulesValidation = {
         "Este campo debe de ser de almenos 3 caracteres",
     ],
   },
+  date: {
+    rules: [
+      v => !!v || 'La fecha y hora son requeridas',  // Validación de campo requerido
+      v => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) || 'Formato de fecha y hora no válido', // Validación de formato
+    ]
+  },
   longText: {
     maxLength: 300,
     rules: [
@@ -84,6 +90,7 @@ export const RulesValidation = {
     ],
   },
   quantity: {
+    length:4,
     rules: [
       (value) =>
         !isNaN(value) ||
@@ -95,6 +102,7 @@ export const RulesValidation = {
     ],
   },
   price: {
+    length:9,
     rules: [
       (value) =>
         !isNaN(value) ||

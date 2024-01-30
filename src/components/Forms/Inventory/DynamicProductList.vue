@@ -7,7 +7,7 @@
       >
       <div class="d-flex">
         <v-autocomplete
-          label="Campos adicionales"
+          label="Productos relacionados"
           v-model="itemSelected"
           :items="options"
           class="flex-grow-1 mr-5"
@@ -38,7 +38,7 @@
     <v-col class="max-w-custom">
       <v-row v-if="records && records.length > 0">
         <v-col cols="12" v-for="record in records" :key="record.code">
-          <v-card :title="record.name" :subtitle="record.description">
+          <v-card :title="record.name" :subtitle="'Consecutivo: '+record.consecutive">
             <template v-slot:prepend>
               <v-btn
                 icon="mdi-delete"
@@ -48,53 +48,45 @@
               >
               </v-btn>
             </template>
+            <template v-slot:append>
+              <v-chip class="mx-2">{{record.measure.symbol}}</v-chip>
+              <v-chip class="mx-2">{{record.brand.name}}</v-chip>
+              <span class="text-overline">{{ record.product_code }}</span>
+            </template>
             <v-card-text>
               <h4 class="text-center pb-3 text-overline">
-                Campos relacionados
+                {{}}
               </h4>
-              <v-row v-if="record.fields && record.fields.length > 0">
+              <v-row >
                 <v-col
-
-                  v-for="(field, findex) in record.fields"
-                  :key="field.id + '-field'"
-                  cols="12" lg="6"
+                  cols="12" sm="6" lg="4"
                 >
-                  <div v-if="field.type.id == 'F'" class="d-flex">
-                    <v-file-input
-                      class="w-75"
-                      v-model="record.fields[findex].data"
-                      accept=".doc, .docx, .pdf"
-                      label="Registro Comercial"
-                      :rules="field.rules"
-                      :loading="loading"
-                      @change="handleFileFields($event, field)"
-                    ></v-file-input>
-                    <div class="w-25 px-5" v-if="!record.fields[findex].data && !record.fields[findex].pathFile">
-                      <h3 class="text-center">No hay archivo seleccionado</h3>
-                    </div>
-                    <div v-else>
-                      <v-btn
-                        class="ma-2"
-                        outlined
-                        :href="getFileUrl(field.pathFile)"
-                        target="_blank"
-                        icon="mdi-folder-download"
-                        size="small"
-                        download
-                      >
-                      </v-btn>
-                    </div>
-                  </div>
-                  <div v-else >
                     <v-text-field
-                      :maxlength="field.length"
-                      :label="field.name"
-                      :rules="field.rules"
+                      :maxlength="rulesValidation.price.length"
+                      label="Costo"
+                      :rules="rulesValidation.price.rules"
                       :loading="loading"
-                      :prepend-inner-icon="field.type.icon"
-                      v-model="record.fields[findex].data"
+                      prepend-inner-icon="mdi-cash"
+                      v-model="record.cost"
                     ></v-text-field>
-                  </div>
+
+                </v-col>
+                <v-col
+                  cols="12" sm="2" lg="4"
+                >
+                    <v-text-field
+                      :maxlength="rulesValidation.quantity.length"
+                      label="Cantidad"
+                      :rules="rulesValidation.quantity.rules"
+                      :loading="loading"
+                      v-model="record.quantity"
+                    ></v-text-field>
+                </v-col>
+                <v-col
+                  cols="12" sm="4" lg="4"
+                >
+                <h3 class="text-h4 font-weight-light text-right">{{  record.quantity *  record.cost }}</h3>
+                <h4 class="text-subtitle-2 text-right font-weight-light">Costo total</h4>
                 </v-col>
               </v-row>
 
@@ -106,7 +98,7 @@
   </v-row>
   <div class="d-flex align-center">
     <strong class="text-overline d-block mt-3"
-      >Total de registros seleccionados:
+      >Total de productos seleccionados:
     </strong>
     <span class="text-primary d-block text-h5 pt-3 pl-3">{{
       records.length
@@ -144,6 +136,14 @@ export default {
     loading:false,
     rulesValidation: RulesValidation,
   }),
+  computed:{
+    totalProducts(){
+      return (this.products && this.products.lenght > 0) ?
+        this.products.map( item => item.cost * item.quantity)
+        .this.products.reduce((total, unitCost) => total + unitCost, 0)
+        : 0;
+    }
+  },
   watch: {
     async searchItem(to) {
       if (to.length > 3 && to.length < 5) {
@@ -153,31 +153,31 @@ export default {
   },
   methods: {
     async loadItems(name = null) {
-      const query = name
-        ? `keyword=${name}&typeKeyword=name&format=short`
-        : "format=short";
-      this.options = (await serviceApi.read(query)).data;
+      // const query = name
+      //   ? `keyword=${name}&typeKeyword=name&format=short`
+      //   : "format=short";
+      // this.options = (await serviceApi.read(query)).data;
+      this.options = [
+        {
+          name: 'Nombre producto',
+          consecutive:123232,
+          product_code: '#2342dsdfsdf',
+          quantity: 0,
+          cost:0,
+          measure:{
+            symbol:'kg',
+            id:12
+          },
+          brand:{
+            name:'adidas',
+            id:12
+          }
+        }
+      ]
     },
     appendItem() {
-      this.addRules(this.itemSelected.fields)
       this.emitRecords([this.itemSelected, ...this.records]);
       this.itemSelected = null;
-    },
-    addRules(items){
-      console.log('entrando?')
-      items.forEach(item => {
-        switch (item.type.id) {
-          case 'T':
-            item.rules = fieldText;
-            break;
-          case 'F':
-            item.rules = fieldFile;
-            break;
-          default:
-            break;
-        }
-        if (item.required == 1) item.rules = [(value) => !!value || "Este campo es requerido es requerida",...item.rules];
-      });
     },
     deleteItem(itemSelected) {
       this.emitRecords(

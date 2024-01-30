@@ -105,9 +105,9 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "users_id",
-    mainKeyDelete: ["name"],
-    secondKeyDelete: ["description"],
+    keyQueryDelete: "suppliers_id",
+    mainKeyDelete: ["third","supplier"],
+    secondKeyDelete: ["commercial_registry"],
     selectedItems: [],
     toggleDelete: false,
 
