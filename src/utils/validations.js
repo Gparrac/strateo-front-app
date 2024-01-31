@@ -8,6 +8,15 @@ export const RulesValidation = {
         "Este campo debe de ser de almenos 3 caracteres",
     ],
   },
+  shortText: {
+    maxLength: 20,
+    rules: [
+      (value) => !!value || "Este campo es requirido",
+      (value) =>
+        (value && value.toString().length < 19) ||
+        "Demasiados caracteres",
+    ],
+  },
   date: {
     rules: [
       v => !!v || 'La fecha y hora son requeridas',  // Validación de campo requerido

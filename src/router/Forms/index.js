@@ -10,6 +10,7 @@ import suppliersRoute from "./supplierRoute";
 import measureRoute from "./measureRoute";
 import brandRoute from "./brandRoute";
 import inventoriesRoute from "./inventoryRoute";
+import productRoute from "./productRoute";
 
 const  formsRoute = [
     usersRoute,
@@ -23,7 +24,8 @@ const  formsRoute = [
     suppliersRoute,
     measureRoute,
     brandRoute,
-    inventoriesRoute
+    inventoriesRoute,
+    productRoute
 ];
 
 export default formsRoute;
