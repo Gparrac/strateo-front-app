@@ -26,7 +26,7 @@ const  formsRoute = [
     measureRoute,
     brandRoute,
     inventoriesRoute,
-    productRoute
+    productRoute,
     warehouseRoute,
     inventoriesRoute
 ];

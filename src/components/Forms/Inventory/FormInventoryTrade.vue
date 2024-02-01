@@ -25,6 +25,7 @@
                         :rules="rulesValidation.select.rules"
                         @update:modelValue="setPurposes"
                         :loading="loading"
+                        :disabled="!this.editDisable"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -36,6 +37,7 @@
                         :items="purposes"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        :disabled="!this.editDisable"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -60,10 +62,20 @@
                         </template>
                       </v-autocomplete>
                     </v-col>
+                    <v-col cols="12">
+                      <v-textarea
+                        label="Observaciones"
+                        v-model="editItem.note"
+                        :maxLength="rulesValidation.longText.maxLength"
+                        :rules="rulesValidation.longText.rules"
+                        :loading="loading"
+                        rows="2"
+                      ></v-textarea>
+                    </v-col>
                     <v-col cols="12" sm="4">
                       <v-autocomplete
                         label="Bodega"
-                        v-model="editItem.warehouses"
+                        v-model="editItem.warehouse"
                         v-model:search="searchWarehouse"
                         item-title="address"
                         :return-object="true"
@@ -74,7 +86,9 @@
                         <template v-slot:item="{ props, item }">
                           <v-list-item v-bind="props">
                             <v-list-item-subtitle class="d-flex">
-                              <span class="d-block">{{ item.raw.city.name }}</span>
+                              <span class="d-block">{{
+                                item.raw.city.name
+                              }}</span>
                             </v-list-item-subtitle>
                           </v-list-item>
                         </template>
@@ -91,7 +105,9 @@
 
                     <v-col cols="12" sm="4">
                       <h4 class="text-subtitle-2">Valor total</h4>
-                      <h3 class="text-h3 font-weight-light text-right">{{ totalCost }}</h3>
+                      <h3 class="text-h3 font-weight-light text-right">
+                        {{ totalCost }}
+                      </h3>
                     </v-col>
                   </v-row>
                 </v-card-text>
@@ -108,7 +124,8 @@
                     v-if="editItem.products"
                     :records="editItem.products"
                     :error-message="customAlertError"
-                    @update:records = "(item) => (editItem.products = item)"
+                    :editable="idEditForm"
+                    @update:records="(item) => (editItem.products = item)"
                   />
                 </v-card-text>
               </v-card>
@@ -122,7 +139,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="() => $router.push(`/`)"
+            @click="() => $router.push(`/${path}`)"
             :loading="loading"
           >
             Cerrar
@@ -149,15 +166,18 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import DynamicProductList from "./DynamicProductList.vue";
+import Petition from "@/services/PetitionStructure/Petition";
 
 const inventoryApi = new InventoryApi();
 const warehouseApi = new WarehouseApi();
 const supplierApi = new SupplierApi();
+const petition = new Petition();
 
 export default {
   props: {
     nameTable: String,
     path: String,
+    idEditForm: Number,
   },
   components: {
     DynamicProductList,
@@ -168,10 +188,7 @@ export default {
     editItem: {},
     // optional data
     states: [],
-    types: [
-      { id: "E", name: "Entrada" },
-      { id: "D", name: "Salida" },
-    ],
+    types: [],
     purposes: [],
     products: [],
     suppliers: [],
@@ -190,8 +207,9 @@ export default {
         this.setEditItem(),
         this.setSuppliers(),
         this.setWarehouses(),
+        this.setPurposes(),
+        this.setTypesTride(),
       ]);
-      console.log("entando",this.editItem.products)
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -212,20 +230,49 @@ export default {
   computed: {
     ...mapStores(useAlertMessageStore),
     totalCost() {
-      return 0;
+      const total = this.editItem.products
+        ? this.editItem.products
+            .map((item) => (item.cost ?? 0) * (item.amount ?? 0))
+            .reduce((total, unitCost) => total + unitCost, 0)
+        : 0;
+      console.log("total", total);
+      return total;
     },
+    editDisable(){
+      return this.idEditForm ? false: true;
+    }
   },
   methods: {
     async submitForm() {
       this.loading = true;
+      console.log("probando", this.editItem.products);
+      if (this.isEditForm && (!this.editItem.products || this.editItem.products.length == 0)) {
+            this.customAlertError.type = "products";
+            this.customAlertError.message =
+              "Debes seleccionar almenos un producto";
+          } else {
+            this.customAlertError = {};
+          }
+
       const { valid } = await this.$refs.form.validate();
       if (valid) {
         //passing validations 🚥
         const formData = new FormData();
+        formData.append("inventory_trade_id", this.editItem.inventoryTradeId);
+        formData.append("note", this.editItem.note);
+        formData.append("date", this.editItem.date);
+        formData.append("supplier_id", this.editItem.supplier.id);
         let response = {};
         if (this.isEditForm) {
           response = await inventoryApi.update(formData);
         } else {
+          //validate selected products
+          formData.append("warehouse_id", this.editItem.warehouse.id);
+          this.editItem.products.forEach((item, pindex) => {
+            formData.append(`products[${pindex}][product_id]`, item);
+            formData.append(`products[${pindex}][cost]`, item);
+            formData.append(`products[${pindex}][amount]`, item);
+          });
           response = await inventoryApi.create(formData);
         }
         // logic to show alert 🚨
@@ -247,34 +294,50 @@ export default {
       this.loading = false;
     },
     async setEditItem() {
-      console.log('entrando')
+      console.log("entrando", this.idEditForm);
       if (!this.idEditForm) {
         this.editItem.products = [];
         return;
       }
-      const response = await inventoryApi.read();
+      const response = await inventoryApi.read(
+        `inventory_trade_id=${this.idEditForm}`
+      );
       if (response.statusResponse != 200) {
         this.editItem = {};
         return;
       }
+      const data = response.data;
+      console.log("entrando", data);
       this.isEditForm = true;
-      this.editItem = Object.assign({}, {});
+      this.editItem = Object.assign(
+        {},
+        {
+          inventoryTradeId: data.id,
+          purpose: data.purpose.id,
+          type: data.transaction_type.id,
+          supplier: data.supplier,
+          warehouse: data.warehouse,
+          date: data.transaction_date,
+          note: data.note,
+          products: data.inventories.map((item) => item.product),
+        }
+      );
     },
-    setPurposes() {
-      console.log("entrando purposes");
-      if (this.editItem.type == "E") {
-        this.purposes = [
-          { id: "IB", name: "Saldo inicial" },
-          { id: "D", name: "Donación" },
-          { id: "A", name: "Ajuste" },
-        ];
-      } else {
-        this.purposes = [
-          { id: "S", name: "Venta" },
-          { id: "A", name: "Ajuste" },
-        ];
-      }
+    async setTypesTride() {
+      this.types = (
+        await petition.get("/type-inventory-trades", `attribute=type`)
+      ).data;
     },
+    async setPurposes() {
+      this.purposes = (
+        await petition.get(
+          "/type-inventory-trades",
+          `attribute=purpose&type=${this.editItem.type}`
+        )
+      ).data;
+      console.log("entand90", this.purposes);
+    },
+
     async setWarehouses(name = null) {
       const query = name ? `&name=${name}` : "";
       this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;

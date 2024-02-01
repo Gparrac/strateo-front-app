@@ -4,11 +4,11 @@
       <h2 class="flex-grow-1 d-flex flex-column">
         Registros actuales
         <div>
-          <v-chip variant="tonal" class="ma-1" label :color="'primary'">
-            Inactivo
+          <v-chip variant="tonal" class="ma-1" label :color="'success'" prepend-icon="mdi-login">
+            Entrada
           </v-chip>
-          <v-chip variant="tonal" class="ma-1" label color="orange">
-            Activo
+          <v-chip variant="tonal" class="ma-1" label color="error" prepend-icon="mdi-logout">
+            Salida
           </v-chip>
         </div>
       </h2>
@@ -61,18 +61,20 @@
           </v-icon>
         </div>
       </template>
-      <template v-slot:[`item.status`]="{ item }">
+      <template v-slot:[`item.transaction_type.name`]="{ item }">
         <div>
           <v-chip
             variant="tonal"
             class="ma-1"
             label
-            :color="item.status == 'A' ? 'orange' : 'primary'"
+            :prepend-icon="item.transaction_type.icon"
+            :color="item.transaction_type.id == 'E' ? 'success' : 'error'"
           >
-            {{ item.status }}
+            {{ item.transaction_type.name }}
           </v-chip>
         </div>
       </template>
+
     </v-data-table>
   </div>
 </template>
@@ -82,7 +84,8 @@
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-
+import InventoryApi from '@/services/Forms/InventoryApi';
+const inventoryApi = new InventoryApi()
 export default {
   name: "TableOffice",
   props: {
@@ -91,7 +94,7 @@ export default {
   },
   data: () => ({
     //required data
-    keyQueryDelete: "office_id",
+    keyQueryDelete: "inventory_trades_id",
     mainKeyDelete: ["supplier","third", "name"],
     secondKeyDelete: ["transaction_date"],
     selectedItems: [],
@@ -104,12 +107,13 @@ export default {
         align: "start",
         key: "id",
       },
-      { title: "Registro comercial", align: "end", key: "commercial_registry" },
-      { title: "Contacto", align: "end", key: "third.names" },
-      { title: "Costo total", align: "end", key: "total_cost" },
-      { title: "Descuento", align: "end", key: "total_descount" },
-      { title: "Proposito", align: "end", key: "status" },
-      { title: "Fecha", align: "end", key: "transaction_date" }
+      { title: "Registro comercial", align: "center", key: "supplier.commercial_registry" },
+      { title: "Contacto", align: "center", key: "supplier.third.business_name" },
+      { title: "Costo total", align: "center", key: "total_cost" },
+      { title: "Tipo de transacción", align: "center", key: "transaction_type.name" },
+      { title: "Proposito", align: "center", key: "purpose.name" },
+      { title: "Fecha", align: "center", key: "transaction_date" },
+      { title: "Acciones", align: "center", key: "actions", sortable: false }
     ],
   }),
   components: {
@@ -117,18 +121,18 @@ export default {
   },
   methods: {
     async fetchScores() {
-      // const respose = await officeApi.read();
-      // if (respose.statusResponse == 200) {
-      //   this.records = respose.data.data;
-      // }
+      const respose = await inventoryApi.read();
+      if (respose.statusResponse == 200) {
+        this.records = respose.data.data;
+      }
     },
     async deleteItems(data) {
       this.toggleDelete = false;
       if (!data.confirm && this.selectedItems.length == 0) return;
       // const response =
       //   this.selectedItems.length == 1
-      //     ? await officeApi.delete(`?office_id=${this.selectedItems[0].id}`)
-      //     : await officeApi.delete(
+      //     ? await inventoryApi.delete(`?office_id=${this.selectedItems[0].id}`)
+      //     : await inventoryApi.delete(
       //         `?office_ids=[${this.selectedItems.map((element) => element.id)}]`
       //       );
 

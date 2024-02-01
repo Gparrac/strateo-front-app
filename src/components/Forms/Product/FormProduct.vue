@@ -175,7 +175,7 @@
               class="d-flex align-center"
             >
               <v-card
-                title="Campos personalizados"
+                title="Subproductos "
                 variant="outlined"
                 padding="2"
                 class="w-100"

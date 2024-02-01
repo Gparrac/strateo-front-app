@@ -20,7 +20,9 @@ export const RulesValidation = {
   date: {
     rules: [
       v => !!v || 'La fecha y hora son requeridas',  // Validación de campo requerido
-      v => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) || 'Formato de fecha y hora no válido', // Validación de formato
+      v => (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) || /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(
+        v
+      ) ) || 'Formato de fecha y hora no válido', // Validación de formato
     ]
   },
   longText: {
@@ -114,7 +116,8 @@ export const RulesValidation = {
     length:9,
     rules: [
       (value) =>
-        !isNaN(value) ||
+        !!value ||
+        !isNaN(parseFloat(value)) && isFinite(value) ||
         typeof value == 'number' ||
         "La cantidad debe ser de tipo númerica",
         (value) =>

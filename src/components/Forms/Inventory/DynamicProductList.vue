@@ -15,6 +15,7 @@
           item-title="name"
           :return-object="true"
           :loading="loading"
+          :disabled="editable"
         >
           <template v-slot:item="{ props, item }">
             <v-list-item v-bind="props">
@@ -25,6 +26,7 @@
           </template>
         </v-autocomplete>
         <v-btn
+          v-show="!editable"
           icon="mdi-plus-circle"
           color="primary"
           variant="tonal"
@@ -41,6 +43,7 @@
           <v-card :title="record.name" :subtitle="'Consecutivo: '+record.consecutive">
             <template v-slot:prepend>
               <v-btn
+                v-show="!editable"
                 icon="mdi-delete"
                 color="warning"
                 variant="tonal"
@@ -54,9 +57,7 @@
               <span class="text-overline">{{ record.product_code }}</span>
             </template>
             <v-card-text>
-              <h4 class="text-center pb-3 text-overline">
-                {{}}
-              </h4>
+
               <v-row >
                 <v-col
                   cols="12" sm="6" lg="4"
@@ -68,6 +69,8 @@
                       :loading="loading"
                       prepend-inner-icon="mdi-cash"
                       v-model="record.cost"
+                      variant="outlined"
+                      :disabled="editable"
                     ></v-text-field>
 
                 </v-col>
@@ -79,13 +82,15 @@
                       label="Cantidad"
                       :rules="rulesValidation.quantity.rules"
                       :loading="loading"
-                      v-model="record.quantity"
+                      variant="outlined"
+                      v-model="record.amount"
+                      :disabled="editable"
                     ></v-text-field>
                 </v-col>
                 <v-col
                   cols="12" sm="4" lg="4"
                 >
-                <h3 class="text-h4 font-weight-light text-right">{{  record.quantity *  record.cost }}</h3>
+                <h3 class="text-h4 font-weight-light text-right">{{  (record.amount ?? 0) *  record.cost }}</h3>
                 <h4 class="text-subtitle-2 text-right font-weight-light">Costo total</h4>
                 </v-col>
               </v-row>
@@ -115,7 +120,8 @@ const productApi = new ProductApi();
 export default {
   props: {
     records: Array,
-    errorMessage: Object
+    errorMessage: Object,
+    editable: Boolean
   },
   data: () => ({
     itemSelected: null,
@@ -125,12 +131,7 @@ export default {
     rulesValidation: RulesValidation,
   }),
   computed:{
-    totalProducts(){
-      return (this.products && this.products.lenght > 0) ?
-        this.products.map( item => item.cost * item.quantity)
-        .this.products.reduce((total, unitCost) => total + unitCost, 0)
-        : 0;
-    }
+
   },
   watch: {
     async searchItem(to) {
@@ -149,23 +150,7 @@ export default {
       console.log('responseOptions', response)
       this.options = response.data
       console.log('opitons', this.options);
-      // this.options = [
-      //   {
-      //     name: 'Nombre producto',
-      //     consecutive:123232,
-      //     product_code: '#2342dsdfsdf',
-      //     quantity: 0,
-      //     cost:0,
-      //     measure:{
-      //       symbol:'kg',
-      //       id:12
-      //     },
-      //     brand:{
-      //       name:'adidas',
-      //       id:12
-      //     }
-      //   }
-      // ]
+
     },
     appendItem() {
       const idIndex = this.itemSelected.id
