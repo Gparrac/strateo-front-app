@@ -84,7 +84,7 @@
   </v-row>
   <div class="d-flex align-center">
     <strong class="text-overline d-block mt-3"
-      >Total de registros seleccionados:
+      >Total de productos seleccionados:
     </strong>
     <span class="text-primary d-block text-h5 pt-3 pl-3">{{
       records.length
@@ -96,6 +96,7 @@ import { RulesValidation } from "@/utils/validations";
 import FieldApi from "@/services/Forms/FieldApi";
 const fieldApi = new FieldApi();
 export default {
+  name: 'DynamicFieldList',
   props: {
     records: Array,
   },
