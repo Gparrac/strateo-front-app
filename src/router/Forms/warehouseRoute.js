@@ -6,7 +6,7 @@ const warehouseRoute = {
     children: [
       {
         path: '',
-        name: 'Warehouses',
+        name: 'Warehouse',
         component: WarehouseView,
       },
       {

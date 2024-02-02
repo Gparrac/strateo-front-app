@@ -60,15 +60,15 @@
 </template>
 
 <script>
-import WarehouseApi from "@/services/Forms/WarehouseApi";
+import CategoryApi from "@/services/Forms/CategoryApi";
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castDate } from '@/utils/cast';
-const warehouseApi = new WarehouseApi();
+const categoryApi = new CategoryApi();
 export default {
-  name: "TableWarehouse",
+  name: "TableCategory",
   props: {
     nameTable: String,
     path: String,
@@ -84,7 +84,7 @@ export default {
     filterCleaner: false,
     typeskeyword: [
       { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
+      { title: "name", label: "Nombre" },
     ],
     //pagination
     totalRecords: 0,
@@ -92,9 +92,9 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "warehouse_id",
-    mainKeyDelete: ["note"],
-    secondKeyDelete: ["address"],
+    keyQueryDelete: "category_id",
+    mainKeyDelete: ["name"],
+    secondKeyDelete: ["code"],
     selectedItems: [],
     toggleDelete: false,
     //optional data
@@ -105,9 +105,8 @@ export default {
         key: "id",
         sortable: true
       },
-      { title: "Nota", align: "center", key: "note", sortable:true },
-      { title: "Ciudad", align: "center", key: "city.name", sortable:false },
-      { title: "Dirección", align: "center", key: "address", sortable:false },
+      { title: "Nombre", align: "center", key: "name", sortable:true },
+      { title: "Código", align: "center", key: "code", sortable:true },
       { title: "Estado", align: "end", key: "status", sortable:false },
       { title: "Acciones", align: "end", key: "actions", sortable:false },
     ],
@@ -139,7 +138,7 @@ export default {
           params.append(`sorters[${index}][${key}]`, item[key]);
         });
       });
-      const response = await warehouseApi.read(params.toString());
+      const response = await categoryApi.read(params.toString());
       if (response.data && response.data.data){
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
@@ -157,9 +156,9 @@ export default {
       if (!data.confirm && this.selectedItems.length == 0) return;
       const response =
         this.selectedItems.length == 1
-          ? await warehouseApi.delete(`?warehouse_id=${this.selectedItems[0].id}`)
-          : await warehouseApi.delete(
-              `?${this.selectedItems.map((element) => `warehouse_ids[]=${element.id}&`).join("")}`
+          ? await categoryApi.delete(`?category_id=${this.selectedItems[0].id}`)
+          : await categoryApi.delete(
+              `?${this.selectedItems.map((element) => `category_ids[]=${element.id}&`).join("")}`
             );
 
       if (response.statusResponse == 200) {
