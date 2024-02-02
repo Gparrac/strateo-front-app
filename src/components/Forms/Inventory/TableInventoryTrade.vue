@@ -1,36 +1,17 @@
 <template>
   <div>
-    <div class="d-flex pb-5">
-      <h2 class="flex-grow-1 d-flex flex-column">
-        Registros actuales
-        <div>
-          <v-chip variant="tonal" class="ma-1" label :color="'success'" prepend-icon="mdi-login">
-            Entrada
-          </v-chip>
-          <v-chip variant="tonal" class="ma-1" label color="error" prepend-icon="mdi-logout">
-            Salida
-          </v-chip>
-        </div>
-      </h2>
-      <div>
-        <v-btn
-          icon="mdi-plus"
-          class="mr-3"
-          color="primary"
-          variant="tonal"
-          @click="() => $router.push(`${path}/create`)"
-        >
-        </v-btn>
-        <v-btn
-          icon="mdi-delete"
-          color="warning"
-          variant="tonal"
-          :disabled="selectedItems.length == 0 ? true : false"
-          @click="() => (toggleDelete = true)"
-        >
-        </v-btn>
-      </div>
-    </div>
+    <header-table
+      :loading="loading"
+      :typeskeyword="typeskeyword"
+      :path="path"
+      :filterCleaner="filterCleaner"
+      :disableDelete="selectedItems.length == 0 ? true : false"
+      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
+      @clean-filter="loadItems({})"
+      :showDelete="false"
+      :showExport="true"
+      :showStatusLabel="false"
+    ></header-table>
     <modal-delete
       v-if="toggleDelete"
       @confirm-delete="deleteItems"
@@ -40,15 +21,15 @@
       :secondKey="secondKeyDelete"
       :title="nameTable"
     ></modal-delete>
-    <v-data-table
-      :headers="headers"
+    <v-data-table-server
+    :headers="headers"
       :items="records"
-      items-per-page="5"
-      item-selectable="selectable"
-      v-model="selectedItems"
-      show-select
-      return-object
+      @update:options="loadItems"
+      :items-length="totalRecords"
+      v-model:items-per-page="recordsPerPage"
+      :loading="loading"
       items-per-page-text="Items por Página"
+
     >
       <template v-slot:[`item.actions`]="{ item }">
         <div>
@@ -75,16 +56,18 @@
         </div>
       </template>
 
-    </v-data-table>
+    </v-data-table-server>
   </div>
 </template>
 
 <script>
 
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
+import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import InventoryApi from '@/services/Forms/InventoryApi';
+import { castDate } from '@/utils/cast';
 const inventoryApi = new InventoryApi()
 export default {
   name: "TableOffice",
@@ -94,12 +77,26 @@ export default {
   },
   data: () => ({
     //required data
+    records: [],
+    //search word
+    filterCleaner: false,
+    typeskeyword: [
+      { title: "id", label: "ID" },
+    ],
+
+    //pagination
+    totalRecords: 0,
+    recordsPerPage: 5,
+    currentlyPage: 1,
+    loading: false,
+
+    //delete items
     keyQueryDelete: "inventory_trades_id",
     mainKeyDelete: ["supplier","third", "name"],
     secondKeyDelete: ["transaction_date"],
     selectedItems: [],
-    records: [],
     toggleDelete: false,
+
     //optional data
     headers: [
       {
@@ -107,48 +104,57 @@ export default {
         align: "start",
         key: "id",
       },
-      { title: "Registro comercial", align: "center", key: "supplier.commercial_registry" },
-      { title: "Contacto", align: "center", key: "supplier.third.business_name" },
-      { title: "Costo total", align: "center", key: "total_cost" },
-      { title: "Tipo de transacción", align: "center", key: "transaction_type.name" },
-      { title: "Proposito", align: "center", key: "purpose.name" },
-      { title: "Fecha", align: "center", key: "transaction_date" },
+      { title: "Registro comercial provedor", align: "center", key: "supplier.commercial_registry", sortable: false},
+      { title: "Contacto", align: "center", key: "supplier.third.business_name", sortable: false},
+      { title: "Costo total", align: "center", key: "total_cost", sortable: false},
+      { title: "Tipo de transacción", align: "center", key: "transaction_type.name", sortable: false},
+      { title: "Proposito", align: "center", key: "purpose.name", sortable: false},
+      { title: "Fecha", align: "center", key: "transaction_date", sortable: false},
       { title: "Acciones", align: "center", key: "actions", sortable: false }
     ],
   }),
   components: {
     ModalDelete,
+    HeaderTable
   },
   methods: {
-    async fetchScores() {
-      const respose = await inventoryApi.read();
-      if (respose.statusResponse == 200) {
-        this.records = respose.data.data;
+    async loadItems(
+      {
+        page = this.currentlyPage,
+        itemsPerPage = this.recordsPerPage,
+        sortBy = [],
+      },
+      keyword = null,
+      typeKeyword = null
+    ) {
+      this.loading = true;
+      const params = new URLSearchParams();
+      if (typeKeyword && keyword) {
+        this.filterCleaner = true;
+        params.append("typeKeyword", typeKeyword);
+        params.append("keyword", keyword);
+      } else {
+        this.filterCleaner = sortBy.length !== 0;
       }
-    },
-    async deleteItems(data) {
-      this.toggleDelete = false;
-      if (!data.confirm && this.selectedItems.length == 0) return;
-      // const response =
-      //   this.selectedItems.length == 1
-      //     ? await inventoryApi.delete(`?office_id=${this.selectedItems[0].id}`)
-      //     : await inventoryApi.delete(
-      //         `?office_ids=[${this.selectedItems.map((element) => element.id)}]`
-      //       );
 
-      // if (response.statusResponse == 200) {
-      //   await this.fetchScores();
-      //   this.alertMessageStore.show(
-      //     true,
-      //     `${this.nameTable} desactivados exitosamente`
-      //   );
-      // } else {
-      //   this.alertMessageStore.show(false, "Error en el servidor");
-      // }
+      params.append("page", page);
+      params.append("pagination", itemsPerPage);
+      sortBy.forEach((item, index) => {
+        Object.keys(item).forEach((key) => {
+          params.append(`sorters[${index}][${key}]`, item[key]);
+        });
+      });
+      const response = await inventoryApi.read(params.toString());
+      if (response.data && response.data.data)
+        this.records = response.data.data.map((item) => {
+          item.updated_at = castDate(item.updated_at);
+          return item;
+        });
+      this.currentlyPage = page;
+      this.recordsPerPage = response.data.per_page;
+      this.totalRecords = response.data.total;
+      this.loading = false;
     },
-  },
-  async mounted() {
-    await this.fetchScores();
   },
   computed: {
     ...mapStores(useAlertMessageStore),

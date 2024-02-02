@@ -1,12 +1,13 @@
 <template>
   <v-row>
-    <v-col cols="12">
+    <v-col cols="12" >
       <strong class="text-caption d-block mb-2"
         >* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a
         5 letras para completar la busqueda...</strong
       >
-      <div class="d-flex">
+      <div class="d-flex" >
         <v-autocomplete
+
           label="Productos relacionados"
           v-model="itemSelected"
           :items="options"
@@ -71,21 +72,28 @@
                       v-model="record.cost"
                       variant="outlined"
                       :disabled="editable"
+                      persistent-hint
+                      :hint="'Precio fijado: '+ record.defaultCost"
                     ></v-text-field>
 
                 </v-col>
                 <v-col
                   cols="12" sm="2" lg="4"
+
                 >
                     <v-text-field
+                    class="pr-5"
                       :maxlength="rulesValidation.quantity.length"
                       label="Cantidad"
-                      :rules="rulesValidation.quantity.rules"
+                      :rules="[...rulesValidation.quantity.rules, (v) => (!(record.stock < v && typeTransaction == 'D'))  || 'No hay stock suficiente en inventario.' ]"
                       :loading="loading"
                       variant="outlined"
                       v-model="record.amount"
                       :disabled="editable"
+                      persistent-hint
+                      :hint="'Stock actual: ' + record.stock "
                     ></v-text-field>
+
                 </v-col>
                 <v-col
                   cols="12" sm="4" lg="4"
@@ -121,7 +129,9 @@ export default {
   props: {
     records: Array,
     errorMessage: Object,
-    editable: Boolean
+    editable: Boolean,
+    warehouse: Number,
+    typeTransaction: String,
   },
   data: () => ({
     itemSelected: null,
@@ -139,12 +149,23 @@ export default {
         this.loadItems(to);
       }
     },
+    warehouse(){
+      this.resetItems();
+    },
+    typeTransaction(){
+      console.log('changeTypeTransaction')
+      this.resetItems();
+    }
   },
   methods: {
+    resetItems(){
+      this.itemSelected = null;
+      this.emitRecords([]);
+    },
     async loadItems(name = null) {
-      const query = name
-        ? `keyword=${name}&typeKeyword=name&format=short`
-        : "format=short";
+      let query = `warehouseFilter=${this.warehouse}&`
+        query = query + (name ? `keyword=${name}&typeKeyword=name&format=short`
+        : "format=short");
 
       const response = (await productApi.read(query));
       console.log('responseOptions', response)
@@ -174,7 +195,7 @@ export default {
   },
   async mounted() {
 
-
+    console.log('mountedPro', this.warehouse);
     await this.loadItems();
 
   },

@@ -32,6 +32,33 @@ export default class Petition {
             });
         })
     }
+    getFile(url, query = '', token = false){
+      if(query.length != 0) query = `?${query}`
+        return new Promise((resolve, reject) => {
+            fetch(`${this.routeEndpoint}${url}${query}`, {
+                method: 'GET',
+                headers: this.headers(token),
+            })
+            .then(response => response.blob())
+            .then(blob => {
+              const url = window.URL.createObjectURL(blob);
+
+              // Crea un enlace temporal y haz clic en él para descargar el archivo
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', 'datos.xlsx');
+              document.body.appendChild(link);
+              link.click();
+
+              // Libera los recursos del enlace temporal
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(link);
+            })
+            .catch(error => {
+                reject(error);
+            });
+        })
+    }
 
     /**
      *

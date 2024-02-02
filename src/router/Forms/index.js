@@ -3,7 +3,7 @@ import rolesRoute from "./rolesRoute";
 import enterpriseRoute from "./enterpriseRoute";
 import clientRoute from "./clientRoute";
 import officeRoute from "./officeRoute";
-import entryInventoryRoute from "./entryInventoryRoute";
+import inventoryTradeRoute from "./inventoryTradeRoute";
 import servicesRoute from "./servicesRoute";
 import fieldsRoute from "./fieldsRoute";
 import suppliersRoute from "./supplierRoute";
@@ -20,7 +20,7 @@ const  formsRoute = [
     enterpriseRoute,
     officeRoute,
     clientRoute,
-    entryInventoryRoute,
+    inventoryTradeRoute,
     servicesRoute,
     fieldsRoute,
     suppliersRoute,
