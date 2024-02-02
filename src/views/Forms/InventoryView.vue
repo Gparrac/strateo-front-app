@@ -30,7 +30,7 @@ export default {
   data: () => ({
     titleView: "Inventario",
     nameTable: "Entrada de inventario",
-    path: "entry-inventory",
+    path: "inventory-trades",
     isForm: false,
     idEditForm: null,
     tab:'one'

@@ -1,22 +1,22 @@
 import InventoryView from '@/views/Forms/InventoryView.vue';
 
-const entryInventoryRoute = {
-    path: 'entry-inventory',
+const inventoryTrade = {
+    path: 'inventory-trades',
     component: InventoryView,
     children: [
       {
         path: '',
-        name: 'EntryInventory',
+        name: 'InventoryTrade',
         component: InventoryView,
       },
       {
         path: 'create',
-        name: 'EntryInventoryCreate',
+        name: 'InventoryTradeCreate',
         component: InventoryView,
       },
       {
         path: 'edit/:itemId',
-        name: 'EntryInventoryEdit',
+        name: 'InventoryTradeEdit',
         component: InventoryView,
       },
       {
@@ -25,11 +25,11 @@ const entryInventoryRoute = {
         redirect: to => {
           // Check if a userId is provided
           if (!to.params.itemId) {
-            return { name: 'EntryInventory' }; // Redirect to the 'Users' route
+            return { name: 'InventoryTrade' }; // Redirect to the 'Users' route
           }
         },
       },
     ],
 };
 
-export default entryInventoryRoute;
+export default inventoryTrade;

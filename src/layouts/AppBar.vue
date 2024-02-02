@@ -34,15 +34,23 @@
         location="left"
         permanent
       >
-        <template v-for="(section, i) in sections" :key="`${i}-s-${i.id}`">
-          <v-list-subheader>{{ i + 1 + ". " + section.name }}</v-list-subheader>
-
-          <v-list :items="section.forms">
+        <v-list v-model:opened="openSections">
+          <v-list-item prepend-icon="mdi-home" title="Home" to="/"></v-list-item>
+          <v-list-group v-for="(section, i) in sections" :key="`${i}-s-${i.id}`" :value="i+'s'">
+            <template v-slot:activator="{ props }">
+              <v-list-item
+            v-bind="props"
+            :prepend-icon="section.icon"
+            :title="section.name"
+          ></v-list-item>
+            </template>
+            <v-list :items="section.forms">
             <v-list-item
               v-for="(form, i) in section.forms"
               :key="i"
               :value="form"
               color="primary"
+              class="ml-7"
               :to="form.href"
             >
               <template v-slot:prepend>
@@ -54,7 +62,8 @@
               </v-list-item-title>
             </v-list-item>
           </v-list>
-        </template>
+          </v-list-group>
+        </v-list>
         <p class="pa-7" v-if="sections.length === 0">
           <!-- Contenido para cuando no hay elementos -->
           No hay secciones disponibles...
@@ -95,6 +104,7 @@ export default {
     toggleSettings: false,
     drawer: false,
     sections: [],
+     openSections: [],
   }),
   async mounted() {
     await this.getFormsAvailable();
@@ -106,8 +116,10 @@ export default {
   methods: {
     async getFormsAvailable() {
       const response = await formApi.read("format=routes-available");
-      if (response.data) {
+      if (response.statusResponse) {
         this.sections = response.data;
+        this.openSections = ['0s']
+
       }
     },
   },
