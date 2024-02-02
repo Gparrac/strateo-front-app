@@ -11,7 +11,19 @@
       :showDelete="false"
       :showExport="true"
       :showStatusLabel="false"
-    ></header-table>
+    >
+  <template v-slot:listMenuChips>
+    <div >
+          <!-- Contenido predeterminado si no se proporciona ningún contenido al slot -->
+          <v-chip variant="tonal" class="ma-1" label :color="'success'" @click="loadItems({},'E', 'transaction_type')">
+            Entrada
+          </v-chip>
+          <v-chip variant="tonal" class="ma-1" label color="error" @click="loadItems({},'D', 'transaction_type')">
+            Salida
+          </v-chip>
+        </div>
+  </template>
+  </header-table>
     <modal-delete
       v-if="toggleDelete"
       @confirm-delete="deleteItems"
@@ -82,6 +94,7 @@ export default {
     filterCleaner: false,
     typeskeyword: [
       { title: "id", label: "ID" },
+      { title: "transaction_type", label: "Tipo de transacción" }
     ],
 
     //pagination
@@ -107,6 +120,7 @@ export default {
       { title: "Registro comercial provedor", align: "center", key: "supplier.commercial_registry", sortable: false},
       { title: "Contacto", align: "center", key: "supplier.third.business_name", sortable: false},
       { title: "Costo total", align: "center", key: "total_cost", sortable: false},
+      { title: "Cantidad total", align: "center", key: "total_amount", sortable: false},
       { title: "Tipo de transacción", align: "center", key: "transaction_type.name", sortable: false},
       { title: "Proposito", align: "center", key: "purpose.name", sortable: false},
       { title: "Fecha", align: "center", key: "transaction_date", sortable: false},
@@ -118,6 +132,9 @@ export default {
     HeaderTable
   },
   methods: {
+    test(){
+      console.log('entrando test')
+    },
     async loadItems(
       {
         page = this.currentlyPage,

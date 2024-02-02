@@ -1,16 +1,20 @@
 <template>
   <div class="d-flex pb-5 flex-wrap">
-    <h2 class="flex-grow-1 d-flex flex-column my-2 my-md-0">
+    <div class="flex-grow-1 d-flex flex-column my-2 my-md-0">
       Registros actuales
+      <slot name="listMenuChips">
       <div v-if="showStatusLabel">
-        <v-chip variant="tonal" class="ma-1" label :color="'primary'">
-          Inactivo
-        </v-chip>
-        <v-chip variant="tonal" class="ma-1" label color="orange">
-          Activo
-        </v-chip>
-      </div>
-    </h2>
+          <!-- Contenido predeterminado si no se proporciona ningún contenido al slot -->
+          <v-chip variant="tonal" class="ma-1" label :color="'primary'">
+            Inactivo
+          </v-chip>
+          <v-chip variant="tonal" class="ma-1" label color="orange">
+            Activo
+          </v-chip>
+        </div>
+        </slot>
+    </div>
+
 
     <div class="d-flex align-center justify-center flex-wrap">
       <v-select
@@ -58,17 +62,16 @@
       >
       </v-btn>
       <v-btn
-      v-if="showDelete"
+        v-if="showDelete"
         icon="mdi-delete"
         color="warning"
         variant="tonal"
         :disabled="disableDelete"
         @click="() => $emit('toggle-delete')"
-
       >
       </v-btn>
       <v-btn
-      v-if="showExport"
+        v-if="showExport"
         icon="mdi-cloud-download"
         color="deep-purple-accent-4"
         variant="tonal"
@@ -79,7 +82,7 @@
   </div>
 </template>
 <script>
-import Petition from '@/services/PetitionStructure/Petition';
+import Petition from "@/services/PetitionStructure/Petition";
 const petition = new Petition();
 export default {
   props: {
@@ -90,37 +93,38 @@ export default {
     filterCleaner: Boolean,
     showDelete: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showExport: {
       type: Boolean,
-      default: true
+      default: false,
     },
     showStatusLabel: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
   data: () => ({
     keyword: "",
     typeKeyword: "",
   }),
-  methods:{
-    async exportExcelFile(){
-      console.log('export Excel',this.path)
-     await petition.getFile(`/export-data/${this.path}`,undefined, true);
-
-
+  methods: {
+    async exportExcelFile() {
+      console.log("export Excel", this.path);
+      await petition.getFile(`/export-data/${this.path}`, undefined, true);
     },
-    filtrate(){
-      this.$emit('load-items',{typeKeyword:this.typeKeyword, keyword:this.keyword});
+    filtrate() {
+      this.$emit("load-items", {
+        typeKeyword: this.typeKeyword,
+        keyword: this.keyword,
+      });
     },
-    cleanFilter(){
-      this.keyword='';
-      this.typeKeyword='';
-      this.$emit('load-items');
-    }
-  }
+    cleanFilter() {
+      this.keyword = "";
+      this.typeKeyword = "";
+      this.$emit("load-items");
+    },
+  },
 };
 </script>
 <style scoped>
