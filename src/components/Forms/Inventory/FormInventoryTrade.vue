@@ -115,16 +115,18 @@
             </v-col>
             <v-col cols="12" lg="12">
               <v-card
+              v-if="editItem.products && editItem.warehouse && editItem.type"
                 title="Productos relacionados"
                 variant="outlined"
                 padding="2"
               >
                 <v-card-text>
                   <DynamicProductList
-                    v-if="editItem.products"
+                    :typeTransaction=" editItem.type"
                     :records="editItem.products"
                     :error-message="customAlertError"
                     :editable="idEditForm"
+                    :warehouse="editItem.warehouse.id ?? null"
                     @update:records="(item) => (editItem.products = item)"
                   />
                 </v-card-text>
@@ -167,6 +169,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import DynamicProductList from "./DynamicProductList.vue";
 import Petition from "@/services/PetitionStructure/Petition";
+import { castFullDate } from '@/utils/cast';
 
 const inventoryApi = new InventoryApi();
 const warehouseApi = new WarehouseApi();
@@ -201,6 +204,7 @@ export default {
     isEditForm: false,
   }),
   async mounted() {
+
     this.loading = true;
     try {
       await Promise.all([
@@ -245,7 +249,7 @@ export default {
   methods: {
     async submitForm() {
       this.loading = true;
-      console.log("probando", this.editItem.products);
+      console.log("probando", this.editItem.date);
       if (this.isEditForm && (!this.editItem.products || this.editItem.products.length == 0)) {
             this.customAlertError.type = "products";
             this.customAlertError.message =
@@ -258,20 +262,23 @@ export default {
       if (valid) {
         //passing validations 🚥
         const formData = new FormData();
-        formData.append("inventory_trade_id", this.editItem.inventoryTradeId);
         formData.append("note", this.editItem.note);
-        formData.append("date", this.editItem.date);
         formData.append("supplier_id", this.editItem.supplier.id);
+        formData.append("date", castFullDate(this.editItem.date) );
         let response = {};
         if (this.isEditForm) {
+          formData.append("inventory_trade_id", this.editItem.inventoryTradeId);
           response = await inventoryApi.update(formData);
         } else {
           //validate selected products
+
+          formData.append("transaction_type", this.editItem.type);
+          formData.append("purpose", this.editItem.purpose);
           formData.append("warehouse_id", this.editItem.warehouse.id);
           this.editItem.products.forEach((item, pindex) => {
-            formData.append(`products[${pindex}][product_id]`, item);
-            formData.append(`products[${pindex}][cost]`, item);
-            formData.append(`products[${pindex}][amount]`, item);
+            formData.append(`products[${pindex}][product_id]`, item.id);
+            formData.append(`products[${pindex}][cost]`, item.cost);
+            formData.append(`products[${pindex}][amount]`, item.amount);
           });
           response = await inventoryApi.create(formData);
         }
