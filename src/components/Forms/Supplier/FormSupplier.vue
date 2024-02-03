@@ -268,7 +268,6 @@ export default {
       }
     },
     async submitForm() {
-      console.log("return", this.editItem);
 
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
@@ -321,7 +320,6 @@ export default {
           );
         }
         if (this.editItem.rutFile && typeof this.rutFile != "string") {
-          console.log("rutfile", typeof this.editItem.rutFile);
           formData.append("rut_file", this.editItem.pathRutFile);
         }
         this.editItem.services.forEach((service, index) => {
@@ -337,7 +335,6 @@ export default {
                 `services[${index}][fields][${findex}][content]`,
                 field.pathFile
               );
-              console.log('entrando');
               }
             }else{
               formData.append(

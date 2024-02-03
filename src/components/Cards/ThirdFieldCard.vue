@@ -128,13 +128,12 @@ export default {
         async setEditItem() {
 
             this.editItem = this.records;
-            console.log('cargando', this.records);
             if (!this.editItem.secondaryCiius) this.editItem.secondaryCiius = []
         },
         async setCities(name = null) {
             const query = name ? `name=${name}` : "";
-            this.cities = this.citiesParent && !name ? 
-            this.citiesParent : 
+            this.cities = this.citiesParent && !name ?
+            this.citiesParent :
             (await petition.get("/cities", query)).data;
         },
         async setCiiuCodes(name = null) {

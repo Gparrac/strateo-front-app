@@ -153,7 +153,6 @@ export default {
       this.resetItems();
     },
     typeTransaction(){
-      console.log('changeTypeTransaction')
       this.resetItems();
     }
   },
@@ -168,9 +167,7 @@ export default {
         : "format=short");
 
       const response = (await productApi.read(query));
-      console.log('responseOptions', response)
       this.options = response.data
-      console.log('opitons', this.options);
 
     },
     appendItem() {
@@ -195,7 +192,6 @@ export default {
   },
   async mounted() {
 
-    console.log('mountedPro', this.warehouse);
     await this.loadItems();
 
   },

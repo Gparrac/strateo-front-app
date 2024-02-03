@@ -239,7 +239,6 @@ export default {
             .map((item) => (item.cost ?? 0) * (item.amount ?? 0))
             .reduce((total, unitCost) => total + unitCost, 0)
         : 0;
-      console.log("total", total);
       return total;
     },
     editDisable(){
@@ -249,7 +248,6 @@ export default {
   methods: {
     async submitForm() {
       this.loading = true;
-      console.log("probando", this.editItem.date);
       if (this.isEditForm && (!this.editItem.products || this.editItem.products.length == 0)) {
             this.customAlertError.type = "products";
             this.customAlertError.message =
@@ -301,7 +299,6 @@ export default {
       this.loading = false;
     },
     async setEditItem() {
-      console.log("entrando", this.idEditForm);
       if (!this.idEditForm) {
         this.editItem.products = [];
         return;
@@ -314,7 +311,6 @@ export default {
         return;
       }
       const data = response.data;
-      console.log("entrando", data);
       this.isEditForm = true;
       this.editItem = Object.assign(
         {},
@@ -342,7 +338,6 @@ export default {
           `attribute=purpose&type=${this.editItem.type}`
         )
       ).data;
-      console.log("entand90", this.purposes);
     },
 
     async setWarehouses(name = null) {

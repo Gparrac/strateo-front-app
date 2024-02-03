@@ -164,7 +164,6 @@ export default {
       this.itemSelected = null;
     },
     addRules(items){
-      console.log('entrando?')
       items.forEach(item => {
         switch (item.type.id) {
           case 'T':

@@ -110,9 +110,7 @@ export default {
         ? `keyword=${name}&typeKeyword=name&format=short`
         : "format=short";
       const response = (await productApi.read(query))
-      console.log('responseOptions', response)
       this.options = response.data
-      console.log('opitons', this.options);
       this.loading = false;
     },
     appendItem() {

@@ -293,7 +293,6 @@ export default {
   },
   methods: {
     async submitForm() {
-      console.log("return", this.editItem);
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {
@@ -303,12 +302,12 @@ export default {
         formData.append("type", this.editItem.type);
         formData.append("consecutive", this.editItem.consecutive);
         formData.append("name", this.editItem.name);
-        formData.append("description", this.editItem.description);
-        formData.append("product_code", this.editItem.productCode);
+        if(this.editItem.description && this.editItem.description.length > 0) formData.append("description", this.editItem.description);
+        if(this.editItem.productCode ) formData.append("product_code", this.editItem.productCode);
         formData.append("cost", this.editItem.cost);
         formData.append("brand_id", this.editItem.brand);
         formData.append("measure_id", this.editItem.measure);
-        formData.append("barcode", this.editItem.barcode);
+        if(this.editItem.barcode ) formData.append("barcode", this.editItem.barcode);
         formData.append("size", this.editItem.size);
         if(this.editItem.typeContent && this.editItem.typeContent == 2) formData.append("type_content", this.editItem.typeContent);
         formData.append("status", this.editItem.status);
@@ -354,7 +353,6 @@ export default {
       const response = await brandApi.read("format=short");
       if (response.statusResponse == 200) {
         this.brands = response.data;
-        console.log("marcas", this.brands);
       }
     },
     async setCategories() {
@@ -365,7 +363,6 @@ export default {
     },
     async setTypes() {
       const response = await petition.get("/type-products", "attribute=type");
-      console.log("settypes", response);
       if (response.statusResponse == 200) {
         this.types = response.data;
       }
@@ -393,7 +390,6 @@ export default {
       const response = await productApi.read(`product_id=${this.idEditForm}`);
       if (response.statusResponse == 200) {
         const data = response.data;
-        console.log("id", data.id);
         this.editItem = Object.assign(
           {},
           {

@@ -110,7 +110,6 @@ export default {
   }),
   methods: {
     async exportExcelFile() {
-      console.log("export Excel", this.path);
       await petition.getFile(`/export-data/${this.path}`, undefined, true);
     },
     filtrate() {
