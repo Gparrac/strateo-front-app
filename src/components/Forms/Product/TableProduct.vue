@@ -97,7 +97,7 @@ export default {
     filterCleaner: false,
     typeskeyword: [
       { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
+      { title: "name", label: "Nombre de producto" },
     ],
     //pagination
     totalRecords: 0,
@@ -105,9 +105,9 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "users_id",
+    keyQueryDelete: "products_id",
     mainKeyDelete: ["name"],
-    secondKeyDelete: ["description"],
+    secondKeyDelete: ["consecutive"],
     selectedItems: [],
     toggleDelete: false,
 

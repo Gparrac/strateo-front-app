@@ -6,17 +6,17 @@ const suppliersRoute = {
     children: [
       {
         path: '',
-        name: 'Suppliers',
+        name: 'Supplier',
         component: SupplierView,
       },
       {
         path: 'create',
-        name: 'SuppliersCreate',
+        name: 'SupplierCreate',
         component: SupplierView,
       },
       {
         path: 'edit/:userId',
-        name: 'suppliersEdit',
+        name: 'supplierEdit',
         component: SupplierView,
       },
       {
@@ -25,7 +25,7 @@ const suppliersRoute = {
         redirect: to => {
           // Check if a userId is provided
           if (!to.params.userId) {
-            return { name: 'Suppliers' }; // Redirect to the 'Users' route
+            return { name: 'Supplier' }; // Redirect to the 'Users' route
           }
         },
       },

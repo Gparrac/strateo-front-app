@@ -1,11 +1,11 @@
-import usersRoute from "./usersRoute";
-import rolesRoute from "./rolesRoute";
+import usersRoute from "./userRoute";
+import roleRoute from "./roleRoute";
 import enterpriseRoute from "./enterpriseRoute";
 import clientRoute from "./clientRoute";
 import officeRoute from "./officeRoute";
 import inventoryTradeRoute from "./inventoryTradeRoute";
 import servicesRoute from "./servicesRoute";
-import fieldsRoute from "./fieldsRoute";
+import fieldRoute from "./fieldRoute";
 import suppliersRoute from "./supplierRoute";
 import measureRoute from "./measureRoute";
 import brandRoute from "./brandRoute";
@@ -16,13 +16,13 @@ import categoryRoute from "./categoryRoute";
 
 const  formsRoute = [
     usersRoute,
-    rolesRoute,
+    roleRoute,
     enterpriseRoute,
     officeRoute,
     clientRoute,
     inventoryTradeRoute,
     servicesRoute,
-    fieldsRoute,
+    fieldRoute,
     suppliersRoute,
     measureRoute,
     brandRoute,

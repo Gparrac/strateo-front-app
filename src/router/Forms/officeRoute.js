@@ -1,6 +1,6 @@
 import OfficeView from '@/views/Forms/OfficeView.vue';
 
-const OfficeRoute = {
+const officeRoute = {
     path: 'offices',
     component: OfficeView,
     children: [
@@ -32,4 +32,4 @@ const OfficeRoute = {
     ],
 };
 
-export default OfficeRoute;
+export default officeRoute;

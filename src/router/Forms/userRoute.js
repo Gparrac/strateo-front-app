@@ -1,22 +1,22 @@
 import UserView from '@/views/Forms/UserView.vue';
 
-const usersRoute = {
+const userRoute = {
     path: 'users',
     component: UserView,
     children: [
       {
         path: '',
-        name: 'Users',
+        name: 'User',
         component: UserView,
       },
       {
         path: 'create',
-        name: 'UsersCreate',
+        name: 'UserCreate',
         component: UserView,
       },
       {
         path: 'edit/:userId',
-        name: 'UsersEdit',
+        name: 'UserEdit',
         component: UserView,
       },
       {
@@ -25,11 +25,11 @@ const usersRoute = {
         redirect: to => {
           // Check if a userId is provided
           if (!to.params.userId) {
-            return { name: 'Users' }; // Redirect to the 'Users' route
+            return { name: 'User' }; // Redirect to the 'Users' route
           }
         },
       },
     ],
 };
 
-export default usersRoute;
+export default userRoute;

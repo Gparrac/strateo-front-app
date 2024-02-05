@@ -1,18 +1,23 @@
+import Petition from "../../PetitionStructure/Petition";
 export default class FormsFactory {
-    constructor(){
-        this.token = true;
-    }
+  constructor(route) {
+    this.token = true;
+    this.petition = new Petition();
+    this.route = route;
+  }
+  create(body) {
+    return this.petition.post(this.route, body, this.token);
+  }
 
-    create(body){
-        throw new Error("create method not implemented");
-    }
-    read(query = ''){
-        throw new Error("read method not implemented");
-    }
-    update(body){
-        throw new Error("update method not implemented");
-    }
-    delete(query = ''){
-        throw new Error("delete method not implemented");
-    }
+  read(query = "") {
+    return this.petition.get(this.route, query, this.token);
+  }
+
+  update(body) {
+    return this.petition.put(this.route, body, this.token);
+  }
+
+  delete(query = "") {
+    return this.petition.delete(this.route, query, this.token);
+  }
 }

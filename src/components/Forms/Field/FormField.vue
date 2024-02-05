@@ -24,7 +24,6 @@
                             v-model="editItem.name"
                             :rules="rulesValidation.text.rules"
                             :loading="loading"
-                            :suffix="verificationNitNumber"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6">

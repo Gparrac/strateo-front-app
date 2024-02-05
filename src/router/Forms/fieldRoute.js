@@ -1,6 +1,6 @@
 import FieldView from '@/views/Forms/FieldView.vue';
 
-const fieldsRoute = {
+const fieldRoute = {
     path: 'fields',
     component: FieldView,
     children: [
@@ -32,4 +32,4 @@ const fieldsRoute = {
     ],
 };
 
-export default fieldsRoute;
+export default fieldRoute;

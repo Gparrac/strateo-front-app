@@ -6,17 +6,17 @@ const servicesRoute = {
     children: [
       {
         path: '',
-        name: 'Services',
+        name: 'Service',
         component: ServiceView,
       },
       {
         path: 'create',
-        name: 'ServicesCreate',
+        name: 'ServiceCreate',
         component: ServiceView,
       },
       {
         path: 'edit/:userId',
-        name: 'servicesEdit',
+        name: 'serviceEdit',
         component: ServiceView,
       },
       {
@@ -25,7 +25,7 @@ const servicesRoute = {
         redirect: to => {
           // Check if a userId is provided
           if (!to.params.userId) {
-            return { name: 'Services' }; // Redirect to the 'Users' route
+            return { name: 'Service' }; // Redirect to the 'Users' route
           }
         },
       },

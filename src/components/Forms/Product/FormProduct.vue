@@ -76,10 +76,10 @@
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field
-                            :maxlength="rulesValidation.shortText.length"
+                            :maxlength="rulesValidation.shortTextNull.length"
                             label="Codigo de producto"
                             v-model="editItem.productCode"
-                            :rules="rulesValidation.shortText.rules"
+                            :rules="rulesValidation.shortTextNull.rules"
                             :loading="loading"
                           ></v-text-field>
                         </v-col>
@@ -130,10 +130,10 @@
 
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field
-                            :maxlength="rulesValidation.shortText.length"
+                            :maxlength="rulesValidation.shortTextNull.length"
                             label="Codigo de barras"
                             v-model="editItem.barcode"
-                            :rules="rulesValidation.shortText.rules"
+                            :rules="rulesValidation.shortTextNull.rules"
                             :loading="loading"
                           ></v-text-field>
                         </v-col>
@@ -157,8 +157,8 @@
                           <v-textarea
                             label="Descripción"
                             v-model="editItem.description"
-                            :maxLength="rulesValidation.longText.maxLength"
-                            :rules="rulesValidation.longText.rules"
+                            :maxLength="rulesValidation.longTextNull.maxLength"
+                            :rules="rulesValidation.longTextNull.rules"
                             rows="6"
                             :loading="loading"
                           ></v-textarea>

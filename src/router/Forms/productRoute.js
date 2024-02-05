@@ -1,6 +1,6 @@
 import ProductView from '@/views/Forms/ProductView.vue';
 
-const brandRoute = {
+const productRoute = {
     path: 'products',
     component: ProductView,
     children: [
@@ -32,4 +32,4 @@ const brandRoute = {
     ],
 };
 
-export default brandRoute;
+export default productRoute;

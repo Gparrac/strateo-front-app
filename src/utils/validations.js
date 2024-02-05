@@ -17,6 +17,14 @@ export const RulesValidation = {
         "Demasiados caracteres",
     ],
   },
+  shortTextNull: {
+    maxLength: 20,
+    rules: [
+      (value) =>
+        !value || value.toString().length < 19 ||
+        "Demasiados caracteres",
+    ],
+  },
   date: {
     rules: [
       v => !!v || 'La fecha y hora son requeridas',  // Validación de campo requerido
@@ -34,6 +42,17 @@ export const RulesValidation = {
         "Este campo debe de ser de almenos 3 caracteres",
       (value) =>
         (value && value.length < 300) ||
+        "Este campo debe de ser menor de 300 caracteres",
+    ],
+  },
+  longTextNull: {
+    maxLength: 300,
+    rules: [
+      (value) =>
+        !value || value.length >= 3 ||
+        "Este campo debe de ser de almenos 3 caracteres",
+      (value) =>
+        !value || value.length < 300 ||
         "Este campo debe de ser menor de 300 caracteres",
     ],
   },
