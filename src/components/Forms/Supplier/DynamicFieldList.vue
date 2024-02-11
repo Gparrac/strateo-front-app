@@ -2,8 +2,8 @@
   <v-row>
     <v-col cols="12">
       <strong class="text-caption d-block mb-2"
-        >* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a
-        5 letras para completar la busqueda...</strong
+        >* <span class="text-overline">Campo dinamico  </span> Escribe entre 3 a
+        5 letras para completar la busqueda y llena los campos correspondientes de tu selección...</strong
       >
       <div class="d-flex">
         <v-autocomplete

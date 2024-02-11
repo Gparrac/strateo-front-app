@@ -141,7 +141,7 @@
             </v-col>
             <v-col cols="12" class="d-flex align-center">
               <v-card
-                title="Campos personalizados"
+                title="Servicios relacionados"
                 variant="outlined"
                 padding="2"
                 class="w-100"
