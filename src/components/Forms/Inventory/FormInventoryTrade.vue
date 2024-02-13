@@ -17,7 +17,7 @@
                   <v-row>
                     <v-col cols="12" sm="4">
                       <v-select
-                        label="Tipo "
+                        label="Tipo"
                         v-model="editItem.type"
                         item-title="name"
                         item-value="id"

@@ -146,7 +146,10 @@ export default class Petition {
      */
     headers(token = false) {
         const headers = new Headers({
-          "X-Requested-With": "XMLHttpRequest"
+          "X-Requested-With": "XMLHttpRequest",
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': 'true'
+
         });
 
         if (token) {
