@@ -55,7 +55,6 @@
           >
             mdi-pencil
           </v-icon>
-{{ path }}
         </div>
       </template>
       <template v-slot:[`item.status`]="{ item }">

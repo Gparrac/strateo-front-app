@@ -217,8 +217,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
-//import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
-import dynamicFieldList from "@/components/Forms/Employee/DynamicFieldList.vue";
+import dynamicFieldList from "@/components/blocks/DynamicFieldList.vue";
 import thirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
 import Petition from "@/services/PetitionStructure/Petition.js";
 const employeeApi = new EmployeeApi();
@@ -291,24 +290,15 @@ export default {
         // third fields 🚥
         formData.append("type_document", this.editItem.typeDocument);
         formData.append("identification", this.editItem.identification);
-        formData.append("verification_id", this.editItem.verification_id);
+        formData.append("names", this.editItem.names);
+        formData.append("surnames", this.editItem.surnames);
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        formData.append("code_ciiu_id", this.editItem.ciiu.id);
-        if (this.editItem.typeDocument == "NIT") {
-          formData.append("business_name", this.editItem.business);
-        } else {
-          formData.append("names", this.editItem.names);
-          formData.append("surnames", this.editItem.surnames);
-        }
-        if (this.editItem.email2)
+        if (this.editItem.email2 && this.editItem.email2.length > 0)
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
-        this.editItem.secondaryCiius.forEach((item, cindex) => {
-          formData.append(`secondary_ciiu_ids[${cindex}]`, item.id);
-        });
 
         // employee fields 🚥
         formData.append(
@@ -316,7 +306,7 @@ export default {
           this.editItem.typeContract
         );
         formData.append("hire_date", this.editItem.hireDate);
-        formData.append("end_date_contract", this.editItem.end_date_contract);
+        formData.append("end_date_contract", this.editItem.endDateContract);
         formData.append("status", this.editItem.status);
         if (
           this.editItem.resumeFile &&
@@ -417,7 +407,7 @@ export default {
           address: response.data.third.address,
           mobile: response.data.third.mobile,
           email: response.data.third.email,
-          email2: response.data.third.email,
+          email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
           city_id: response.data.third.city_id,
           services: response.data.services

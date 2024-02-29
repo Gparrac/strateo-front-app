@@ -1,6 +1,6 @@
 <template>
   <div>
-      <header-table
+    <header-table
       :loading="loading"
       :typeskeyword="typeskeyword"
       :path="path"
@@ -28,10 +28,24 @@
       :items-length="totalRecords"
       v-model:items-per-page="recordsPerPage"
       :loading="loading"
+      items-per-page-text="Items por Página"
       show-select
       return-object
-      items-per-page-text="Items por Página"
     >
+    <template v-slot:[`item.fields_count`]="{ item }">
+        <div>
+          <v-chip variant="outlined" color="orange">
+            {{ item.fields_count }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.services_count`]="{ item }">
+        <div>
+          <v-chip variant="tonal" color="primary">
+            {{ item.services_count }}
+          </v-chip>
+        </div>
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon
@@ -43,15 +57,16 @@
           </v-icon>
         </div>
       </template>
-      <template v-slot:[`item.status`]="{ item }">
+      <template v-slot:[`item.sale_type.name`]="{ item }">
         <div>
           <v-chip
             variant="tonal"
             class="ma-1"
             label
-            :color="item.status == 'A' ? 'orange' : 'primary'"
+            :prepend-icon="item.sale_type.id == 'P' ? 'mdi-cart-arrow-right' : 'mdi-file-tree'"
+            :color="item.sale_type.id == 'P' ? 'indigo' : 'teal'"
           >
-            {{ item.status }}
+            {{ item.sale_type.name }}
           </v-chip>
         </div>
       </template>
@@ -60,22 +75,21 @@
 </template>
 
 <script>
-import ClientApi from "@/services/Forms/ClientApi";
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
+import InvoiceApi from "@/services/Forms/InvoiceApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castDate } from '@/utils/cast';
-const clientApi = new ClientApi();
+import { castDate } from "@/utils/cast";
+const invoiceApi = new InvoiceApi();
 export default {
-  name: "TableClient",
   props: {
     nameTable: String,
     path: String,
   },
   components: {
     ModalDelete,
-    HeaderTable
+    HeaderTable,
   },
   data: () => ({
     //required data
@@ -84,7 +98,7 @@ export default {
     filterCleaner: false,
     typeskeyword: [
       { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
+      { title: "name", label: "Provedor" },
     ],
     //pagination
     totalRecords: 0,
@@ -92,31 +106,33 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "client_id",
-    mainKeyDelete: ["third", "identification"],
-    secondKeyDelete: ["third", "email"],
+    keyQueryDelete: "suppliers_id",
+    mainKeyDelete: ["third","supplier"],
+    secondKeyDelete: ["commercial_registry"],
     selectedItems: [],
     toggleDelete: false,
+
     //optional data
     headers: [
       {
         title: "ID",
         align: "start",
         key: "id",
-        sortable: true
+        sortable: true,
       },
-      { title: "Nombre del Representante", align: "center", key: "legal_representative_name", sortable:true },
-      { title: "Código del representante", align: "center", key: "legal_representative_id", sortable:false },
-      { title: "Identificación", align: "center", key: "third.identification", sortable:false },
-      { title: "Correo", align:"center", key: "third.email", sortable:false },
-      { title: "Estado", align: "end", key: "status", sortable:false },
+      { title: "Usuario", align: "end", key: "client.third.names", sortable: false },
+      { title: "Documento", align: "end", key: "client.third.identification", sortable: false },
+      { title: "Fecha de evento", align: "end", key: "date", sortable: false },
+      { title: "Vendedor", align: "end", key: "seller.name", sortable: false },
+      { title: "Tipo de orden", align: "center", key: "sale_type.name", sortable: false },
       {
         title: "Ultima actulización",
         align: "center",
         key: "updated_at",
         sortable: true,
       },
-      { title: "Acciones", align: "end", key: "actions", sortable:false },
+
+      { title: "Acciones", align: "end", key: "actions", sortable: false },
     ],
   }),
   methods: {
@@ -146,7 +162,7 @@ export default {
           params.append(`sorters[${index}][${key}]`, item[key]);
         });
       });
-      const response = await clientApi.read(params.toString());
+      const response = await invoiceApi.read(params.toString());
       if (response.data && response.data.data)
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
@@ -157,24 +173,34 @@ export default {
       this.totalRecords = response.data.total;
       this.loading = false;
     },
+
     async deleteItems(data) {
       this.toggleDelete = false;
-      if (!data.confirm && this.selectedItems.length == 0) return;
-      const response =
-        this.selectedItems.length == 1
-          ? await clientApi.delete(`?client_id=${this.selectedItems[0].id}`)
-          : await clientApi.delete(
-              `?client_ids=[${this.selectedItems.map((element) => element.id)}]`
-            );
-
-      if (response.statusResponse == 200) {
-        await this.loadItems({});
-        this.alertMessageStore.show(
-          true,
-          `${this.nameTable} desactivados exitosamente`
+      if (data.confirm && this.selectedItems.length !== 0) {
+        const params = new URLSearchParams({});
+        this.selectedItems.forEach((item) =>
+          params.append(`${this.keyQueryDelete}[]`, item.id)
         );
-      } else {
-        this.alertMessageStore.show(false, "Error en el servidor");
+        const response = await invoiceApi.delete(`?${params.toString()}`);
+        // logic to show alert 🚨
+        if (response.statusResponse != 200) {
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Error en la solicitud.",
+              response.error
+            );
+          } else {
+            this.alertMessageStore.show(false, "Error en el servidor.");
+          }
+        } else {
+          this.alertMessageStore.show(
+            true,
+            `${this.nameTable} desactivados exitosamente`
+          );
+          await this.loadItems({});
+          this.selectedItems = [];
+        }
       }
     },
   },

@@ -13,8 +13,8 @@ export default class FormsFactory {
     return this.petition.get(this.route, query, this.token);
   }
 
-  update(body) {
-    return this.petition.put(this.route, body, this.token);
+  update(body, query = "") {
+    return this.petition.put(this.route, body, this.token, query);
   }
 
   delete(query = "") {

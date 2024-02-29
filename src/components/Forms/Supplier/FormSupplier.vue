@@ -214,7 +214,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
-import dynamicFieldList from "@/components/Forms/Supplier/DynamicFieldList.vue";
+import dynamicFieldList from "@/components/blocks/DynamicFieldList.vue";
 import thirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
 const supplierApi = new SupplierApi();
 
