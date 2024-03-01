@@ -374,8 +374,6 @@ export default {
       );
       if (response.statusResponse == 200) {
         this.typesContent = response.data;
-
-        console.log('types',this.typesContent)
       }
     },
     async setProducts() {

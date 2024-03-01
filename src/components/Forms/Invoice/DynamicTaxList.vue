@@ -6,19 +6,18 @@
         5 letras para completar la busqueda...</strong
       >
       <div class="d-flex">
-
         <dynamic-select-field
-            :options="options"
-            :itemSaved="itemSelected"
-            @update:options="loadItems"
-            @update:itemSelected="(item) => itemSelected = item"
-            mainLabel="name"
-            :secondLabel="['acronym']"
-            title="Impuestos"
-            subtitle=""
-            class="pr-5"
-          >
-          </dynamic-select-field>
+          :options="options"
+          :itemSaved="itemSelected"
+          @update:options="loadItems"
+          @update:itemSelected="(item) => (itemSelected = item)"
+          mainLabel="name"
+          :secondLabel="['acronym']"
+          title="Impuestos"
+          subtitle=""
+          class="pr-5"
+        >
+        </dynamic-select-field>
         <v-btn
           v-show="!editable"
           icon="mdi-plus-circle"
@@ -33,27 +32,26 @@
     </v-col>
     <v-col class="max-w-custom">
       <v-row v-if="records && records.length > 0">
-        <v-col cols="12"  v-for="record in records" :key="record.code">
-          <v-card
-
-          >
-
+        <v-col cols="12" v-for="record in records" :key="record.code">
+          <v-card>
             <v-card-text>
               <v-row justify="end">
                 <v-col cols="5" sm="2">
                   <v-btn
-                v-show="!editable"
-                icon="mdi-delete"
-                size="small"
-                color="warning"
-                variant="tonal"
-                @click="deleteItem(record)"
-              >
-              </v-btn>
+                    v-show="!editable"
+                    icon="mdi-delete"
+                    size="small"
+                    color="warning"
+                    variant="tonal"
+                    @click="deleteItem(record)"
+                  >
+                  </v-btn>
                 </v-col>
                 <v-col cols="7" sm="4" md="4" lg="5">
                   <h6 class="text-h6">{{ record.acronym }}</h6>
-                  <span class=" font-weight-regular text-blue-grey-lighten-2">{{ record.name }}</span>
+                  <span class="font-weight-regular text-blue-grey-lighten-2">{{
+                    record.name
+                  }}</span>
                 </v-col>
 
                 <v-col cols="12" sm="5" md="6" lg="5">
@@ -63,7 +61,6 @@
                     :rules="rulesValidation.percent.rules"
                     :loading="loading"
                     append-inner-icon="mdi-brightness-percent"
-
                     v-model="record.percent"
                     variant="outlined"
                     :disabled="editable"
@@ -96,7 +93,7 @@
 <script>
 import { RulesValidation } from "@/utils/validations";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
-import TaxApi from '@/services/Forms/TaxApi';
+import TaxApi from "@/services/Forms/TaxApi";
 const taxApi = new TaxApi();
 export default {
   props: {
@@ -113,58 +110,42 @@ export default {
     searchItem: "",
     loading: false,
     rulesValidation: RulesValidation,
-
   }),
 
   methods: {
-
     async loadItems(name = null) {
       let query = `format=short&`;
-      query =
-        query +
-        (name
-          ? `keyword=${name}&typeKeyword=acronym`
-          : "");
+      query = query + (name ? `keyword=${name}&typeKeyword=acronym` : "");
 
       const response = await taxApi.read(query);
       this.options = response.data;
     },
     appendItem() {
-      console.log('itemSelected',this.itemSelected)
-      console.log('records', this.records)
       const idIndex = this.itemSelected.id;
       const index = this.records.findIndex(function (objeto) {
         return objeto.id === idIndex;
       });
-      console.log('index',index)
+
       let newArray = this.records;
-      if(index === -1) newArray.push(this.itemSelected);
+      if (index === -1) newArray.push(this.itemSelected);
       this.emitRecords(newArray);
       this.itemSelected = null;
     },
     deleteItem(dropItem) {
-      console.log('droping',this.records.filter((item) => item.id != dropItem.id))
-      this.emitRecords(
-        this.records.filter((item) => item.id != dropItem.id)
-      );
+      this.emitRecords(this.records.filter((item) => item.id != dropItem.id));
     },
     emitRecords(newRecords) {
-      console.log('newREcords',newRecords);
       this.$emit("update:records", newRecords);
     },
   },
   async mounted() {
-    console.log('temp0', this.records);
     this.loading = true;
     try {
-      await Promise.all([
-        this.loadItems(),
-      ]);
+      await Promise.all([this.loadItems()]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
     this.loading = false;
-
   },
 };
 </script>

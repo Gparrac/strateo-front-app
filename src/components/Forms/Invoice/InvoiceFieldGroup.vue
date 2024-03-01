@@ -167,7 +167,6 @@ export default {
   },
   methods: {
     emitRecords(item, key) {
-      console.log('passingEmit', key)
       this.$emit("update:records", {item:item, key:key});
     },
     async setClients(name = null) {
@@ -187,7 +186,6 @@ export default {
       ).data;
     },
     async loadItems(data = null) {
-      console.log("loadItems", data);
       const query = data ? `&typeKeyword=third&keyword=${data.name}` : "";
       this.optionsTest = (await userApi.read(`format=short${query}`)).data;
     },

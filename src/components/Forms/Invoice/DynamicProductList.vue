@@ -28,15 +28,7 @@
           @click="appendItem"
         >
         </v-btn>
-        <v-btn
-          v-show="!editable"
-          icon="mdi-content-save"
-          color="pink"
-          variant="tonal"
-          class="mr-3"
-          @click="saveRecords"
-        >
-        </v-btn>
+
       </div>
     </v-col>
     <v-col class="max-w-custom px-5">
@@ -116,9 +108,12 @@
                         variant="outlined"
                         v-model="record.amount"
                         :disabled="editable"
-
                         persistent-hint
-                        :hint="record.tracing && record.warehouse ? 'Stock actual: ' + record.stock : ''"
+                        :hint="
+                          record.tracing && record.warehouse
+                            ? 'Stock actual: ' + record.stock
+                            : ''
+                        "
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12">
@@ -151,30 +146,44 @@
               </v-row>
               <div class="d-flex row-reverse justify-end">
                 <div>
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{netTotal(record.taxes, record.discount, record.amount, record.cost)}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Costo neto
-                </h4>
+                  <h3 class="text-h5 font-weight-light text-center">
+                    {{
+                      netTotal(
+                        record.taxes,
+                        record.discount,
+                        record.amount,
+                        record.cost
+                      )
+                    }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Costo neto
+                  </h4>
+                </div>
+                <div class="pl-5">
+                  <h3 class="text-h5 font-weight-light text-center">
+                    {{ totalCost(record.amount, record.cost) }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Costo total
+                  </h4>
+                </div>
+                <div class="pl-5">
+                  <h3 class="text-h5 font-weight-light text-center">
+                    {{
+                      totalDiscount(
+                        record.taxes,
+                        record.discount,
+                        record.amount,
+                        record.cost
+                      )
+                    }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Descuento
+                  </h4>
+                </div>
               </div>
-              <div class="pl-5">
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{totalCost(record.amount, record.cost)}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Costo total
-                </h4>
-              </div>
-              <div class="pl-5">
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{totalDiscount(record.taxes,record.discount, record.amount, record.cost)}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Descuento
-                </h4>
-              </div>
-            </div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -225,31 +234,23 @@ export default {
   }),
 
   methods: {
-    totalCost(amount, cost){
-     const tamount = amount ?? 0;
-     const tcost = cost ?? 0;
-     return ((+tamount ?? 0) * + tcost).toFixed(2);
+    totalCost(amount, cost) {
+      const tamount = amount ?? 0;
+      const tcost = cost ?? 0;
+      return ((+tamount ?? 0) * +tcost).toFixed(2);
     },
-    totalDiscount(taxes, discount, amount, cost){
-      console.log(taxes,discount, amount, cost);
+    totalDiscount(taxes, discount, amount, cost) {
       const tDiscount = +(discount ?? 0);
-      const totalPercentTaxes = taxes.reduce((total, item) => total + (+item.percent ?? 0) , 0) ?? 0;
-      const tTotalcost = +this.totalCost(amount,cost);
-      console.log(tDiscount, totalPercentTaxes, tTotalcost);
-      return (tDiscount + totalPercentTaxes * tTotalcost/100).toFixed(2);
+      const totalPercentTaxes =
+        taxes.reduce((total, item) => total + (+item.percent ?? 0), 0) ?? 0;
+      const tTotalcost = +this.totalCost(amount, cost);
+
+      return (tDiscount + (totalPercentTaxes * tTotalcost) / 100).toFixed(2);
     },
-    netTotal(taxes, discount, amount, cost){
+    netTotal(taxes, discount, amount, cost) {
       const tDiscount = this.totalDiscount(taxes, discount, amount, cost);
       const tTotalCost = this.totalCost(amount, cost);
       return (tTotalCost - tDiscount).toFixed(2);
-    },
-    async saveRecords() {
-      const { valid } = await this.$refs.form.validate();
-      if (valid) {
-        console.log("working!");
-      }else{
-        console.log('not working')
-      }
     },
     async setProductInventory(item, product) {
       product.warehouse = item;
@@ -296,7 +297,6 @@ export default {
     },
   },
   async mounted() {
-    console.log("entrando products");
     this.loading = true;
     try {
       await Promise.all([this.loadItems(), this.setWarehouses()]);

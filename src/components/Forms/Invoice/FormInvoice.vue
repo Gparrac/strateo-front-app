@@ -4,7 +4,6 @@
     v-model="step"
     :key="test"
     @update:modelValue="updateStepper"
-
   >
     <v-stepper-header>
       <template v-for="(stepper, i) in stepperLabels" :key="`${i}-step`">
@@ -106,7 +105,7 @@ import DynamicProductList from "./DynamicProductList.vue";
 import DynamicEmployeeList from "./DynamicEmployeeList.vue";
 import DynamicServiceList from "./DynamicServiceList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
-import EmployeeApi from '@/services/Forms/EmployeeApi';
+import EmployeeApi from "@/services/Forms/EmployeeApi";
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
 const employeeApi = new EmployeeApi();
@@ -184,7 +183,7 @@ export default {
     ...mapStores(useAlertMessageStore),
   },
   methods: {
-    updateStepper(value){
+    updateStepper(value) {
       this.stepperLabels[value].complete = false;
       this.errorMessage = {};
     },
@@ -209,25 +208,27 @@ export default {
       }
       this.loading = false;
     },
-    async saveEmployees(formData){
-      const {valid } = await this.$refs.formEmployee.validate();
-      if(( this.employees.length == 0) ){
-        this.errorMessage.type = 'employees';
-        this.errorMessage.message = 'Se requiere minimo un empleado';
-        return ;
-      }else{
+    async saveEmployees(formData) {
+      const { valid } = await this.$refs.formEmployee.validate();
+      if (this.employees.length == 0) {
+        this.errorMessage.type = "employees";
+        this.errorMessage.message = "Se requiere minimo un empleado";
+        return;
+      } else {
         this.errorMessage = {};
       }
 
-      if(valid){
-        console.log('entrado ? ');
+      if (valid) {
         formData.append("invoice_id", this.editItem.invoiceId);
         this.employees.forEach((employee, eindex) => {
           formData.append(`employees[${eindex}][employee_id]`, employee.id);
           formData.append(`employees[${eindex}][salary]`, employee.salary);
         });
-        const response = await employeeApi.update(formData, 'type_connection=W');
-        this.handleAlert(response, this.setAttributes('W', 'employees'));
+        const response = await employeeApi.update(
+          formData,
+          "type_connection=W"
+        );
+        this.handleAlert(response, this.setAttributes("W", "employees"));
       }
     },
     async saveInvoice(formData) {
@@ -260,23 +261,26 @@ export default {
         further ? "formFurtherProduct" : "formProduct"
       ].validate();
       //validate dynamic components 🚥
-      if((this.step == 1 && this.products.length == 0) || (this.step == 2 && this.furtherProducts.length == 0)){
-        this.errorMessage.type = 'products';
-        this.errorMessage.message = 'Se requiere minimo un producto';
-        return ;
-      }else{
+      if (
+        (this.step == 1 && this.products.length == 0) ||
+        (this.step == 2 && this.furtherProducts.length == 0)
+      ) {
+        this.errorMessage.type = "products";
+        this.errorMessage.message = "Se requiere minimo un producto";
+        return;
+      } else {
         this.errorMessage = {};
       }
-      if (valid ) {
+      if (valid) {
         //define array to start creating formData 🚥
-        const source = further ? 'furtherProducts' : 'products';
+        const source = further ? "furtherProducts" : "products";
         formData.append("invoice_id", this.editItem.invoiceId);
         this[source].forEach((product, pindex) => {
           formData.append(`products[${pindex}][product_id]`, product.id);
           formData.append(`products[${pindex}][cost]`, product.cost);
-          if(product.discount) formData.append(`products[${pindex}][discount]`, product.discount);
+          if (product.discount)
+            formData.append(`products[${pindex}][discount]`, product.discount);
           formData.append(`products[${pindex}][amount]`, product.amount);
-          console.log('roduct', product.taxes);
           product.taxes.forEach((tax, tindex) => {
             formData.append(
               `products[${pindex}][taxes][${tindex}][tax_id]`,
@@ -288,12 +292,15 @@ export default {
             );
           });
         });
-        let type = 'E';
+        let type = "E";
         if (this.editItem.saleType.id == "P" || further) {
-          type = further ? 'F' : 'P';
+          type = further ? "F" : "P";
           formData.append(`type_connection`, further ? "F" : "I");
           this[source].forEach((product, pindex) => {
-            formData.append(`products[${pindex}][tracing]`, product.tracing || 0);
+            formData.append(
+              `products[${pindex}][tracing]`,
+              product.tracing || 0
+            );
             if (product.tracing)
               formData.append(
                 `products[${pindex}][warehouse_id]`,
@@ -315,11 +322,11 @@ export default {
                 `products[${pindex}][sub_products][${sindex}][tracing]`,
                 subproduct.tracing || 0
               );
-              if(subproduct.tracing)
-              formData.append(
-                `products[${pindex}][sub_products][${sindex}][warehouse_id]`,
-                subproduct.warehouse.id
-              );
+              if (subproduct.tracing)
+                formData.append(
+                  `products[${pindex}][sub_products][${sindex}][warehouse_id]`,
+                  subproduct.warehouse.id
+                );
             });
           });
         }
@@ -345,7 +352,7 @@ export default {
         if (callback && typeof callback === "function") await callback();
         this.stepperLabels[this.step].complete = true;
 
-        if ((this.step + 1) < this.stepperLabels.length) {
+        if (this.step + 1 < this.stepperLabels.length) {
           this.step += 1;
         }
       }

@@ -29,15 +29,6 @@
           @click="appendItem"
         >
         </v-btn>
-        <v-btn
-          v-show="!editable"
-          icon="mdi-content-save"
-          color="pink"
-          variant="tonal"
-          class="mr-3"
-          @click="saveRecords"
-        >
-        </v-btn>
       </div>
     </v-col>
     <v-col class="max-w-custom px-5">
@@ -216,11 +207,11 @@ export default {
      return ((+tamount ?? 0) * + tcost).toFixed(2);
     },
     totalDiscount(taxes, discount, amount, cost){
-      console.log(taxes,discount, amount, cost);
+
       const tDiscount = +(discount ?? 0);
       const totalPercentTaxes = taxes.reduce((total, item) => total + (+item.percent ?? 0) , 0) ?? 0;
       const tTotalcost = +this.totalCost(amount,cost);
-      console.log(tDiscount, totalPercentTaxes, tTotalcost);
+
       return (tDiscount + totalPercentTaxes * tTotalcost/100).toFixed(2);
     },
     netTotal(taxes, discount, amount, cost){
@@ -228,12 +219,7 @@ export default {
       const tTotalCost = this.totalCost(amount, cost);
       return (tTotalCost - tDiscount).toFixed(2);
     },
-    async saveRecords(){
-      const { valid } = await this.$refs.form.validate();
-      if(valid){
-        console.log('working!')
-      }
-    },
+
     async setProductInventory(item, product) {
       product.warehouse = item;
       product.stock = (

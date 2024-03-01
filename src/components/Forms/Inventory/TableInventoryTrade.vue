@@ -132,9 +132,6 @@ export default {
     HeaderTable
   },
   methods: {
-    test(){
-      console.log('entrando test')
-    },
     async loadItems(
       {
         page = this.currentlyPage,

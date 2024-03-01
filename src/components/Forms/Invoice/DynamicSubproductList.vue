@@ -36,7 +36,7 @@
           <v-card>
             <v-card-text>
               <v-row justify="end">
-                <v-col cols="4" md="2" >
+                <v-col cols="4" md="2">
                   <v-btn
                     v-show="!editable"
                     icon="mdi-delete"
@@ -46,7 +46,7 @@
                   >
                   </v-btn>
                 </v-col>
-                <v-col cols="8"  md="6" lg="7">
+                <v-col cols="8" md="6" lg="7">
                   <h6 class="text-h6">{{ record.name }}</h6>
                   <v-chip class="mx-2">{{ record.measure.symbol }}</v-chip>
                   <v-chip class="mx-2">{{ record.brand.name }}</v-chip>
@@ -54,28 +54,30 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <v-checkbox
-                        v-model="record.tracing"
-                        color="primary"
-                        label="Requiere inventario"
-                        :value="1"
-                        hide-details
-                      ></v-checkbox>
+                    v-model="record.tracing"
+                    color="primary"
+                    label="Requiere inventario"
+                    :value="1"
+                    hide-details
+                  ></v-checkbox>
                 </v-col>
-                <v-col cols="12"  md="4" lg="3">
+                <v-col cols="12" md="4" lg="3">
                   <dynamic-select-field
-                        v-if="record.tracing"
-                        :options="warehouses"
-                        :itemSaved="record.warehouse"
-                        @update:options="setWarehouses"
-                        @update:itemSelected="(item) => setProductInventory(item, record)"
-                        mainLabel="address"
-                        :secondLabel="['city', 'name']"
-                        title="Bodega"
-                        subtitle="Ciudad:"
-                      >
-                      </dynamic-select-field>
+                    v-if="record.tracing"
+                    :options="warehouses"
+                    :itemSaved="record.warehouse"
+                    @update:options="setWarehouses"
+                    @update:itemSelected="
+                      (item) => setProductInventory(item, record)
+                    "
+                    mainLabel="address"
+                    :secondLabel="['city', 'name']"
+                    title="Bodega"
+                    subtitle="Ciudad:"
+                  >
+                  </dynamic-select-field>
                 </v-col>
-                <v-col cols="12"  md="4" lg="3">
+                <v-col cols="12" md="4" lg="3">
                   <v-text-field
                     :maxlength="rulesValidation.price.length"
                     label="Cantidad"
@@ -86,7 +88,13 @@
                     variant="outlined"
                     :disabled="editable"
                     persistent-hint
-                    :hint="'Por defecto: ' + record.default_amount + record.tracing && record.warehouse ? ' | Stock actual: ' + record.stock : ''"
+                    :hint="
+                      'Por defecto: ' +
+                        record.default_amount +
+                        record.tracing && record.warehouse
+                        ? ' | Stock actual: ' + record.stock
+                        : ''
+                    "
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -128,7 +136,6 @@ export default {
   },
   components: {
     DynamicSelectField,
-
   },
   data: () => ({
     itemSelected: null,
@@ -165,7 +172,6 @@ export default {
     async setWarehouses(name = null) {
       const query = name ? `&name=${name}` : "";
       this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;
-      console.log('updating ,', this.warehouses)
     },
     async setProductInventory(item, product) {
       product.warehouse = item;

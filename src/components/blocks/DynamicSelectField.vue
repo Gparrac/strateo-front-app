@@ -9,7 +9,6 @@
           variant="outlined"
           :return-object="true"
           :rules="rules"
-          @update:menu="(value)=> console.log('updating menu',value)"
         >
         <template v-slot:item="{ props, item }">
                           <v-list-item v-bind="props">
