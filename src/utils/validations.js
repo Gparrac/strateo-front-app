@@ -159,16 +159,14 @@ export const RulesValidation = {
     ],
   },
   percent: {
-    length:2,
+    maxLength:6,
     rules: [
-      (value) =>
-        !!value ||
-        !isNaN(parseFloat(value)) && isFinite(value) ||
-        typeof value == 'number' ||
-        "La cantidad debe ser de tipo númerica",
-        (value) =>
-        value < 100 && value >= 0 ||
-        "Rango de cantidad no valida",
-    ],
+      (value) => {
+        if (!value) return 'Por favor, ingrese un valor';
+        const regex = /^\d{1,2}(\.\d{1,3})?$/; // Expresión regular para validar el formato del porcentaje
+        if (!regex.test(value)) return 'El formato del porcentaje es inválido';
+        return true;
+      }
+    ]
   }
 };

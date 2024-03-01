@@ -28,7 +28,6 @@ const routes = [
       try {
         //check auth 🚨
         const userData = await authUser.user();
-
         if (userData.statusResponse != 200) {
           const userStore = useUserAuthStore();
           localStorage.clear();
