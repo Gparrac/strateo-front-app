@@ -143,5 +143,16 @@ export const RulesValidation = {
         value < 100000000 && value >= 0 ||
         "Rango de cantidad no valida",
     ],
+  },
+  percent: {
+    maxLength:6,
+    rules: [
+      (value) => {
+        if (!value) return 'Por favor, ingrese un valor';
+        const regex = /^\d{1,2}(\.\d{1,3})?$/; // Expresión regular para validar el formato del porcentaje
+        if (!regex.test(value)) return 'El formato del porcentaje es inválido';
+        return true;
+      }
+    ]
   }
 };
