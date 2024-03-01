@@ -8,22 +8,8 @@
       :disableDelete="selectedItems.length == 0 ? true : false"
       @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
-      :showDelete="false"
-      :showExport="true"
-      :showStatusLabel="false"
-    >
-  <template v-slot:listMenuChips>
-    <div >
-          <!-- Contenido predeterminado si no se proporciona ningún contenido al slot -->
-          <v-chip variant="tonal" class="ma-1" label :color="'success'" @click="loadItems({},'E', 'transaction_type')">
-            Entrada
-          </v-chip>
-          <v-chip variant="tonal" class="ma-1" label color="error" @click="loadItems({},'D', 'transaction_type')">
-            Salida
-          </v-chip>
-        </div>
-  </template>
-  </header-table>
+      @toggle-delete="() => (toggleDelete = true)"
+    ></header-table>
     <modal-delete
       v-if="toggleDelete"
       @confirm-delete="deleteItems"
@@ -34,15 +20,32 @@
       :title="nameTable"
     ></modal-delete>
     <v-data-table-server
-    :headers="headers"
+      :headers="headers"
       :items="records"
+      item-selectable="selectable"
+      v-model="selectedItems"
       @update:options="loadItems"
       :items-length="totalRecords"
       v-model:items-per-page="recordsPerPage"
       :loading="loading"
       items-per-page-text="Items por Página"
-
+      show-select
+      return-object
     >
+    <template v-slot:[`item.fields_count`]="{ item }">
+        <div>
+          <v-chip variant="outlined" color="orange">
+            {{ item.fields_count }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.services_count`]="{ item }">
+        <div>
+          <v-chip variant="tonal" color="primary">
+            {{ item.services_count }}
+          </v-chip>
+        </div>
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon
@@ -54,38 +57,38 @@
           </v-icon>
         </div>
       </template>
-      <template v-slot:[`item.transaction_type.name`]="{ item }">
+      <template v-slot:[`item.status`]="{ item }">
         <div>
           <v-chip
             variant="tonal"
             class="ma-1"
             label
-            :prepend-icon="item.transaction_type.icon"
-            :color="item.transaction_type.id == 'E' ? 'success' : 'error'"
+            :color="item.status == 'A' ? 'orange' : 'primary'"
           >
-            {{ item.transaction_type.name }}
+            {{ item.status }}
           </v-chip>
         </div>
       </template>
-
     </v-data-table-server>
   </div>
 </template>
 
 <script>
-
-import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
+import EmployeeApi from "@/services/Forms/EmployeeApi";
+import ModalDelete from "@/components/blocks/ModalDelete.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import InventoryApi from '@/services/Forms/InventoryApi';
-import { castDate } from '@/utils/cast';
-const inventoryApi = new InventoryApi()
+import { castDate } from "@/utils/cast";
+const employeeApi = new EmployeeApi();
 export default {
-  name: "TableOffice",
   props: {
     nameTable: String,
     path: String,
+  },
+  components: {
+    ModalDelete,
+    HeaderTable,
   },
   data: () => ({
     //required data
@@ -94,19 +97,17 @@ export default {
     filterCleaner: false,
     typeskeyword: [
       { title: "id", label: "ID" },
-      { title: "transaction_type", label: "Tipo de transacción" }
+      { title: "name", label: "Provedor" },
     ],
-
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
     currentlyPage: 1,
     loading: false,
-
     //delete items
-    keyQueryDelete: "inventory_trades_id",
-    mainKeyDelete: ["supplier","third", "name"],
-    secondKeyDelete: ["transaction_date"],
+    keyQueryDelete: "employees_id",
+    mainKeyDelete: ["third","employee"],
+    secondKeyDelete: ["type_contract", "name"],
     selectedItems: [],
     toggleDelete: false,
 
@@ -116,21 +117,24 @@ export default {
         title: "ID",
         align: "start",
         key: "id",
+        sortable: true,
       },
-      { title: "Registro comercial provedor", align: "center", key: "supplier.commercial_registry", sortable: false},
-      { title: "Contacto", align: "center", key: "supplier.third.business_name", sortable: false},
-      { title: "Costo total", align: "center", key: "total_cost", sortable: false},
-      { title: "Cantidad total", align: "center", key: "total_amount", sortable: false},
-      { title: "Tipo de transacción", align: "center", key: "transaction_type.name", sortable: false},
-      { title: "Proposito", align: "center", key: "purpose.name", sortable: false},
-      { title: "Fecha", align: "center", key: "transaction_date", sortable: false},
-      { title: "Acciones", align: "center", key: "actions", sortable: false }
+      { title: "Contrato", align: "end", key: "type_contract.name", sortable: false },
+      { title: "Tipo de documento", align: "end", key: "third.type_document", sortable: false },
+      { title: "Empleado", align: "end", key: "third.employee", sortable: false },
+      { title: "Contrato", align: "end", key: "type_contract.name", sortable: false },
+      { title: "Inicio de contrato", align: "end", key: "hire_date", sortable: false },
+      { title: "Fin de contrato", align: "end", key: "end_date_contract", sortable: false },
+      { title: "Status", align: "end", key: "status", sortable: false },
+      {
+        title: "Ultima actulización",
+        align: "center",
+        key: "updated_at",
+        sortable: true,
+      },
+      { title: "Acciones", align: "end", key: "actions", sortable: false },
     ],
   }),
-  components: {
-    ModalDelete,
-    HeaderTable
-  },
   methods: {
     async loadItems(
       {
@@ -158,7 +162,7 @@ export default {
           params.append(`sorters[${index}][${key}]`, item[key]);
         });
       });
-      const response = await inventoryApi.read(params.toString());
+      const response = await employeeApi.read(params.toString());
       if (response.data && response.data.data)
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
@@ -168,6 +172,36 @@ export default {
       this.recordsPerPage = response.data.per_page;
       this.totalRecords = response.data.total;
       this.loading = false;
+    },
+
+    async deleteItems(data) {
+      this.toggleDelete = false;
+      if (data.confirm && this.selectedItems.length !== 0) {
+        const params = new URLSearchParams({});
+        this.selectedItems.forEach((item) =>
+          params.append(`${this.keyQueryDelete}[]`, item.id)
+        );
+        const response = await employeeApi.delete(`?${params.toString()}`);
+        // logic to show alert 🚨
+        if (response.statusResponse != 200) {
+          if (response.error && typeof response.error === "object") {
+            this.alertMessageStore.show(
+              false,
+              "Error en la solicitud.",
+              response.error
+            );
+          } else {
+            this.alertMessageStore.show(false, "Error en el servidor.");
+          }
+        } else {
+          this.alertMessageStore.show(
+            true,
+            `${this.nameTable} desactivados exitosamente`
+          );
+          await this.loadItems({});
+          this.selectedItems = [];
+        }
+      }
     },
   },
   computed: {

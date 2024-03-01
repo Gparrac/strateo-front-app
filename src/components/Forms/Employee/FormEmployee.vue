@@ -13,37 +13,34 @@
               <thirdFieldCard
                 :key="thirdKeyCard"
                 :records="editItem"
+                :thirdPerson="true"
                 @update:records="
                   (item) => (editItem = { ...editItem, ...item })
                 "
               ></thirdFieldCard>
             </v-col>
             <v-col cols="12">
-              <v-card rounded="true" elevation="0" title="Datos del provedor">
+              <v-card rounded="true" elevation="0" title="Datos del empleado">
                 <v-card-text>
                   <v-row>
                     <v-col cols="12" sm="6">
                       <v-row>
                         <!-- ----- start commercial registry --------------------->
                         <v-col cols="12">
-                          <v-text-field
-                            :maxlength="rulesValidation.text.maxLength"
-                            label="Registro Comercial"
-                            v-model="editItem.commercialRegistryNumber"
-                            :rules="rulesValidation.text.rules"
-                            :loading="loading"
-                          ></v-text-field>
+                          <v-select label="Tipo de Contrato" v-model="editItem.typeContract" item-title="name" item-value="id"
+                        :items="typesContract" :rules="rulesValidation.select.rules" :loading="loading"
+                          ></v-select>
                         </v-col>
                         <v-col cols="8">
                           <v-file-input
-                            v-model="editItem.commercialFile"
+                            v-model="editItem.resumeFile"
                             accept=".doc, .docx, .pdf"
-                            label="Registro Comercial"
-                            prepend-icon="mdi-file-document"
+                            label="Hoja de vida"
+                            prepend-icon="mdi-file-account"
                             :rules="rulesValidation.file.rules"
                             :loading="loading"
                             @change="
-                              handleFileFields($event, 'pathCommercialFile')
+                              handleFileFields($event, 'pathResumeFile')
                             "
                           ></v-file-input>
                         </v-col>
@@ -53,8 +50,8 @@
                         >
                           <div
                             v-if="
-                              !editItem.commercialFile &&
-                              !editItem.pathCommercialFile
+                              !editItem.resumeFile &&
+                              !editItem.pathResumeFile
                             "
                           >
                             <h3>No hay archivo seleccionado</h3>
@@ -63,7 +60,7 @@
                             <v-btn
                               class="ma-2"
                               outlined
-                              :href="getFileUrl(editItem.pathCommercialFile)"
+                              :href="getFileUrl(editItem.pathResumeFile)"
                               target="_blank"
                               icon="mdi-folder-download"
                               size="small"
@@ -123,16 +120,23 @@
                             :loading="loading"
                           ></v-select>
                         </v-col>
-                        <v-col>
-                          <v-textarea
-                            label="Descripción sdf"
-                            v-model="editItem.description"
-                            :maxLength="rulesValidation.longText.maxLength"
-                            :rules="rulesValidation.longText.rules"
-                            :loading="loading"
-                            rows="7"
-                          ></v-textarea>
+                        <v-col cols="12">
+                          <v-text-field
+                        type="datetime-local"
+                        v-model="editItem.endDateContract"
+                        label="Inicio del contrato"
+                        :rules="rulesValidation.date.rules"
+                      ></v-text-field>
                         </v-col>
+                        <v-col cols="12">
+                          <v-text-field
+                        type="datetime-local"
+                        v-model="editItem.hireDate"
+                        label="Finalización del contrato"
+                        :rules="rulesValidation.date.rules"
+                      ></v-text-field>
+                        </v-col>
+
                       </v-row>
                     </v-col>
                   </v-row>
@@ -208,16 +212,16 @@
 </template>
 
 <script>
-import SupplierApi from "@/services/Forms/SupplierApi";
+import EmployeeApi from "@/services/Forms/EmployeeApi";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
-//import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import dynamicFieldList from "@/components/blocks/DynamicFieldList.vue";
 import thirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
-const supplierApi = new SupplierApi();
-
+import Petition from "@/services/PetitionStructure/Petition.js";
+const employeeApi = new EmployeeApi();
+const petition = new Petition();
 export default {
   props: {
     idEditForm: Number,
@@ -232,8 +236,10 @@ export default {
     // required data
     loading: false,
     editItem: {},
+
     // optional data
     formRef: null,
+    typesContract:[],
     status: [],
     showFileCommercialSelected: null,
     showFileRutSelected: null,
@@ -245,7 +251,7 @@ export default {
     this.loading = true;
     this.status = statusAllowed();
     try {
-      await Promise.all([this.setEditItem()]);
+      await Promise.all([this.setEditItem(), this.setTypesContract()]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -284,44 +290,38 @@ export default {
         // third fields 🚥
         formData.append("type_document", this.editItem.typeDocument);
         formData.append("identification", this.editItem.identification);
-        formData.append("verification_id", this.editItem.verification_id);
+        formData.append("names", this.editItem.names);
+        formData.append("surnames", this.editItem.surnames);
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        formData.append("code_ciiu_id", this.editItem.ciiu.id);
-        if (this.editItem.typeDocument == "NIT") {
-          formData.append("business_name", this.editItem.business);
-        } else {
-          formData.append("names", this.editItem.names);
-          formData.append("surnames", this.editItem.surnames);
-        }
-        if (this.editItem.email2)
+        if (this.editItem.email2 && this.editItem.email2.length > 0)
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city_id);
-        this.editItem.secondaryCiius.forEach((item, cindex) => {
-          formData.append(`secondary_ciiu_ids[${cindex}]`, item.id);
-        });
 
-        // supplier fields 🚥
+        // employee fields 🚥
         formData.append(
-          "commercial_registry",
-          this.editItem.commercialRegistryNumber
+          "type_contract",
+          this.editItem.typeContract
         );
-        formData.append("note", this.editItem.description);
+        formData.append("hire_date", this.editItem.hireDate);
+        formData.append("end_date_contract", this.editItem.endDateContract);
         formData.append("status", this.editItem.status);
         if (
-          this.editItem.commercialFile &&
-          typeof this.commercialFile != "string"
+          this.editItem.resumeFile &&
+          typeof this.resumeFile != "string"
         ) {
           formData.append(
-            "commercial_registry_file",
-            this.editItem.pathCommercialFile
+            "resume_file",
+            this.editItem.pathResumeFile
           );
         }
         if (this.editItem.rutFile && typeof this.rutFile != "string") {
           formData.append("rut_file", this.editItem.pathRutFile);
         }
+
+        // services and its fields 🚥
         this.editItem.services.forEach((service, index) => {
           formData.append(`services[${index}][service_id]`, service.id);
           service.fields.forEach((field, findex) => {
@@ -346,10 +346,10 @@ export default {
         });
 
         if (this.idEditForm) {
-          formData.append("supplier_id", this.editItem.supplierId);
-          response = await supplierApi.update(formData);
+          formData.append("employee_id", this.editItem.employeeId);
+          response = await employeeApi.update(formData);
         } else {
-          response = await supplierApi.create(formData);
+          response = await employeeApi.create(formData);
         }
         // logic to show alert 🚨
         if (response.statusResponse != 200) {
@@ -375,25 +375,30 @@ export default {
       if (typeof file === "object") return URL.createObjectURL(file);
       return;
     },
+    async setTypesContract(){
+            this.typesContract = (await petition.get("/type-contract-employee")).data;
+
+    },
     async setEditItem() {
       if (!this.idEditForm) {
         this.editItem.services = [];
 
         return;
       }
-      const response = await supplierApi.read(
-        `supplier_id=${this.idEditForm}`
+      const response = await employeeApi.read(
+        `employee_id=${this.idEditForm}`
       );
       this.editItem = Object.assign(
         {},
         {
           //supplier attributes
-          supplierId: response.data.id,
-          description: response.data.note,
-          status: response.data.status,
-          pathCommercialFile: response.data.commercial_registry_file,
+          employeeId: response.data.id,
+          typeContract: response.data.type_contract.id,
+          hireDate: response.data.hire_date,
+          endDateContract: response.data.end_date_contract,
           pathRutFile: response.data.rut_file,
-          commercialRegistryNumber: response.data.commercial_registry,
+          pathResumeFile: response.data.resume_file,
+          status: response.data.status,
           //third attributes
           typeDocument: response.data.third.type_document,
           identification: response.data.third.identification,
@@ -402,11 +407,10 @@ export default {
           address: response.data.third.address,
           mobile: response.data.third.mobile,
           email: response.data.third.email,
+          email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
           city_id: response.data.third.city_id,
-          ciiu: response.data.third.ciiu,
-          secondaryCiius: response.data.third.secondary_ciius,
-          services: response.data.services,
+          services: response.data.services
         }
       );
 

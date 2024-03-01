@@ -1,6 +1,6 @@
 import FormsFactory from "./Interface/FormFactory";
 
-export default class OfficeApi extends FormsFactory {
+export default class TaxApi extends FormsFactory {
     constructor(){
         super('/tax-parameterization');
     }

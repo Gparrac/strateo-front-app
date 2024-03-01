@@ -11,7 +11,7 @@
                 <v-col cols="12" sm="4">
                     <v-text-field :maxlength="rulesValidation.identification.maxLength" label="Número de documento"
                         v-model="editItem.identification" :rules="rulesValidation.identification.rules" :loading="loading"
-                        :suffix="verificationNitNumber" @update:model-value="emitRecords"></v-text-field>
+                         :suffix="verificationNitNumber" @update:model-value="emitRecords"></v-text-field>
                 </v-col>
                 <template v-if="editItem.typeDocument && editItem.typeDocument != 'NIT'
                     ">
@@ -74,18 +74,18 @@
                         item-title="name" item-value="id" :rules="rulesValidation.select.rules" :loading="loading"
                         @update:model-value="emitRecords"></v-autocomplete>
                 </v-col>
-                <v-col cols="12">
+                <v-col v-if="!thirdPerson" cols="12">
                     <strong class="text-caption d-block mb-2">*
                         <span class="text-overline">Campo dinamico. </span>
                         Escribe entre 3 a 5 letras para completar la
                         busqueda...</strong>
-                    <v-autocomplete label="Codigo principal CIIU" v-model="editItem.ciiu" :items="ciiuCodes"
+                    <v-autocomplete  label="Codigo principal CIIU" v-model="editItem.ciiu" :items="ciiuCodes"
                         v-model:search="searchCiiu" item-title="description" :return-object="true"
                         :rules="rulesValidation.select.rules" :loading="loading"
                         @update:model-value="emitRecords"></v-autocomplete>
                 </v-col>
             </v-row>
-            <ciiu-secondary-field v-if="editItem.secondaryCiius" :records="editItem.secondaryCiius"
+            <ciiu-secondary-field v-if="!thirdPerson && editItem.secondaryCiius" :records="editItem.secondaryCiius"
                 @update:records="(item) => (changeSecondaryCiius(item))"></ciiu-secondary-field>
         </v-card-text>
     </v-card>
@@ -101,6 +101,10 @@ export default {
     props: {
         records: Object,
         citiesParent: Object,
+        thirdPerson: {
+          type: Boolean,
+          default: false
+        }
     },
     components: {
         CiiuSecondaryField
@@ -137,11 +141,14 @@ export default {
             (await petition.get("/cities", query)).data;
         },
         async setCiiuCodes(name = null) {
+          if(this.thirdPerson){
             const query = name ? `name=${name}` : "";
             this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
+          }
         },
         async setTypesDocument() {
-            this.typesDocument = (await petition.get("/type-document-user")).data;
+          const query = this.thirdPerson ? 'type=person' : '';
+            this.typesDocument = (await petition.get("/type-document-user", query)).data;
         },
     },
     computed: {

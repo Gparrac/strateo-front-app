@@ -11,24 +11,23 @@ export function castDate(data) {
   const mesFormateado = mes < 10 ? `0${mes}` : mes;
   return `${diaFormateado}/${mesFormateado}/${anio}`;
 }
- export function castFullDate(date){
+export function castFullDate(date) {
+  // Convertir a objeto de fecha de JavaScript
+  var fechaJS = new Date(date);
 
+  // Obtener los componentes de fecha y hora
+  var year = fechaJS.getFullYear();
+  var month = ("0" + (fechaJS.getMonth() + 1)).slice(-2);
+  var day = ("0" + fechaJS.getDate()).slice(-2);
+  var hours = ("0" + fechaJS.getHours()).slice(-2);
+  var minutes = ("0" + fechaJS.getMinutes()).slice(-2);
+  var seconds = ("0" + fechaJS.getSeconds()).slice(-2);
 
-// Convertir a objeto de fecha de JavaScript
-var fechaJS = new Date(date);
-
-// Obtener los componentes de fecha y hora
-var year = fechaJS.getFullYear();
-var month = ("0" + (fechaJS.getMonth() + 1)).slice(-2);
-var day = ("0" + fechaJS.getDate()).slice(-2);
-var hours = ("0" + fechaJS.getHours()).slice(-2);
-var minutes = ("0" + fechaJS.getMinutes()).slice(-2);
-var seconds = ("0" + fechaJS.getSeconds()).slice(-2);
-
-// Formatear la fecha según el formato "Y-m-d H:i:s"
-return  year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
-
- }
+  // Formatear la fecha según el formato "Y-m-d H:i:s"
+  return (
+    year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds
+  );
+}
 export function castNit(strNit) {
   if (strNit !== "") {
     strNit = strNit.toString();
@@ -57,14 +56,22 @@ export function castNit(strNit) {
     return "";
   }
 }
-export function statusAllowed(){
+export function statusAllowed() {
   return [
     { name: "A", label: "Activo" },
     { name: "I", label: "Inactivo" },
-  ]
+  ];
+}
+export function searchKey(item, arrayKeys) {
+  let label = item;
+  for (let clave of arrayKeys) {
+    label = label[clave];
+  }
+
+  return label;
 }
 
-export function errorHandler (errors){
+export function errorHandler(errors) {
   return Object.values(errors).reduce((acc, messages) => {
     return acc.concat(messages);
   }, []);

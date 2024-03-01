@@ -13,6 +13,8 @@ import warehouseRoute from "./warehouseRoute";
 import inventoriesRoute from "./inventoryRoute";
 import productRoute from "./productRoute";
 import categoryRoute from "./categoryRoute";
+import employeeRoute from "./employeeRoute";
+import invoiceRoute from "./InvoiceRoute";
 import taxRoute from "./taxRoute";
 
 const  formsRoute = [
@@ -32,6 +34,8 @@ const  formsRoute = [
     warehouseRoute,
     inventoriesRoute,
     categoryRoute,
+    employeeRoute,
+    invoiceRoute,
     taxRoute
 ];
 

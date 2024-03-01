@@ -170,7 +170,7 @@
               </v-card>
             </v-col>
             <v-col
-              v-if="editItem.typeContent && editItem.typeContent == '2'"
+              v-if="editItem.type && editItem.type == 'SE'"
               cols="12"
               class="d-flex align-center"
             >

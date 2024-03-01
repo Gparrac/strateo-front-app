@@ -17,7 +17,7 @@
                   <v-row>
                     <v-col cols="12" sm="4">
                       <v-select
-                        label="Tipo "
+                        label="Tipo"
                         v-model="editItem.type"
                         item-title="name"
                         item-value="id"
@@ -66,8 +66,8 @@
                       <v-textarea
                         label="Observaciones"
                         v-model="editItem.note"
-                        :maxLength="rulesValidation.longText.maxLength"
-                        :rules="rulesValidation.longText.rules"
+                        :maxLength="rulesValidation.longTextNull.maxLength"
+                        :rules="rulesValidation.longTextNull.rules"
                         :loading="loading"
                         rows="2"
                       ></v-textarea>
@@ -260,7 +260,7 @@ export default {
       if (valid) {
         //passing validations 🚥
         const formData = new FormData();
-        formData.append("note", this.editItem.note);
+        if (this.editItem.note) formData.append("note", this.editItem.note);
         formData.append("supplier_id", this.editItem.supplier.id);
         formData.append("date", castFullDate(this.editItem.date) );
         let response = {};

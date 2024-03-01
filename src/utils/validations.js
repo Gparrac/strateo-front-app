@@ -144,6 +144,20 @@ export const RulesValidation = {
         "Rango de cantidad no valida",
     ],
   },
+  optionalPrice: {
+    length:9,
+    rules: [
+      (value) =>
+        !value ||
+        !isNaN(parseFloat(value)) && isFinite(value) ||
+        typeof value == 'number' ||
+        "La cantidad debe ser de tipo númerica",
+        (value) =>
+        !value ||
+        value < 100000000 && value >= 0 ||
+        "Rango de cantidad no valida",
+    ],
+  },
   percent: {
     maxLength:6,
     rules: [

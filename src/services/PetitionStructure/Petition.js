@@ -93,9 +93,9 @@ export default class Petition {
      * @param {object formData with the necesary attributes to the get endpoint service} query
      * @returns return a promise that gives the backend's data or and error with its message
      */
-    put(url, body, token = false){
+    put(url, body, token = false, query){
         return new Promise((resolve, reject) => {
-            fetch(`${this.routeEndpoint}${url}?_method=PUT`, {
+            fetch(`${this.routeEndpoint}${url}?_method=PUT&${query}`, {
                 method: 'POST',
                 headers: this.headers(token),
                 body: body
@@ -146,7 +146,10 @@ export default class Petition {
      */
     headers(token = false) {
         const headers = new Headers({
-          "X-Requested-With": "XMLHttpRequest"
+          "X-Requested-With": "XMLHttpRequest",
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': 'true'
+
         });
 
         if (token) {

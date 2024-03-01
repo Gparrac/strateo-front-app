@@ -60,9 +60,12 @@
             <v-card-text>
 
               <v-row >
+
+
                 <v-col
                   cols="12" sm="6" lg="4"
                 >
+
                     <v-text-field
                       :maxlength="rulesValidation.price.length"
                       label="Costo"
@@ -162,7 +165,7 @@ export default {
       this.emitRecords([]);
     },
     async loadItems(name = null) {
-      let query = `warehouseFilter=${this.warehouse}&`
+      let query = `types[0]=T&`
         query = query + (name ? `keyword=${name}&typeKeyword=name&format=short`
         : "format=short");
 
