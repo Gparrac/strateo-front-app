@@ -1,5 +1,4 @@
 <template>
-
   <v-card rounded="true" elevation="0">
     <v-card-text>
       <!-- Business Name or normal name -->
@@ -42,10 +41,8 @@
             :loading="loading"
             variant="outlined"
             :disabled="records.invoiceId ? true : false"
-
             return-object
           ></v-select>
-
         </v-col>
         <v-col cols="12" sm="6">
           <v-text-field
@@ -61,7 +58,9 @@
           <v-text-field
             :maxlength="rulesValidation.price.length"
             label="Descuento"
-            @update:model-value="(value) => emitRecords(value, 'furtherDiscount')"
+            @update:model-value="
+              (value) => emitRecords(value, 'furtherDiscount')
+            "
             :model-value="records.furtherDiscount"
             :rules="rulesValidation.price.rules"
             :loading="loading"
@@ -90,12 +89,12 @@
         v-if="records.saleType && records.saleType.id == 'E'"
       >
         <v-row>
-          <v-col cols="12" sm="4">
+          <v-col cols="12" sm="6" lg="3">
             <v-text-field
               :maxlength="rulesValidation.price.length"
               label="Abono"
               @update:model-value="(value) => emitRecords(value, 'payOff')"
-            :model-value="records.payOff"
+              :model-value="records.payOff"
               :rules="rulesValidation.price.rules"
               :loading="loading"
               prepend-inner-icon="mdi-cash"
@@ -103,31 +102,43 @@
               :disabled="editable"
             ></v-text-field>
           </v-col>
-          <v-col cols="12" sm="4">
+          <v-col cols="12" sm="6" lg="3">
+            <v-select
+              label="Estado"
+              :items="stages"
+              item-title="name"
+              variant="outlined"
+              v-on:update:modelValue="(value) => emitRecords(value, 'stage')"
+              :model-value="records.stage"
+              :rules="rulesValidation.select.rules"
+              :loading="loading"
+              return-object
+            ></v-select>
+          </v-col>
+          <v-col cols="12" sm="6" lg="3">
             <v-text-field
               type="datetime-local"
               variant="outlined"
               label="Fecha y hora"
               :rules="rulesValidation.date.rules"
               @update:model-value="(value) => emitRecords(value, 'startDate')"
-            :model-value="records.startDate"
+              :model-value="records.startDate"
             ></v-text-field>
           </v-col>
-          <v-col cols="12" sm="4">
+          <v-col cols="12" sm="6" lg="3">
             <v-text-field
               type="datetime-local"
               variant="outlined"
               label="Fecha y hora"
               :rules="rulesValidation.date.rules"
               @update:model-value="(value) => emitRecords(value, 'endDate')"
-            :model-value="records.endDate"
+              :model-value="records.endDate"
             ></v-text-field>
           </v-col>
         </v-row>
       </v-card>
     </v-card-text>
   </v-card>
-
 </template>
 <script>
 import Petition from "@/services/PetitionStructure/Petition.js";
@@ -157,41 +168,47 @@ export default {
     searchSeller: "",
     clients: [],
     sellers: [],
+    stages:[],
     typesInvoice: [],
     loading: false,
     searchCiiu: "",
     rulesValidation: RulesValidation,
   }),
   computed: {
-    ...mapStores(useAlertMessageStore)
+    ...mapStores(useAlertMessageStore),
   },
   methods: {
     emitRecords(item, key) {
-      this.$emit("update:records", {item:item, key:key});
+      console.log('stage', item);
+      this.$emit("update:records", { item: item, key: key });
     },
     async setClients(name = null) {
-      const query = name ? `&typeKeyword=legal_credencials&keyword=${name}` : "";
+      const query = name
+        ? `&typeKeyword=legal_credencials&keyword=${name}`
+        : "";
       this.clients = (await clientApi.read(`format=short${query}`)).data;
     },
     async setSellers(name = null) {
-
       const query = name ? `&keyword=${name}` : "";
       this.sellers = (
         await userApi.read(`format=short&typeKeyword=third${query}`)
       ).data;
     },
-    async setTypesInvoice() {
-      this.typesInvoice = (
-        await petition.get("/type-invoices", `planmentInvoice=1`)
+    async setStages() {
+      console.log('entry')
+      const queryStage = this.records?.stage?.id || 0;
+      this.stages = (
+        await petition.get("/type-invoices", `planment_stage=${queryStage}`)
       ).data;
     },
-    async loadItems(data = null) {
-      const query = data ? `&typeKeyword=third&keyword=${data.name}` : "";
-      this.optionsTest = (await userApi.read(`format=short${query}`)).data;
+    async setTypesInvoice() {
+
+      this.typesInvoice = (
+        await petition.get("/type-invoices")
+      ).data;
     },
   },
   watch: {
-
     async searchClient(to) {
       if (to.length > 3) {
         this.setClients(to);
@@ -210,7 +227,7 @@ export default {
         this.setClients(),
         this.setSellers(),
         this.setTypesInvoice(),
-        this.loadItems(),
+        this.setStages()
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);

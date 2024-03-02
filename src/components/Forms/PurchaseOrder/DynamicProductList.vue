@@ -13,7 +13,7 @@
           @update:itemSelected="(item) => (itemSelected = item)"
           mainLabel="name"
           :secondLabel="['consecutive']"
-          title="Subproductos"
+          title="Productos"
           subtitle=""
           class="pr-5"
         >
@@ -52,31 +52,7 @@
                   <v-chip class="mx-2">{{ record.brand.name }}</v-chip>
                   <span class="text-overline">{{ record.product_code }}</span>
                 </v-col>
-                <v-col cols="12" md="4">
-                  <v-checkbox
-                    v-model="record.tracing"
-                    color="primary"
-                    label="Requiere inventario"
-                    :value="1"
-                    hide-details
-                  ></v-checkbox>
-                </v-col>
-                <v-col cols="12" md="4" lg="3">
-                  <dynamic-select-field
-                    v-if="record.tracing"
-                    :options="warehouses"
-                    :itemSaved="record.warehouse"
-                    @update:options="setWarehouses"
-                    @update:itemSelected="
-                      (item) => setProductInventory(item, record)
-                    "
-                    mainLabel="address"
-                    :secondLabel="['city', 'name']"
-                    title="Bodega"
-                    subtitle="Ciudad:"
-                  >
-                  </dynamic-select-field>
-                </v-col>
+
                 <v-col cols="12" md="4" lg="3">
                   <v-text-field
                     :maxlength="rulesValidation.price.length"
@@ -88,13 +64,6 @@
                     variant="outlined"
                     :disabled="editable"
                     persistent-hint
-                    :hint="
-                      'Por defecto: ' +
-                        record.default_amount +
-                        record.tracing && record.warehouse
-                        ? ' | Stock actual: ' + record.stock
-                        : ''
-                    "
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -106,14 +75,14 @@
   </v-row>
   <div class="d-flex align-center">
     <strong class="text-overline d-block mt-3"
-      >Subproducts seleccionados:
+      >Productos seleccionados:
     </strong>
     <span class="text-primary d-block text-h5 pt-3 pl-3">{{
       records.length
     }}</span>
   </div>
   <span
-    v-if="errorMessage.type && errorMessage.type == 'subproducts'"
+    v-if="errorMessage.type && errorMessage.type == 'products'"
     class="text-error text-caption"
   >
     {{ errorMessage.message }}
@@ -122,12 +91,9 @@
 <script>
 import { RulesValidation } from "@/utils/validations";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
-import WarehouseApi from "@/services/Forms/WarehouseApi";
-import InventoryApi from "@/services/Forms/InventoryApi";
-const inventoryApi = new InventoryApi();
 import ProductApi from "@/services/Forms/ProductApi";
 const productApi = new ProductApi();
-const warehouseApi = new WarehouseApi();
+
 export default {
   props: {
     records: Array,
@@ -168,24 +134,12 @@ export default {
     },
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);
-    },
-    async setWarehouses(name = null) {
-      const query = name ? `&name=${name}` : "";
-      this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;
-    },
-    async setProductInventory(item, product) {
-      product.warehouse = item;
-      product.stock = (
-        await inventoryApi.read(
-          `product_id=${product.id}&warehouse_id=${item.id}`
-        )
-      ).data;
-    },
+    }
   },
   async mounted() {
     this.loading = true;
     try {
-      await Promise.all([this.loadItems(), this.setWarehouses()]);
+      await Promise.all([this.loadItems()]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }

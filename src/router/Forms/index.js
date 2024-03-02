@@ -16,6 +16,7 @@ import categoryRoute from "./categoryRoute";
 import employeeRoute from "./employeeRoute";
 import invoiceRoute from "./InvoiceRoute";
 import taxRoute from "./taxRoute";
+import purchaseOrderRoute from "./purchaseOrderRoute";
 
 const  formsRoute = [
     usersRoute,
@@ -36,7 +37,8 @@ const  formsRoute = [
     categoryRoute,
     employeeRoute,
     invoiceRoute,
-    taxRoute
+    taxRoute,
+    purchaseOrderRoute
 ];
 
 export default formsRoute;

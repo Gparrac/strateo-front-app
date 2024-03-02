@@ -208,6 +208,7 @@ export default {
       this.loading = false;
     },
     async saveEmployees(formData) {
+
       const { valid } = await this.$refs.formEmployee.validate();
       if (this.employees.length == 0) {
         this.errorMessage.type = "employees";
@@ -242,6 +243,7 @@ export default {
           formData.append("start_date", castFullDate(this.editItem.startDate));
           formData.append("end_date", castFullDate(this.editItem.endDate));
           formData.append("pay_off", this.editItem.payOff);
+          formData.append("stage", this.editItem.stage.id);
         }
         let response = {};
         if (this.editItem.invoiceId) {
