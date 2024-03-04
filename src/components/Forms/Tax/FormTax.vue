@@ -34,6 +34,7 @@
                 v-model="editItem.default_percent"
                 :rules="rulesValidation.percent.rules"
                 :loading="loading"
+                append-inner-icon="mdi-percent"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="4">
