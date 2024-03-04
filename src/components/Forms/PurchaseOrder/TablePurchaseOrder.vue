@@ -105,7 +105,7 @@ export default {
         key: "id",
         sortable: true
       },
-      { title: "Provedor", align: "center", key: "supplier.fullname", sortable:false },
+      { title: "Provedor", align: "center", key: "supplier.third.supplier", sortable:false },
       { title: "Fecha", align: "center", key: "date", sortable:false },
       { title: "Nota", align: "center", key: "note", sortable:true },
       { title: "Estado", align: "end", key: "status", sortable:false },

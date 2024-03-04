@@ -184,6 +184,7 @@ export default {
         // third fields 🚥
         formData.append("date", castFullDate(this.editItem.date));
         formData.append("supplier_id", this.editItem.supplier.id);
+        formData.append("status", this.editItem.status);
 
         if(this.editItem.note && this.editItem.note.length > 0) formData.append("note", this.editItem.note);
         this.editItem.products.forEach((product, pindex) => {

@@ -29,10 +29,11 @@
       </v-app-bar>
 
       <v-navigation-drawer
-        class="pl-3"
+        class="pl-1"
         v-model="drawer"
         location="left"
         permanent
+        width="300"
       >
         <v-list v-model:opened="openSections">
           <v-list-item prepend-icon="mdi-home" title="Home" to="/"></v-list-item>
@@ -58,7 +59,7 @@
               </template>
 
               <v-list-item-title>
-                <div v-text="form.name"></div>
+                <div v-text="form.name" class="text-wrap"></div>
               </v-list-item-title>
             </v-list-item>
           </v-list>

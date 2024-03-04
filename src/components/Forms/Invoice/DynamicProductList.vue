@@ -153,7 +153,7 @@
                         record.discount,
                         record.amount,
                         record.cost
-                      )
+                      ) || '-'
                     }}
                   </h3>
                   <h4 class="text-subtitle-2 text-right font-weight-light">
@@ -162,7 +162,7 @@
                 </div>
                 <div class="pl-5">
                   <h3 class="text-h5 font-weight-light text-center">
-                    {{ totalCost(record.amount, record.cost) }}
+                    {{ totalCost(record.amount, record.cost) || '-'}}
                   </h3>
                   <h4 class="text-subtitle-2 text-right font-weight-light">
                     Costo total
@@ -176,7 +176,7 @@
                         record.discount,
                         record.amount,
                         record.cost
-                      )
+                      ) || '-'
                     }}
                   </h3>
                   <h4 class="text-subtitle-2 text-right font-weight-light">
