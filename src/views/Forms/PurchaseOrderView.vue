@@ -23,7 +23,7 @@ export default {
   data: () => ({
     titleView: "Ordenes de compra",
     nameTable: "Ordenes de compra",
-    path: "purchase-ordes",
+    path: "purchase-orders",
     isForm: false,
     idEditForm: null,
   }),

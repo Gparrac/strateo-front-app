@@ -8,6 +8,7 @@
       :disableDelete="selectedItems.length == 0 ? true : false"
       @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
+      :showDelete="false"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete

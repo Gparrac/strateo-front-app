@@ -119,7 +119,7 @@
             <v-text-field
               type="datetime-local"
               variant="outlined"
-              label="Fecha y hora"
+              label="Fecha de inicio"
               :rules="rulesValidation.date.rules"
               @update:model-value="(value) => emitRecords(value, 'startDate')"
               :model-value="records.startDate"
@@ -129,8 +129,8 @@
             <v-text-field
               type="datetime-local"
               variant="outlined"
-              label="Fecha y hora"
-              :rules="rulesValidation.date.rules"
+              label="Fecha de finalización"
+              :rules="endDateRule"
               @update:model-value="(value) => emitRecords(value, 'endDate')"
               :model-value="records.endDate"
             ></v-text-field>
@@ -176,6 +176,11 @@ export default {
   }),
   computed: {
     ...mapStores(useAlertMessageStore),
+    endDateRule() {
+      return [...this.rulesValidation.date.rules,                 (value) =>
+                    new Date(value) > new Date(this.records.startDate) ||
+                    "La fecha de finalización debe ser mayor a la de inicio. ",]
+    }
   },
   methods: {
     emitRecords(item, key) {

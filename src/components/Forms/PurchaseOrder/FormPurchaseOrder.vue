@@ -223,7 +223,7 @@ export default {
         return;
       }
       const response = await purchaseOrderApi.read(
-        `warehouse_id=${this.idEditForm}`
+        `purchase_order_id=${this.idEditForm}`
       );
       if (response.statusResponse != 200) {
         this.editItem = {};
