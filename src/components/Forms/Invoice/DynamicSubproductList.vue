@@ -66,6 +66,7 @@
                     v-if="record.tracing"
                     :options="warehouses"
                     :itemSaved="record.warehouse"
+                    :rules="rulesValidation.select.rules"
                     @update:options="setWarehouses"
                     @update:itemSelected="
                       (item) => setProductInventory(item, record)
