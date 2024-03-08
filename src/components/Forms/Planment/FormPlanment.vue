@@ -23,18 +23,40 @@
           <invoice-field-group
             :records="editItem"
             @update:records="updateAttributes"
-            :showPlanment="false"
+            :showPlanment="true"
           ></invoice-field-group>
         </v-form>
       </v-stepper-window-item>
       <v-stepper-window-item :value="1">
         <v-form ref="formProduct">
-          <dynamic-product-list
+          <dynamic-service-list
             :records="products"
             :errorMessage="errorMessage"
             :editable="false"
             @update:records="(item) => (products = item)"
+          ></dynamic-service-list>
+        </v-form>
+      </v-stepper-window-item>
+      <v-stepper-window-item :value="2">
+        <v-form ref="formFurtherProduct">
+          <dynamic-product-list
+            :records="furtherProducts"
+            :errorMessage="errorMessage"
+            :editable="false"
+            @update:records="(item) => (furtherProducts = item)"
           ></dynamic-product-list>
+        </v-form>
+      </v-stepper-window-item>
+      <v-stepper-window-item :value="3">
+        <v-form ref="formEmployee">
+          <dynamic-employee-list
+            :records="employees"
+            :errorMessage="errorMessage"
+            :editable="false"
+            @update:records="(item) => (employees = item)"
+          >
+            ></dynamic-employee-list
+          >
         </v-form>
       </v-stepper-window-item>
     </v-stepper-window>
@@ -73,10 +95,13 @@ import { castFullDate, statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
+import DynamicEmployeeList from "./DynamicEmployeeList.vue";
+import DynamicServiceList from "./DynamicServiceList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
+import EmployeeApi from "@/services/Forms/EmployeeApi";
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
-
+const employeeApi = new EmployeeApi();
 
 export default {
   props: {
@@ -87,6 +112,8 @@ export default {
   components: {
     InvoiceFieldGroup,
     DynamicProductList,
+    DynamicEmployeeList,
+    DynamicServiceList,
   },
   data: () => ({
     // required data
@@ -110,10 +137,14 @@ export default {
         complete: false,
       },
       { label: "Productos requeridos", complete: false },
+      { label: "Adicionales", complete: false },
+      { label: "Empleados", complete: false },
     ],
+
     //data
     products: [],
-    employees: []
+    employees: [],
+    furtherProducts: [],
   }),
 
   async mounted() {
@@ -122,9 +153,13 @@ export default {
     try {
       await this.setEditItem();
       if (this.editItem.invoiceId) {
-          await this.setAttributes("I", "products");
-        }
-      } catch (error) {
+        await Promise.all([
+          this.setAttributes("E", "products"),
+          this.setAttributes("F", "furtherProducts"),
+          this.setAttributes("W", "employees"),
+        ]);
+      }
+    } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
     this.loading = false;
@@ -150,12 +185,41 @@ export default {
           this.saveInvoice(formData);
           break;
         case 1:
-          this.saveProducts(formData);
+          this.saveProducts(formData, undefined);
+          break;
+        case 2:
+          this.saveProducts(formData, true);
+          break;
+        case 3:
+          this.saveEmployees(formData);
           break;
         default:
           break;
       }
       this.loading = false;
+    },
+    async saveEmployees(formData) {
+      const { valid } = await this.$refs.formEmployee.validate();
+      if (this.employees.length == 0) {
+        this.errorMessage.type = "employees";
+        this.errorMessage.message = "Se requiere minimo un empleado";
+        return;
+      } else {
+        this.errorMessage = {};
+      }
+
+      if (valid) {
+        formData.append("invoice_id", this.editItem.invoiceId);
+        this.employees.forEach((employee, eindex) => {
+          formData.append(`employees[${eindex}][employee_id]`, employee.id);
+          formData.append(`employees[${eindex}][salary]`, employee.salary);
+        });
+        const response = await employeeApi.update(
+          formData,
+          "type_connection=W"
+        );
+        this.handleAlert(response, this.setAttributes("W", "employees"));
+      }
     },
     async saveInvoice(formData) {
       const { valid } = await this.$refs.formInvoice.validate();
@@ -165,36 +229,43 @@ export default {
         formData.append("note", this.editItem.note);
         formData.append("seller_id", this.editItem.seller.id);
         formData.append("date", castFullDate(this.editItem.date));
+        formData.append("start_date", castFullDate(this.editItem.startDate));
+        formData.append("end_date", castFullDate(this.editItem.endDate));
+        formData.append("pay_off", this.editItem.payOff);
+        formData.append("stage", this.editItem.stage.id);
+
         let response = {};
         if (this.editItem.invoiceId) {
           formData.append("invoice_id", this.editItem.invoiceId);
           response = await invoiceApi.update(formData);
         } else {
-          formData.append("sale_type", 'P');
+          formData.append("sale_type", "E");
           response = await invoiceApi.create(formData);
         }
         this.handleAlert(response, this.setEditItem(response.data));
       }
     },
-    async saveProducts(formData) {
+    async saveProducts(formData, further = false) {
       //validate form rules 🚥
-      const { valid } = await this.$refs.formProduct.validate();
+      const { valid } = await this.$refs[
+        further ? "formFurtherProduct" : "formProduct"
+      ].validate();
       //validate dynamic components 🚥
       if (
-        (this.products.length == 0)
+        (this.step == 1 && this.products.length == 0) ||
+        (this.step == 2 && this.furtherProducts.length == 0)
       ) {
         this.errorMessage.type = "products";
         this.errorMessage.message = "Se requiere minimo un producto";
-
         return;
       } else {
         this.errorMessage = {};
       }
       if (valid) {
         //define array to start creating formData 🚥
-
+        const source = further ? "furtherProducts" : "products";
         formData.append("invoice_id", this.editItem.invoiceId);
-        this.products.forEach((product, pindex) => {
+        this[source].forEach((product, pindex) => {
           formData.append(`products[${pindex}][product_id]`, product.id);
           formData.append(`products[${pindex}][cost]`, product.cost);
           if (product.discount)
@@ -211,8 +282,11 @@ export default {
             );
           });
         });
-          formData.append(`type_connection`, "I");
-          this.products.forEach((product, pindex) => {
+        let type = "E";
+        if (further) {
+          type = "F";
+          formData.append(`type_connection`, type);
+          this[source].forEach((product, pindex) => {
             formData.append(
               `products[${pindex}][tracing]`,
               product.tracing || 0
@@ -223,11 +297,33 @@ export default {
                 product.warehouse.id
               );
           });
-
+        } else {
+          this.products.forEach((product, pindex) => {
+            product.subproducts.forEach((subproduct, sindex) => {
+              formData.append(
+                `products[${pindex}][sub_products][${sindex}][product_id]`,
+                subproduct.id
+              );
+              formData.append(
+                `products[${pindex}][sub_products][${sindex}][amount]`,
+                subproduct.amount
+              );
+              formData.append(
+                `products[${pindex}][sub_products][${sindex}][tracing]`,
+                subproduct.tracing || 0
+              );
+              if (subproduct.tracing)
+                formData.append(
+                  `products[${pindex}][sub_products][${sindex}][warehouse_id]`,
+                  subproduct.warehouse.id
+                );
+            });
+          });
+        }
         let response = {};
 
-        response = await productApi.update(formData, "type_connection=I");
-        this.handleAlert(response, this.setAttributes('I', 'products'));
+        response = await productApi.update(formData, `type_connection=${type}`);
+        this.handleAlert(response, this.setAttributes(type, source));
       }
     },
     async handleAlert(response, callback = null) {
@@ -270,7 +366,6 @@ export default {
     },
 
     async setEditItem(invoiceId = null) {
-      console.log('fetching data...')
       if (!this.idEditForm && !invoiceId) {
         this.editItem.services = [];
         return;
@@ -286,9 +381,15 @@ export default {
           date: response.data.date,
           seller: response.data.seller,
           client: response.data.client,
+          payOff: response.data.planment.pay_off,
+          startDate: response.data.planment.start_date,
+          endDate: response.data.planment.end_date,
+          stage: response.data.planment.stage,
         }
       );
+
       // ------------------updating keys of stepper to send reactive data ⚠️
+
       this.thirdKeyCard = this.thirdKeyCard + 1;
       this.test = this.test + 1;
     },

@@ -3,7 +3,7 @@
     <v-card-text>
       <!-- Business Name or normal name -->
       <v-row>
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="6" lg="3">
           <dynamic-select-field
             :options="clients"
             :itemSaved="records.client"
@@ -17,7 +17,7 @@
           >
           </dynamic-select-field>
         </v-col>
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="6" lg="3">
           <dynamic-select-field
             :options="sellers"
             :itemSaved="records.seller"
@@ -30,21 +30,8 @@
           >
           </dynamic-select-field>
         </v-col>
-        <v-col cols="12" sm="4">
-          <v-select
-            label="Tipo de orden"
-            @update:model-value="(value) => emitRecords(value, 'saleType')"
-            :model-value="records.saleType"
-            item-title="name"
-            :items="typesInvoice"
-            :rules="rulesValidation.select.rules"
-            :loading="loading"
-            variant="outlined"
-            :disabled="records.invoiceId ? true : false"
-            return-object
-          ></v-select>
-        </v-col>
-        <v-col cols="12" sm="6">
+
+        <v-col cols="12" sm="6" lg="3">
           <v-text-field
             type="datetime-local"
             variant="outlined"
@@ -54,7 +41,7 @@
             :rules="rulesValidation.date.rules"
           ></v-text-field>
         </v-col>
-        <v-col cols="12" sm="6">
+        <v-col cols="12" sm="6" lg="3">
           <v-text-field
             :maxlength="rulesValidation.price.length"
             label="Descuento"
@@ -86,7 +73,7 @@
         class="pt-4 pb-2 px-5"
         variant="outlined"
         title="Datos para planeación"
-        v-if="records.saleType && records.saleType.id == 'E'"
+        v-if="showPlanment"
       >
         <v-row>
           <v-col cols="12" sm="6" lg="3">
@@ -157,6 +144,7 @@ const petition = new Petition();
 export default {
   props: {
     records: Object,
+    showPlanment: Boolean
   },
   components: {
     DynamicSelectField,
@@ -172,6 +160,7 @@ export default {
     loading: false,
     searchCiiu: "",
     rulesValidation: RulesValidation,
+
   }),
   computed: {
     ...mapStores(useAlertMessageStore),

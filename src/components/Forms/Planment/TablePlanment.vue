@@ -33,15 +33,6 @@
       show-select
       return-object
     >
-    <template v-slot:[`item.products_count`]="{ item }">
-        <div>
-          <v-chip variant="outlined" color="orange">
-            {{ item.products_count }}
-          </v-chip>
-        </div>
-      </template>
-
-
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon
@@ -53,7 +44,19 @@
           </v-icon>
         </div>
       </template>
-
+      <template v-slot:[`item.stage`]="{ item }">
+        <div>
+          <v-chip
+            variant="tonal"
+            class="ma-1"
+            label
+            :prepend-icon="'mdi-file-tree'"
+            :color="item?.planment?.stage?.color"
+          >
+            {{ item?.planment?.stage?.name }}
+          </v-chip>
+        </div>
+      </template>
     </v-data-table-server>
   </div>
 </template>
@@ -90,9 +93,9 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "suppliers_id",
-    mainKeyDelete: ["third","supplier"],
-    secondKeyDelete: ["commercial_registry"],
+    keyQueryDelete: "invoices_id",
+    mainKeyDelete: ["client", "third", "identification"],
+    secondKeyDelete: ["date"],
     selectedItems: [],
     toggleDelete: false,
 
@@ -106,9 +109,11 @@ export default {
       },
       { title: "Usuario", align: "end", key: "client.third.names", sortable: false },
       { title: "Documento", align: "end", key: "client.third.identification", sortable: false },
-      { title: "Fecha de evento", align: "end", key: "date", sortable: false },
+      { title: "Fecha de orden", align: "end", key: "date", sortable: false },
+      { title: "Fecha de inicio", align: "end", key: "date", sortable: false },
+      { title: "Fecha de finalización", align: "end", key: "date", sortable: false },
+      { title: "Etapa", align: "center", key: "stage", sortable: false },
       { title: "Vendedor", align: "end", key: "seller.name", sortable: false },
-      { title: "Productos", align: "end", key: "products_count", sortable: false },
       {
         title: "Ultima actulización",
         align: "center",
@@ -129,17 +134,17 @@ export default {
       keyword = null,
       typeKeyword = null
     ) {
+      console.log('entrando°°°',sortBy);
       this.loading = true;
       const params = new URLSearchParams();
       if (typeKeyword && keyword) {
         this.filterCleaner = true;
         params.append("typeKeyword", typeKeyword);
         params.append("keyword", keyword);
-
       } else {
         this.filterCleaner = sortBy.length !== 0;
       }
-      params.append("type", 'P');
+      params.append("type", "E");
       params.append("page", page);
       params.append("pagination", itemsPerPage);
       sortBy.forEach((item, index) => {

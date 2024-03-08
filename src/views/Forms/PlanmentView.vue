@@ -2,27 +2,27 @@
   <div>
     <h1 class="pb-7">{{ titleView }}</h1>
     <div>
-      <FormInvoice
+      <FormPlanment
         v-if="isForm"
         :idEditForm="idEditForm"
         :nameTable="nameTable"
         :path="path"
       />
-      <TableInvoice v-else :nameTable="nameTable" :path="path" />
+      <TablePlanment v-else :nameTable="nameTable" :path="path" />
     </div>
     <div></div>
   </div>
 </template>
 
 <script>
-import { FormInvoice, TableInvoice } from "@/components/Forms/Invoice/";
+import { FormPlanment, TablePlanment } from "@/components/Forms/Planment/";
 import { getFormRoute } from "@/utils/routes.js";
 
 export default {
   data: () => ({
-    titleView: "Ordenes de compra directa",
-    nameTable: "ordenes de compra directa",
-    path: "invoices",
+    titleView: "Ordenes de planeación",
+    nameTable: "ordenes de planeación",
+    path: "planments",
     isForm: false,
     idEditForm: null,
   }),
@@ -43,8 +43,8 @@ export default {
   },
 
   components: {
-    FormInvoice,
-    TableInvoice,
+    FormPlanment,
+    TablePlanment,
   },
 };
 </script>
