@@ -63,6 +63,7 @@ export function statusAllowed() {
   ];
 }
 export function searchKey(item, arrayKeys) {
+  if(!item || !arrayKeys) return;
   let label = item;
   for (let clave of arrayKeys) {
     label = label[clave];

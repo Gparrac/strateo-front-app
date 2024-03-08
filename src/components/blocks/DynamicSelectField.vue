@@ -16,7 +16,7 @@
                               <span class="d-block">
                                 {{ subtitle }}
                                 {{
-                                  useSearchKey(item.raw,secondLabel)
+                                  secondLabel && useSearchKey(item.raw,secondLabel)
                               }}</span>
                               <div class="d-flex  align-start">
 
@@ -40,7 +40,10 @@ export default {
       type:Array
     },
     options:Array,
-    itemSaved: Object,
+    itemSaved: {
+      required:false,
+      type: Object
+    },
     title: String,
     mainLabel: String,
     secondLabel: Array,
@@ -55,8 +58,11 @@ export default {
   }),
   watch:{
     async searchItem(to) {
-      if (to.length > 3 && to.length < 5) {
+      if (to.length > 2 && to.length < 5) {
         this.$emit("update:options",  to);
+      }else if(to.length == 0){
+          this.$emit("update:options",  '');
+
       }
 
     },

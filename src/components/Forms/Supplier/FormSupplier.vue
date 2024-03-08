@@ -11,11 +11,8 @@
           <v-row>
             <v-col cols="12">
               <thirdFieldCard
-                :key="thirdKeyCard"
                 :records="editItem"
-                @update:records="
-                  (item) => (editItem = { ...editItem, ...item })
-                "
+                @update:records="updateAttributes"
               ></thirdFieldCard>
             </v-col>
             <v-col cols="12">
@@ -27,10 +24,10 @@
                         <!-- ----- start commercial registry --------------------->
                         <v-col cols="12">
                           <v-text-field
-                            :maxlength="rulesValidation.text.maxLength"
-                            label="Registro Comercial"
+                            :maxlength="rulesValidation.shortTextNull.maxLength"
+                            label="Registro Mercantil"
                             v-model="editItem.commercialRegistryNumber"
-                            :rules="rulesValidation.text.rules"
+                            :rules="rulesValidation.shortTextNull.rules"
                             :loading="loading"
                           ></v-text-field>
                         </v-col>
@@ -38,7 +35,7 @@
                           <v-file-input
                             v-model="editItem.commercialFile"
                             accept=".doc, .docx, .pdf"
-                            label="Registro Comercial"
+                            label="Documento Registro Mercantil"
                             prepend-icon="mdi-file-document"
                             :rules="rulesValidation.file.rules"
                             :loading="loading"
@@ -125,10 +122,10 @@
                         </v-col>
                         <v-col>
                           <v-textarea
-                            label="Descripción sdf"
+                            label="Descripción"
                             v-model="editItem.description"
                             :maxLength="rulesValidation.longText.maxLength"
-                            :rules="rulesValidation.longText.rules"
+                            :rules="rulesValidation.longTextNull.rules"
                             :loading="loading"
                             rows="7"
                           ></v-textarea>
@@ -153,26 +150,7 @@
                     :records="editItem.services"
                     @update:records="(item) => (editItem.services = item)"
                     :errorMessage="customAlertError"
-
                   >
-                    <template #dynamic-item-icon="{ raw }">
-                      <v-avatar color="grey-lighten-1">
-                        <v-icon color="white">{{ raw.type.icon }}</v-icon>
-                      </v-avatar>
-                    </template>
-                    <template #dynamic-item="{ raw }">
-                      <v-list-item-subtitle class="d-flex">
-                        <span class="d-block">{{ raw.type.name }}</span>
-                        <v-spacer></v-spacer>
-                        <span class="d-block"
-                          >Tamaño maximo: {{ raw.length }}
-                        </span>
-                      </v-list-item-subtitle>
-                    </template>
-                    <v-chip class="ma-2" color="primary" label>
-                      <v-icon start :icon="record.type.icon"></v-icon>
-                      {{ record.type.name }}
-                    </v-chip>
                   </dynamic-field-list>
                   <!------------------------------- END DYNAMIC ITEM --------------------------->
                 </v-card-text>
@@ -239,7 +217,7 @@ export default {
     showFileRutSelected: null,
     rulesValidation: RulesValidation,
     customAlertError: {},
-    thirdKeyCard:0
+    thirdKeyCard: 0,
   }),
   async mounted() {
     this.loading = true;
@@ -260,6 +238,9 @@ export default {
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+    updateAttributes(data) {
+      this.editItem[data.key] = data.item;
+    },
     handleFileFields(event, item) {
       const files = event.target.files;
       if (files.length > 0) {
@@ -268,7 +249,6 @@ export default {
       }
     },
     async submitForm() {
-
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (!this.editItem.services || this.editItem.services.length == 0) {
@@ -276,8 +256,7 @@ export default {
         this.customAlertError.message = "Debes seleccionar almenos un servicio";
       } else {
         this.customAlertError = {};
-      }
-      if (valid) {
+        if (valid) {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
@@ -288,6 +267,7 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
+        if(this.editItem.ciiu)
         formData.append("code_ciiu_id", this.editItem.ciiu.id);
         if (this.editItem.typeDocument == "NIT") {
           formData.append("business_name", this.editItem.business);
@@ -297,18 +277,22 @@ export default {
         }
         if (this.editItem.email2)
           formData.append("email2", this.editItem.email2);
-        formData.append("postal_code", this.editItem.postal_code);
-        formData.append("city_id", this.editItem.city_id);
+        if(this.editItem.postal_code && this.editItem.postal_code.length > 0) formData.append("postal_code", this.editItem.postal_code);
+        formData.append("city_id", this.editItem.city.id);
         this.editItem.secondaryCiius.forEach((item, cindex) => {
           formData.append(`secondary_ciiu_ids[${cindex}]`, item.id);
         });
 
         // supplier fields 🚥
-        formData.append(
-          "commercial_registry",
-          this.editItem.commercialRegistryNumber
-        );
-        formData.append("note", this.editItem.description);
+        if (
+          this.editItem.commercialRegistryNumber &&
+          this.editItem.commercialRegistryNumber.length > 0
+        )
+          formData.append(
+            "commercial_registry",
+            this.editItem.commercialRegistryNumber
+          );
+        if(this.editItem.description ) formData.append("note", this.editItem.description);
         formData.append("status", this.editItem.status);
         if (
           this.editItem.commercialFile &&
@@ -329,14 +313,14 @@ export default {
               `services[${index}][fields][${findex}][field_id]`,
               field.id
             );
-            if(field.type.id == 'F'){
-              if(field.data) {
+            if (field.type.id == "F") {
+              if (field.data) {
                 formData.append(
-                `services[${index}][fields][${findex}][content]`,
-                field.pathFile
-              );
+                  `services[${index}][fields][${findex}][content]`,
+                  field.pathFile
+                );
               }
-            }else{
+            } else {
               formData.append(
                 `services[${index}][fields][${findex}][content]`,
                 field.data
@@ -367,6 +351,8 @@ export default {
           this.$router.push(`/${this.path}`);
         }
       }
+
+      }
       this.loading = false;
     },
     getFileUrl(file) {
@@ -381,9 +367,7 @@ export default {
 
         return;
       }
-      const response = await supplierApi.read(
-        `supplier_id=${this.idEditForm}`
-      );
+      const response = await supplierApi.read(`supplier_id=${this.idEditForm}`);
       this.editItem = Object.assign(
         {},
         {
@@ -399,19 +383,19 @@ export default {
           identification: response.data.third.identification,
           names: response.data.third.names,
           surnames: response.data.third.surnames,
+          business: response.data.third.business_name,
           address: response.data.third.address,
           mobile: response.data.third.mobile,
           email: response.data.third.email,
           postal_code: response.data.third.postal_code,
-          city_id: response.data.third.city_id,
+          city: response.data.third.city,
           ciiu: response.data.third.ciiu,
           secondaryCiius: response.data.third.secondary_ciius,
           services: response.data.services,
         }
       );
 
-      this.thirdKeyCard = this.thirdKeyCard + 1 ;
-
+      this.thirdKeyCard = this.thirdKeyCard + 1;
     },
   },
 };

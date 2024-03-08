@@ -155,7 +155,6 @@ const userApi = new UserApi();
 const petition = new Petition();
 
 export default {
-  name: "ThirdFieldCard",
   props: {
     records: Object,
   },

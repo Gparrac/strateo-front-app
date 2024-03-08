@@ -6,33 +6,15 @@
         5 letras para completar la busqueda y llena los campos correspondientes de tu selección...</strong
       >
       <div class="d-flex">
-        <v-autocomplete
-          label="Campos adicionales"
-          v-model="itemSelected"
-          :items="options"
-          class="flex-grow-1 mr-5"
-          v-model:search="searchItem"
-          item-title="name"
-          :return-object="true"
-          :loading="loading"
-        >
-          <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props">
-              <v-list-item-subtitle class="d-flex">
-                <span class="d-block">{{ item.raw.description }}</span>
-              </v-list-item-subtitle>
-            </v-list-item>
-          </template>
-        </v-autocomplete>
-        <v-btn
-          icon="mdi-plus-circle"
-          color="primary"
-          variant="tonal"
-          class="mr-3"
-          :disabled="itemSelected ? false : true"
-          @click="appendItem"
-        >
-        </v-btn>
+        <dynamic-select-field
+            :options="options"
+            @update:options="loadItems"
+            @update:itemSelected="appendItem"
+            mainLabel="name"
+            :secondLabel="['description']"
+            title="Servicios adicionales"
+          >
+          </dynamic-select-field>
       </div>
     </v-col>
     <v-col class="max-w-custom">
@@ -119,55 +101,61 @@
 <script>
 import { RulesValidation } from "@/utils/validations";
 import ServiceApi from "@/services/Forms/ServiceApi";
+import DynamicSelectField from "./DynamicSelectField.vue";
 const serviceApi = new ServiceApi();
-const fieldText = [
-(value) =>
-        (value && value.length >= 3) ||
-        "Este campo debe de ser de almenos 3 caracteres",
-];
+const fieldText = (length) => ([
+  (value) =>
+    (value && value.length >= 3) ||
+    "Este campo debe de ser de almenos 3 caracteres",
+    (value) =>
+    (value.length < length) ||
+    `Tamaño maximo de ${length} caracteres`,
+  (value) => /^[a-zA-Z]+$/.test(value) || "Ingrese solo letras",
+]);
 const fieldFile = [
-(value) =>
-        !value ||
-        !value.length ||
-        value[0].size < 2000000 ||
-        "La imagen debe pesar menos de 2 MB",
+  (value) =>
+    !value ||
+    !value.length ||
+    value[0].size < 2000000 ||
+    "La imagen debe pesar menos de 2 MB",
 ];
 export default {
   props: {
     records: Array,
     errorMessage: Object
   },
+  components:{
+    DynamicSelectField
+  },
   data: () => ({
-    itemSelected: null,
     options: [],
     searchItem: "",
     loading:false,
     rulesValidation: RulesValidation,
   }),
-  watch: {
-    async searchItem(to) {
-      if (to.length > 3 && to.length < 5) {
-        this.loadItems(to);
-      }
-    },
-  },
   methods: {
     async loadItems(name = null) {
       const query = name
         ? `keyword=${name}&typeKeyword=name&format=short`
         : "format=short";
       this.options = (await serviceApi.read(query)).data;
+      console.log('sdf', this.options);
     },
-    appendItem() {
-      this.addRules(this.itemSelected.fields)
-      this.emitRecords([this.itemSelected, ...this.records]);
-      this.itemSelected = null;
+    appendItem(item) {
+      this.addRules(item.fields)
+      const index = this.records.findIndex(function (objeto) {
+        return objeto.id === item.id;
+      });
+      let newArray = this.records;
+      if (index === -1) newArray.push(item);
+      this.emitRecords(newArray);
     },
     addRules(items){
       items.forEach(item => {
+        console.log('field',item)
         switch (item.type.id) {
           case 'T':
-            item.rules = fieldText;
+            item.rules = fieldText(item.length);
             break;
           case 'F':
             item.rules = fieldFile;

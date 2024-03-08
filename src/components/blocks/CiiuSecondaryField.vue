@@ -6,25 +6,15 @@
         5 letras para completar la busqueda...</strong
       >
       <div class="d-flex">
-        <v-autocomplete
-          label="Codigos secundarios CIIU"
-          v-model="ciiu"
-          :items="ciiuCodes"
-          class="flex-grow-1 mr-5"
-          v-model:search="searchCiiu"
-          item-title="description"
-          :return-object="true"
-          :loading="loading"
-        ></v-autocomplete>
-        <v-btn
-          icon="mdi-plus-circle"
-          color="primary"
-          variant="tonal"
-          class="mr-3"
-          :disabled="ciiu ? false : true"
-          @click="appendCiiu"
-        >
-        </v-btn>
+        <dynamic-select-field
+            :options="ciiuCodes"
+            :itemSaved="ciiu"
+            @update:options="setCiiuCodes"
+            @update:itemSelected="appendCiiu"
+            mainLabel="description"
+            title="Codigos secundarios CIIU"
+          >
+          </dynamic-select-field>
       </div>
     </v-col>
     <v-col class="max-w-custom">
@@ -56,7 +46,7 @@
 </template>
 <script>
 import Petition from "@/services/PetitionStructure/Petition.js";
-import { RulesValidation } from "@/utils/validations";
+import DynamicSelectField from '@/components/blocks/DynamicSelectField.vue';
 const petition = new Petition();
 export default {
   props: {
@@ -65,36 +55,27 @@ export default {
   data: () => ({
     ciiu: null,
     ciiuCodes: [],
-    searchCiiu: "",
-    rulesValidation: RulesValidation,
-    loading: false,
   }),
-  watch: {
-    async searchCiiu(to) {
-      if (to.length > 3 && to.length < 5) {
-        this.setCiiuCodes(to);
-      }
-    },
+  components:{
+    DynamicSelectField
   },
   methods: {
     async setCiiuCodes(name = null) {
-      const query = name ? `?name=${name}` : "";
+      const query = name ? `name=${name}` : "";
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
     },
-    appendCiiu() {
-      const idIndex = this.ciiu.id
+    appendCiiu(item) {
       const index = this.records.findIndex(function (objeto) {
-        return objeto.id === idIndex;
+        return objeto.id === item.id;
       });
       let newArray = this.records;
-      (index !== -1) ? newArray.splice(index, 1, this.ciiu) : newArray.push(this.ciiu);
-      this.emitCiiuRecords(newArray);
-      this.ciiu = null;
+      if (index === -1) newArray.push(item);
+      this.emitRecords(newArray);
     },
     deleteItem(ciiu) {
-      this.emitCiiuRecords(this.records.filter((item) => item.id != ciiu.id));
+      this.emitRecords(this.records.filter((item) => item.id != ciiu.id));
     },
-    emitCiiuRecords(newRecords) {
+    emitRecords(newRecords) {
       this.$emit("update:records", newRecords);
     },
   },

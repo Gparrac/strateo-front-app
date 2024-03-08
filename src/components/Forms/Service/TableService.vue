@@ -39,13 +39,6 @@
           </v-chip>
         </div>
       </template>
-      <template v-slot:[`item.suppliers_count`]="{ item }">
-        <div>
-          <v-chip variant="tonal" color="primary">
-            {{ item.suppliers_count }}
-          </v-chip>
-        </div>
-      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon

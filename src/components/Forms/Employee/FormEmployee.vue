@@ -11,12 +11,9 @@
           <v-row>
             <v-col cols="12">
               <thirdFieldCard
-                :key="thirdKeyCard"
                 :records="editItem"
+                @update:records="updateAttributes"
                 :thirdPerson="true"
-                @update:records="
-                  (item) => (editItem = { ...editItem, ...item })
-                "
               ></thirdFieldCard>
             </v-col>
             <v-col cols="12">
@@ -266,6 +263,9 @@ export default {
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+    updateAttributes(data) {
+      this.editItem[data.key] = data.item;
+    },
     handleFileFields(event, item) {
       const files = event.target.files;
       if (files.length > 0) {
@@ -298,7 +298,7 @@ export default {
         if (this.editItem.email2 && this.editItem.email2.length > 0)
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
-        formData.append("city_id", this.editItem.city_id);
+        formData.append("city_id", this.editItem.city.id);
 
         // employee fields 🚥
         formData.append(
@@ -409,7 +409,7 @@ export default {
           email: response.data.third.email,
           email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
-          city_id: response.data.third.city_id,
+          city: response.data.third.city,
           services: response.data.services
         }
       );

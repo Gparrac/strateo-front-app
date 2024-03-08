@@ -8,10 +8,10 @@
       <div class="d-flex">
         <v-autocomplete
           label="Campos adicionales"
-          v-model="itemSelected"
           :items="options"
           class="flex-grow-1 mr-5"
           v-model:search="searchItem"
+          v-on:update:model-value="appendItem"
           item-title="name"
           :return-object="true"
           :loading="loading"
@@ -34,15 +34,6 @@
             </v-list-item>
           </template>
         </v-autocomplete>
-        <v-btn
-          icon="mdi-plus-circle"
-          color="primary"
-          variant="tonal"
-          class="mr-3"
-          :disabled="itemSelected ? false : true"
-          @click="appendItem"
-        >
-        </v-btn>
       </div>
     </v-col>
     <v-col class="max-w-custom">
@@ -101,7 +92,6 @@ export default {
     records: Array,
   },
   data: () => ({
-    itemSelected: null,
     options: [],
     searchItem: "",
     rulesValidation: RulesValidation,
@@ -123,9 +113,13 @@ export default {
       this.options = (await fieldApi.read(query)).data;
       this.loading = false;
     },
-    appendItem() {
-      this.emitRecords([this.itemSelected, ...this.records]);
-      this.itemSelected = null;
+    appendItem(item) {
+      const index = this.records.findIndex(function (objeto) {
+        return objeto.id === item.id;
+      });
+      let newArray = this.records;
+      if (index === -1) newArray.push(item);
+      this.emitRecords(newArray);
     },
     deleteItem(itemSelected) {
       this.emitRecords(

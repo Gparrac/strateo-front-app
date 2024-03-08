@@ -11,13 +11,10 @@
           <v-row>
             <v-col cols="12">
               <thirdFieldCard
-                :key="thirdKeyCard"
-                :records="editItem"
+              :records="editItem"
                 @update:records="
-                  (item) => (editItem = { ...editItem, ...item })
+                  updateAttributes
                 "
-                :citiesParent="cities"
-
               ></thirdFieldCard>
             </v-col>
             <v-col cols="12">
@@ -139,6 +136,9 @@ export default {
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+    updateAttributes(data) {
+      this.editItem[data.key] = data.item;
+    },
     async setCities(name = null) {
       const query = name ? `name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
@@ -177,7 +177,7 @@ export default {
         formData.append("city_warehouse_id", this.editItem.city_warehouse_id);
         formData.append("address_warehouse", this.editItem.address_warehouse);
         formData.append("status", this.editItem.status);
-        
+
         if (this.idEditForm) {
           formData.append("warehouse_id", this.editItem.warehouse_id);
           response = await warehouseApi.update(formData);

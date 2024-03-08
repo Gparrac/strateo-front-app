@@ -32,17 +32,10 @@
       show-select
       return-object
     >
-    <template v-slot:[`item.fields_count`]="{ item }">
-        <div>
-          <v-chip variant="outlined" color="orange">
-            {{ item.fields_count }}
-          </v-chip>
-        </div>
-      </template>
-      <template v-slot:[`item.services_count`]="{ item }">
+      <template v-slot:[`item.dynamic_services_count`]="{ item }">
         <div>
           <v-chip variant="tonal" color="primary">
-            {{ item.services_count }}
+            {{ item.dynamic_services_count }}
           </v-chip>
         </div>
       </template>
@@ -122,8 +115,7 @@ export default {
       { title: "Provedor", align: "end", key: "third.supplier", sortable: false },
       { title: "Registro comercial", align: "end", key: "commercial_registry", sortable: false },
       { title: "Estado", align: "end", key: "status", sortable: false },
-      { title: "Servicios", align: "end", key: "services_count", sortable: false },
-      { title: "Campos", align: "end", key: "fields_count", sortable: false },
+      { title: "Servicios", align: "end", key: "dynamic_services_count", sortable: false },
       {
         title: "Ultima actulización",
         align: "center",

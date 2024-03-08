@@ -8,9 +8,8 @@
       <div class="d-flex">
         <dynamic-select-field
           :options="options"
-          :itemSaved="itemSelected"
           @update:options="loadItems"
-          @update:itemSelected="(item) => (itemSelected = item)"
+          @update:itemSelected="appendItem"
           mainLabel="name"
           :secondLabel="['consecutive']"
           title="Productos"
@@ -18,17 +17,6 @@
           class="pr-5"
         >
         </dynamic-select-field>
-        <v-btn
-          v-show="!editable"
-          icon="mdi-plus-circle"
-          color="primary"
-          variant="tonal"
-          class="mr-3"
-          :disabled="itemSelected ? false : true"
-          @click="appendItem"
-        >
-        </v-btn>
-
       </div>
     </v-col>
     <v-col class="max-w-custom px-5">
@@ -226,7 +214,6 @@ export default {
     DynamicTaxList,
   },
   data: () => ({
-    itemSelected: null,
     options: [],
     loading: false,
     rulesValidation: RulesValidation,
@@ -260,10 +247,6 @@ export default {
         )
       ).data;
     },
-    resetItems() {
-      this.itemSelected = null;
-      this.emitRecords([]);
-    },
     async loadItems(name = null) {
       let query = `types[0]=T&format=short&`;
       query = query + (name ? `keyword=${name}&typeKeyword=name` : "");
@@ -275,17 +258,13 @@ export default {
       const query = name ? `&name=${name}` : "";
       this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;
     },
-    appendItem() {
-      const idIndex = this.itemSelected.id;
+    appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
-        return objeto.id === idIndex;
+        return objeto.id === item.id;
       });
       let newArray = this.records;
-      index !== -1
-        ? newArray.splice(index, 1, this.itemSelected)
-        : newArray.push(this.itemSelected);
+      if (index === -1) newArray.push(item);
       this.emitRecords(newArray);
-      this.itemSelected = null;
     },
     deleteItem(itemSelected) {
       this.emitRecords(

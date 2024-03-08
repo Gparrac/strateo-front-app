@@ -8,25 +8,14 @@
       <div class="d-flex">
         <dynamic-select-field
           :options="options"
-          :itemSaved="itemSelected"
           @update:options="loadItems"
-          @update:itemSelected="(item) => (itemSelected = item)"
+          @update:itemSelected="appendItem"
           mainLabel="fullname"
           :secondLabel="['identification']"
           title="Empleados"
           class="pr-5"
         >
         </dynamic-select-field>
-        <v-btn
-          v-show="!editable"
-          icon="mdi-plus-circle"
-          color="primary"
-          variant="tonal"
-          class="mr-3"
-          :disabled="itemSelected ? false : true"
-          @click="appendItem"
-        >
-        </v-btn>
       </div>
     </v-col>
     <v-col class="max-w-custom">
@@ -101,7 +90,6 @@ export default {
     DynamicSelectField,
   },
   data: () => ({
-    itemSelected: null,
     options: [],
     searchItem: "",
     loading: false,
@@ -116,15 +104,13 @@ export default {
       const response = await employeeApi.read(query);
       this.options = response.data;
     },
-    appendItem() {
-      const idIndex = this.itemSelected.id;
+    appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
-        return objeto.id === idIndex;
+        return objeto.id === item.id;
       });
       let newArray = this.records;
-      if (index === -1) newArray.push(this.itemSelected);
+      if (index === -1) newArray.push(item);
       this.emitRecords(newArray);
-      this.itemSelected = null;
     },
     deleteItem(dropItem) {
       this.emitRecords(this.records.filter((item) => item.id != dropItem.id));

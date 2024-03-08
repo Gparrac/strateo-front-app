@@ -154,7 +154,7 @@ export const RulesValidation = {
         "La cantidad debe ser de tipo númerica",
         (value) =>
         !value ||
-        value < 100000000 && value >= 0 ||
+        value < 10000000 && value >= 0 ||
         "Rango de cantidad no valida",
     ],
   },

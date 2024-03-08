@@ -108,28 +108,29 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="4">
-              <v-autocomplete
-                label="Ciudad"
-                v-model="editItem.city_id"
-                :items="cities"
-                v-model:search="searchCity"
-                item-title="name"
-                item-value="id"
-                :rules="rulesValidation.select.rules"
-                :loading="loading"
-              ></v-autocomplete>
+              <dynamic-select-field
+            :options="cities"
+            :itemSaved="editItem.city"
+            @update:options="setCities"
+            @update:itemSelected="(item) => editItem.city = item"
+            mainLabel="name"
+            title="Ciudad"
+            :rules="rulesValidation.select.rules"
+          >
+          </dynamic-select-field>
             </v-col>
             <v-col cols="12" :sm="editItem.typeDocument == 'NIT' ? '12' : '8'">
-              <v-autocomplete
-                label="Codigo CIIU"
-                v-model="editItem.ciiu"
-                :items="ciiuCodes"
-                v-model:search="searchCiiu"
-                item-title="description"
-                :return-object="true"
-                :rules="rulesValidation.select.rules"
-                :loading="loading"
-              ></v-autocomplete>
+
+              <dynamic-select-field
+            :options="ciiuCodes"
+            :itemSaved="editItem.ciiu"
+            @update:options="setCiiuCodes"
+            @update:itemSelected="(item) => editItem.ciiu = item"
+            mainLabel="description"
+            title="Codigo CIIU"
+            :rules="rulesValidation.select.rules"
+          >
+          </dynamic-select-field>
             </v-col>
           </v-row>
 
@@ -283,7 +284,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castNit } from "@/utils/cast";
-
+import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const clientApi = new ClientApi();
 const petition = new Petition();
 
@@ -294,7 +295,9 @@ export default {
     nameTable: String,
     path: String,
   },
-  components: {},
+  components: {
+    DynamicSelectField
+  },
   data: () => ({
     // required data
     loading: false,
@@ -302,8 +305,6 @@ export default {
     // optional data
     cities: [],
     ciiuCodes: [],
-    searchCiiu: "",
-    searchCity: "",
     typesDocument: [],
     rulesValidation: RulesValidation,
     status: [
@@ -354,20 +355,6 @@ export default {
     },
     ...mapStores(useAlertMessageStore),
   },
-  watch: {
-    async searchCity(to) {
-      if (to.length > 1) {
-        this.setCities(to);
-      }else{
-        this.setCities();
-      }
-    },
-    async searchCiiu(to) {
-      if (to.length > 1) {
-        this.setCiiuCodes(to);
-      }
-    },
-  },
   methods: {
     async submitForm() {
       this.loading = true;
@@ -382,7 +369,7 @@ export default {
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
         formData.append("postal_code", this.editItem.postal_code);
-        formData.append("city_id", this.editItem.city_id);
+        formData.append("city_id", this.editItem.city.id);
         formData.append("code_ciiu_id", this.editItem.ciiu.id);
 
         formData.append(
@@ -467,7 +454,7 @@ export default {
           email: response.data.third.email,
           email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
-          city_id: response.data.third.city_id,
+          city: response.data.third.city,
           ciiu: response.data.third.ciiu,
           // status: response.data.third.status, Estas repitiendo atributos ⚠️
 
@@ -482,8 +469,8 @@ export default {
       this.showFileRutSelected = response.data.rut_file;
     },
     async setCities(name = null) {
-      const query = name ? `?name=${name}` : "";
-      this.cities = (await petition.get("/cities", query)).data;
+        const query = name ? `name=${name}` : "";
+        this.cities = (await petition.get("/cities", query)).data;
     },
     async setCiiuCodes(name = null) {
       const query = name ? `?name=${name}` : "";
