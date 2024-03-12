@@ -26,7 +26,7 @@
           <v-card>
             <v-card-text>
               <v-row justify="end">
-                <v-col cols="4" md="2">
+                <v-col cols="4" sm="2"  md="2" lg="2">
                   <v-btn
                     v-show="!editable"
                     icon="mdi-delete"
@@ -36,13 +36,13 @@
                   >
                   </v-btn>
                 </v-col>
-                <v-col cols="8" md="6" lg="7">
+                <v-col cols="8" sm="10" md="6" >
                   <h6 class="text-h6">{{ record.name }}</h6>
                   <v-chip class="mx-2">{{ record.measure.symbol }}</v-chip>
                   <v-chip class="mx-2">{{ record.brand.name }}</v-chip>
                   <span class="text-overline">{{ record.product_code }}</span>
                 </v-col>
-                <v-col cols="12" md="4">
+                <v-col cols="12" md="4" >
                   <v-checkbox
                     v-model="record.tracing"
                     color="primary"

@@ -22,7 +22,7 @@ export default {
   name: "ProductView",
   data: () => ({
     titleView: "Parametrización de Producto",
-    nameTable: "products",
+    nameTable: "productos",
     path: "products",
     isForm: false,
     idEditForm: null,

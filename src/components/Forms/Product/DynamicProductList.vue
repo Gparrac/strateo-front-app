@@ -6,38 +6,18 @@
         5 letras para completar la busqueda...</strong
       >
       <div class="d-flex">
-        <v-autocomplete
-          label="Campos adicionales"
-          v-model="itemSelected"
-          :items="options"
-          class="flex-grow-1 mr-5"
-          v-model:search="searchItem"
-          item-title="name"
-          :return-object="true"
-          :loading="loading"
+        <dynamic-select-field
+          :options="options"
+          @update:options="loadItems"
+          @update:itemSelected="appendItem"
+          mainLabel="name"
+          :secondLabel="['consecutive']"
+          title="Subproductos"
+          :thirdkey="{id:'product_code', label:'Cod: '}"
+          subtitle="Cons:"
+          class="pr-5"
         >
-          <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props">
-              <v-list-item-subtitle class="d-flex">
-                <span class="d-block"
-                  >codigo: {{ item.raw.product_code }}
-                </span>
-                <v-spacer></v-spacer>
-                <v-chip class="mx-2 ">{{ item.raw.brand.name }}</v-chip>
-                <v-chip>{{  item.raw.size + ' ' + item.raw.measure.symbol}}</v-chip>
-              </v-list-item-subtitle>
-            </v-list-item>
-          </template>
-        </v-autocomplete>
-        <v-btn
-          icon="mdi-plus-circle"
-          color="primary"
-          variant="tonal"
-          class="mr-3"
-          :disabled="itemSelected ? false : true"
-          @click="appendItem"
-        >
-        </v-btn>
+        </dynamic-select-field>
       </div>
     </v-col>
     <v-col class="max-w-custom">
@@ -73,7 +53,6 @@
                   v-model="record.amount"
                   :rules="rulesValidation.quantity.rules"
                   :loading="loading"
-
                 ></v-text-field>
               </v-col>
               </v-row>
@@ -95,49 +74,40 @@
 <script>
 import { RulesValidation } from "@/utils/validations";
 import ProductApi from "@/services/Forms/ProductApi";
+import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const productApi = new ProductApi();
 export default {
   props: {
     records: Array,
   },
+  components:{
+    DynamicSelectField,
+  },
   data: () => ({
-    itemSelected: null,
     options: [],
-    searchItem: "",
     rulesValidation: RulesValidation,
     loading: false,
   }),
-  watch: {
-    async searchItem(to) {
-      if (to.length > 3 && to.length < 5) {
-        this.loadItems(to);
-      }
-    },
-  },
+
   methods: {
     async loadItems(name = null) {
       this.loading = true;
-      const query = name
-        ? `keyword=${name}&typeKeyword=name&format=short`
-        : "format=short";
+      let query = `types[0]=T&format=short&`;
+      query = query + (name ? `keyword=${name}&typeKeyword=acronym` : "");
       const response = (await productApi.read(query))
       this.options = response.data
       this.loading = false;
     },
-    appendItem() {
-      const idIndex = this.itemSelected.id
+    appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
-        return objeto.id === idIndex;
+        return objeto.id === item.id;
       });
       let newArray = this.records;
-      (index !== -1) ? newArray.splice(index, 1, this.itemSelected) : newArray.push(this.itemSelected);
+      if (index === -1) newArray.push(item);
       this.emitRecords(newArray);
-      this.itemSelected = null;
     },
-    deleteItem(itemSelected) {
-      this.emitRecords(
-        this.records.filter((item) => item.id != itemSelected.id)
-      );
+    deleteItem(dropItem) {
+      this.emitRecords(this.records.filter((item) => item.id != dropItem.id));
     },
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);

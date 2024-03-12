@@ -26,12 +26,13 @@
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
                             @update:model-value="
-                              () => (editItem.typeContent = null)
+                              setTypesContent(editItem.type.id, true)
                             "
+                            :return-object="true"
                           ></v-select>
                         </v-col>
                         <v-col
-                          v-if="editItem.type && editItem.type == 'PR'"
+                          v-if="editItem.type"
                           cols="12"
                           sm="6"
                           md="4"
@@ -40,10 +41,11 @@
                             label="Tipo de contenido"
                             v-model="editItem.typeContent"
                             item-title="name"
-                            item-value="id"
                             :items="typesContent"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
+                            :return-object="true"
+
                           ></v-select>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
@@ -159,7 +161,7 @@
                             v-model="editItem.description"
                             :maxLength="rulesValidation.longTextNull.maxLength"
                             :rules="rulesValidation.longTextNull.rules"
-                            rows="6"
+                            rows="10"
                             :loading="loading"
                           ></v-textarea>
                         </v-col>
@@ -170,7 +172,7 @@
               </v-card>
             </v-col>
             <v-col
-              v-if="editItem.type && editItem.type == 'SE'"
+              v-if="editItem.type && editItem.typeContent.id == 'E'"
               cols="12"
               class="d-flex align-center"
             >
@@ -183,7 +185,6 @@
                 <v-card-text>
                   <!------------------------------- DYNAMIC ITEM --------------------------->
                   <dynamic-product-list
-                    v-if="editItem.products"
                     :records="editItem.products"
                     @update:records="(item) => (editItem.products = item)"
                   >
@@ -276,8 +277,8 @@ export default {
         this.setCategories(),
         this.setMeasures(),
         this.setTypes(),
-        this.setTypesContent(),
       ]);
+      console.log('editProduct', this.editItem);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -299,7 +300,7 @@ export default {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
-        formData.append("type", this.editItem.type);
+        formData.append("type", this.editItem.type.id);
         formData.append("consecutive", this.editItem.consecutive);
         formData.append("name", this.editItem.name);
         if(this.editItem.description && this.editItem.description.length > 0) formData.append("description", this.editItem.description);
@@ -309,7 +310,7 @@ export default {
         formData.append("measure_id", this.editItem.measure);
         if(this.editItem.barcode ) formData.append("barcode", this.editItem.barcode);
         formData.append("size", this.editItem.size);
-        if(this.editItem.typeContent && this.editItem.typeContent == 2) formData.append("type_content", this.editItem.typeContent);
+        formData.append("type_content", this.editItem.typeContent.id);
         formData.append("status", this.editItem.status);
         this.editItem.categories.forEach((item, index) => {
           formData.append(`categories_id[${index}]`, item);
@@ -367,10 +368,13 @@ export default {
         this.types = response.data;
       }
     },
-    async setTypesContent() {
+    async setTypesContent(type, setEditItem = null) {
+      if (setEditItem ) this.editItem.typeContent = null;
+
+      console.log('passing setTy',type);
       const response = await petition.get(
         "/type-products",
-        "attribute=typeContent"
+        `attribute=typeContent&type=${type}`
       );
       if (response.statusResponse == 200) {
         this.typesContent = response.data;
@@ -404,12 +408,13 @@ export default {
             productCode: data.product_code,
             size: data.size,
             status: data.status,
-            type: data.type.id,
-            typeContent: data.type_content.id,
-            products: data.children_products || null,
+            type: data.type,
+            typeContent: data.type_content,
+            products: data.subproducts || [],
             barcode: data.barcode
           }
         );
+        await this.setTypesContent(this.editItem.type);
       }
     },
   },
