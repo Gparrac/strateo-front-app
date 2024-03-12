@@ -43,7 +43,7 @@
 
                 <v-col cols="12" sm="5" md="6" lg="5">
                   <v-text-field
-                    :maxlength="rulesValidation.price.length"
+                    :maxlength="rulesValidation.price.maxLength"
                     label="Salario"
                     :rules="rulesValidation.price.rules"
                     :loading="loading"

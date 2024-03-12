@@ -11,6 +11,7 @@
       :showDelete="false"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
+
     <modal-delete
       v-if="toggleDelete"
       @confirm-delete="deleteItems"
@@ -20,6 +21,14 @@
       :secondKey="secondKeyDelete"
       :title="nameTable"
     ></modal-delete>
+    <v-btn
+      :icon="'mdi-filter-remove'"
+      color="success"
+      variant="tonal"
+      class="mr-3"
+      @click="filterTest"
+    >
+    </v-btn>
     <v-data-table-server
       :headers="headers"
       :items="records"
@@ -33,14 +42,13 @@
       show-select
       return-object
     >
-    <template v-slot:[`item.products_count`]="{ item }">
+      <template v-slot:[`item.products_count`]="{ item }">
         <div>
           <v-chip variant="outlined" color="orange">
             {{ item.products_count }}
           </v-chip>
         </div>
       </template>
-
 
       <template v-slot:[`item.actions`]="{ item }">
         <div>
@@ -53,7 +61,6 @@
           </v-icon>
         </div>
       </template>
-
     </v-data-table-server>
   </div>
 </template>
@@ -62,9 +69,11 @@
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import InvoiceApi from "@/services/Forms/InvoiceApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castDate } from "@/utils/cast";
+import { useFilterTableStore } from "@/store/filterTables";
+import { RulesValidation } from "@/utils/validations";
 const invoiceApi = new InvoiceApi();
 export default {
   props: {
@@ -91,7 +100,7 @@ export default {
     loading: false,
     //delete items
     keyQueryDelete: "suppliers_id",
-    mainKeyDelete: ["third","supplier"],
+    mainKeyDelete: ["third", "supplier"],
     secondKeyDelete: ["commercial_registry"],
     selectedItems: [],
     toggleDelete: false,
@@ -104,11 +113,26 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Usuario", align: "end", key: "client.third.names", sortable: false },
-      { title: "Documento", align: "end", key: "client.third.identification", sortable: false },
+      {
+        title: "Cliente",
+        align: "end",
+        key: "client.third.names",
+        sortable: false,
+      },
+      {
+        title: "Documento",
+        align: "end",
+        key: "client.third.identification",
+        sortable: false,
+      },
       { title: "Fecha de evento", align: "end", key: "date", sortable: false },
       { title: "Vendedor", align: "end", key: "seller.name", sortable: false },
-      { title: "Productos", align: "end", key: "products_count", sortable: false },
+      {
+        title: "Productos",
+        align: "end",
+        key: "products_count",
+        sortable: false,
+      },
       {
         title: "Ultima actulización",
         align: "center",
@@ -120,26 +144,30 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(useFilterTableStore, ['$subscribe']),
     async loadItems(
       {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      keyword = null,
-      typeKeyword = null
+      filters
     ) {
       this.loading = true;
       const params = new URLSearchParams();
-      if (typeKeyword && keyword) {
+      if (filters && filters.length > 0) {
         this.filterCleaner = true;
-        params.append("typeKeyword", typeKeyword);
-        params.append("keyword", keyword);
+        console.log('filters', filters);
+        filters.forEach((item,index) => {
+          params.append(`filters[${index}][key]`, item.key);
+          params.append(`filters[${index}][value]`, item.value);
+        });
 
+        console.log('filters', filters)
       } else {
         this.filterCleaner = sortBy.length !== 0;
       }
-      params.append("type", 'P');
+      params.append("type", "P");
       params.append("page", page);
       params.append("pagination", itemsPerPage);
       sortBy.forEach((item, index) => {
@@ -158,7 +186,9 @@ export default {
       this.totalRecords = response.data.total;
       this.loading = false;
     },
-
+    filterTest() {
+      this.filterTableStore.show();
+    },
     async deleteItems(data) {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
@@ -190,7 +220,24 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useFilterTableStore),
+  },
+  mounted() {
+    this.filterTableStore.setFilterList([
+      { name: "Cliente", key:'client', select: false, validation: RulesValidation.shortTextNull },
+      { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
+      { name: "Vendedor", key:'seller', select: false, validation: RulesValidation.shortTextNull},
+    ]);
+
+    this.$subscribe((mutation, state) => {
+      if(mutation.events.key == 'filterCleanList'){
+        if(mutation.events.newValue.length ){
+          console.log('value', state);
+          this.loadItems({}, state.filterCleanList)
+        }
+      }
+    })
+
   },
 };
 </script>

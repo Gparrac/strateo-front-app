@@ -43,7 +43,7 @@
         </v-col>
         <v-col cols="12" sm="6" lg="3">
           <v-text-field
-            :maxlength="rulesValidation.price.length"
+            :maxlength="rulesValidation.price.maxLength"
             label="Descuento"
             @update:model-value="
               (value) => emitRecords(value, 'furtherDiscount')
@@ -78,7 +78,7 @@
         <v-row>
           <v-col cols="12" sm="6" lg="3">
             <v-text-field
-              :maxlength="rulesValidation.price.length"
+              :maxlength="rulesValidation.price.maxLength"
               label="Abono"
               @update:model-value="(value) => emitRecords(value, 'payOff')"
               :model-value="records.payOff"

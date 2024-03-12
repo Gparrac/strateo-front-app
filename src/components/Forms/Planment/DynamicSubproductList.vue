@@ -70,7 +70,7 @@
                 </v-col>
                 <v-col cols="12" md="4" lg="3">
                   <v-text-field
-                    :maxlength="rulesValidation.price.length"
+                    :maxlength="rulesValidation.price.maxLength"
                     label="Cantidad"
                     :rules="rulesValidation.price.rules"
                     :loading="loading"

@@ -67,7 +67,7 @@
                 </v-col>
                 <v-col cols="12" sm="6" lg="8">
                 <v-text-field
-                  :maxlength="rulesValidation.quantity.length"
+                  :maxlength="rulesValidation.quantity.maxLength"
                   label="Cantidad"
                   variant="outlined"
                   v-model="record.amount"

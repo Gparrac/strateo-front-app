@@ -42,7 +42,7 @@
                     <v-col cols="12" sm="6">
                       <v-text-field
                             label="Tamaño"
-                            v-model="editItem.length"
+                            v-model="editItem.maxLength"
                             :rules="rulesValidation.quantity.rules"
                             :loading="loading"
                           ></v-text-field>

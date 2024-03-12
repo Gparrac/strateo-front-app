@@ -120,7 +120,7 @@ export const RulesValidation = {
     ],
   },
   quantity: {
-    length:4,
+    maxLength:4,
     rules: [
       (value) =>
         !isNaN(value) ||
@@ -132,7 +132,7 @@ export const RulesValidation = {
     ],
   },
   price: {
-    length:9,
+    maxLength:9,
     rules: [
       (value) =>
         !!value ||
@@ -145,7 +145,7 @@ export const RulesValidation = {
     ],
   },
   optionalPrice: {
-    length:9,
+    maxLength:9,
     rules: [
       (value) =>
         !value ||
@@ -159,7 +159,7 @@ export const RulesValidation = {
     ],
   },
   percent: {
-    maxLength:6,
+    maxLength:3,
     rules: [
       (value) => {
         if (!value) return 'Por favor, ingrese un valor';

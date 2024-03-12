@@ -127,7 +127,7 @@ export default {
       { title: "Medida", align: "end", key: "measure.symbol", sortable: false },
       { title: "brand", align: "end", key: "brand.name", sortable: false },
       { title: "Categorias", align: "end", key: "categories_count", sortable: false },
-      { title: "Productos", align: "end", key: "children_products_count", sortable: false },
+      { title: "Productos", align: "end", key: "subproducts_count", sortable: false },
       {
         title: "Ultima actulización",
         align: "center",

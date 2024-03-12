@@ -83,6 +83,13 @@
           <router-view />
         </div>
       </v-main>
+      <v-navigation-drawer
+        v-model="filterTableStore.toggleDrawer"
+        location="right"
+        temporary
+      >
+        <filter-field-card></filter-field-card>
+      </v-navigation-drawer>
     </v-layout>
   </v-app>
 </template>
@@ -90,7 +97,9 @@
 import AlertMessage from "@/components/blocks/AlertMessage.vue";
 import ModalUserSettings from "@/components/blocks/ModalUserSettings.vue";
 import FormApi from "@/services/Forms/FormApi";
+import { useFilterTableStore } from "@/store/filterTables";
 import { useUserAuthStore } from '@/store/userAuth';
+import FilterFieldCard from '@/components/blocks/FilterFieldCard.vue'
 import { mapStores } from 'pinia';
 
 const formApi = new FormApi();
@@ -100,6 +109,7 @@ export default {
   components: {
     ModalUserSettings,
     AlertMessage,
+    FilterFieldCard
   },
   data: () => ({
     toggleSettings: false,
@@ -112,7 +122,7 @@ export default {
 
   },
   computed:{
-    ...mapStores(useUserAuthStore),
+    ...mapStores(useUserAuthStore, useFilterTableStore),
   },
   methods: {
     async getFormsAvailable() {

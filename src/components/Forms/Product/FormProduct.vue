@@ -67,7 +67,7 @@
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field
-                            :maxlength="rulesValidation.price.length"
+                            :maxlength="rulesValidation.price.maxLength"
                             label="Costo"
                             v-model="editItem.cost"
                             :rules="rulesValidation.price.rules"

@@ -67,7 +67,7 @@
                 >
 
                     <v-text-field
-                      :maxlength="rulesValidation.price.length"
+                      :maxlength="rulesValidation.price.maxLength"
                       label="Costo"
                       :rules="rulesValidation.price.rules"
                       :loading="loading"
@@ -86,7 +86,7 @@
                 >
                     <v-text-field
                     class="pr-5"
-                      :maxlength="rulesValidation.quantity.length"
+                      :maxlength="rulesValidation.quantity.maxLength"
                       label="Cantidad"
                       :rules="[...rulesValidation.quantity.rules, (v) => (!(record.stock < v && typeTransaction == 'D'))  || 'No hay stock suficiente en inventario.' ]"
                       :loading="loading"

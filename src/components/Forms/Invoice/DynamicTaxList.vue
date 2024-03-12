@@ -45,7 +45,7 @@
 
                 <v-col cols="12" sm="5" md="6" lg="5">
                   <v-text-field
-                    :maxlength="rulesValidation.percent.length"
+                    :maxlength="rulesValidation.percent.maxLength"
                     label="Porcentaje"
                     :rules="rulesValidation.percent.rules"
                     :loading="loading"

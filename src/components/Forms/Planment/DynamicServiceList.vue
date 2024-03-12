@@ -48,7 +48,7 @@
                   <v-row>
                     <v-col cols="12">
                       <v-text-field
-                        :maxlength="rulesValidation.price.length"
+                        :maxlength="rulesValidation.price.maxLength"
                         label="Costo"
                         :rules="rulesValidation.price.rules"
                         :loading="loading"
@@ -63,7 +63,7 @@
                     <v-col cols="12">
                       <v-text-field
                         class=""
-                        :maxlength="rulesValidation.quantity.length"
+                        :maxlength="rulesValidation.quantity.maxLength"
                         label="Cantidad"
                         :rules="[...rulesValidation.quantity.rules]"
                         :loading="loading"
@@ -75,7 +75,7 @@
                     </v-col>
                     <v-col cols="12">
                       <v-text-field
-                        :maxlength="rulesValidation.price.length"
+                        :maxlength="rulesValidation.price.maxLength"
                         label="Descuento"
                         :rules="rulesValidation.price.rules"
                         :loading="loading"
