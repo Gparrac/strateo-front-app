@@ -2,13 +2,11 @@
   <div>
     <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
       :showDelete="false"
+      :showStatusLabel="false"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
 
@@ -21,14 +19,6 @@
       :secondKey="secondKeyDelete"
       :title="nameTable"
     ></modal-delete>
-    <v-btn
-      :icon="'mdi-filter-remove'"
-      color="success"
-      variant="tonal"
-      class="mr-3"
-      @click="filterTest"
-    >
-    </v-btn>
     <v-data-table-server
       :headers="headers"
       :items="records"
@@ -89,19 +79,15 @@ export default {
     records: [],
     //search word
     filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Provedor" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "suppliers_id",
-    mainKeyDelete: ["third", "supplier"],
-    secondKeyDelete: ["commercial_registry"],
+    keyQueryDelete: "invoices_id",
+    mainKeyDelete: ["third", "names"],
+    secondKeyDelete: ["date"],
     selectedItems: [],
     toggleDelete: false,
 
@@ -125,7 +111,7 @@ export default {
         key: "client.third.identification",
         sortable: false,
       },
-      { title: "Fecha de evento", align: "end", key: "date", sortable: false },
+      { title: "Fecha de la transacción", align: "end", key: "date", sortable: true },
       { title: "Vendedor", align: "end", key: "seller.name", sortable: false },
       {
         title: "Productos",
@@ -156,16 +142,10 @@ export default {
       this.loading = true;
       const params = new URLSearchParams();
       if (filters && filters.length > 0) {
-        this.filterCleaner = true;
-        console.log('filters', filters);
         filters.forEach((item,index) => {
           params.append(`filters[${index}][key]`, item.key);
           params.append(`filters[${index}][value]`, item.value);
         });
-
-        console.log('filters', filters)
-      } else {
-        this.filterCleaner = sortBy.length !== 0;
       }
       params.append("type", "P");
       params.append("page", page);
@@ -185,9 +165,6 @@ export default {
       this.recordsPerPage = response.data.per_page;
       this.totalRecords = response.data.total;
       this.loading = false;
-    },
-    filterTest() {
-      this.filterTableStore.show();
     },
     async deleteItems(data) {
       this.toggleDelete = false;
@@ -224,17 +201,15 @@ export default {
   },
   mounted() {
     this.filterTableStore.setFilterList([
-      { name: "Cliente", key:'client', select: false, validation: RulesValidation.shortTextNull },
+      { name: "Nombre del cliente", key:'client', select: false, validation: RulesValidation.shortTextNull },
+      { name: "Identificación del cliente", key:'client_id', select: false, validation: RulesValidation.shortTextNull },
       { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
       { name: "Vendedor", key:'seller', select: false, validation: RulesValidation.shortTextNull},
     ]);
 
     this.$subscribe((mutation, state) => {
       if(mutation.events.key == 'filterCleanList'){
-        if(mutation.events.newValue.length ){
-          console.log('value', state);
           this.loadItems({}, state.filterCleanList)
-        }
       }
     })
 

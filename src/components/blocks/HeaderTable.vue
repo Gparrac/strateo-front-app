@@ -17,40 +17,23 @@
 
 
     <div class="d-flex align-center justify-center flex-wrap">
-      <v-select
-        :loading="loading"
-        density="compact"
-        variant="solo"
-        class="mr-3 my-2 my-md-0"
-        label="Atributo"
-        item-value="title"
-        item-title="label"
-        :items="typeskeyword"
-        single-line
-        hide-details
-        v-model="typeKeyword"
-      />
 
-      <v-text-field
-        :loading="loading"
-        :disabled="typeKeyword && typeKeyword.length > 0 ? false : true"
-        density="compact"
-        variant="solo"
-        class="mr-3 min-w-20"
-        label="Palabra clave"
-        append-inner-icon="mdi-magnify"
-        single-line
-        hide-details
-        @click:append-inner="filtrate"
-        v-model="keyword"
-      ></v-text-field>
       <v-btn
-        :icon="'mdi-filter-remove'"
+        :icon="'mdi-filter'"
         color="success"
         variant="tonal"
         class="mr-3"
-        :disabled="!filterCleaner"
-        @click="cleanFilter"
+        @click="filterTableStore.show"
+      >
+      </v-btn>
+      <v-btn
+        v-if="filterTableStore.activeFilter"
+       icon="mdi-filter-off"
+        size="small"
+        color="red"
+        variant="tonal"
+        class="mr-3"
+        @click="filterTableStore.clean"
       >
       </v-btn>
       <v-btn
@@ -83,14 +66,14 @@
 </template>
 <script>
 import Petition from "@/services/PetitionStructure/Petition";
+import { useFilterTableStore } from "@/store/filterTables";
+import { mapStores } from 'pinia';
 const petition = new Petition();
 export default {
   props: {
     loading: Boolean,
-    typeskeyword: Array,
     path: String,
     disableDelete: Boolean,
-    filterCleaner: Boolean,
     showDelete: {
       type: Boolean,
       default: true,
@@ -105,24 +88,16 @@ export default {
     },
   },
   data: () => ({
-    keyword: "",
-    typeKeyword: "",
   }),
+  computed:{
+    ...mapStores(useFilterTableStore)
+  },
   methods: {
     async exportExcelFile() {
       await petition.getFile(`/export-data/${this.path}`, undefined, true);
     },
-    filtrate() {
-      this.$emit("load-items", {
-        typeKeyword: this.typeKeyword,
-        keyword: this.keyword,
-      });
-    },
-    cleanFilter() {
-      this.keyword = "";
-      this.typeKeyword = "";
-      this.$emit("load-items");
-    },
+
+
   },
 };
 </script>

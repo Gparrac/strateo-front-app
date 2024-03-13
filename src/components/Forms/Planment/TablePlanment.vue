@@ -2,11 +2,8 @@
   <div>
     <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
       :showDelete="false"
       @toggle-delete="() => (toggleDelete = true)"
@@ -65,10 +62,14 @@
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import InvoiceApi from "@/services/Forms/InvoiceApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castDate } from "@/utils/cast";
+import { useFilterTableStore } from "@/store/filterTables";
+import { RulesValidation } from "@/utils/validations";
+import Petition from "@/services/PetitionStructure/Petition";
 const invoiceApi = new InvoiceApi();
+const petition = new Petition();
 export default {
   props: {
     nameTable: String,
@@ -82,11 +83,6 @@ export default {
     //required data
     records: [],
     //search word
-    filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Provedor" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
@@ -107,11 +103,31 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Usuario", align: "end", key: "client.third.names", sortable: false },
-      { title: "Documento", align: "end", key: "client.third.identification", sortable: false },
-      { title: "Fecha de orden", align: "end", key: "date", sortable: false },
-      { title: "Fecha de inicio", align: "end", key: "date", sortable: false },
-      { title: "Fecha de finalización", align: "end", key: "date", sortable: false },
+      {
+        title: "Usuario",
+        align: "end",
+        key: "client.third.names",
+        sortable: false,
+      },
+      {
+        title: "Documento",
+        align: "end",
+        key: "client.third.identification",
+        sortable: false,
+      },
+      { title: "Fecha de orden", align: "end", key: "date", sortable: true },
+      {
+        title: "Fecha de inicio",
+        align: "end",
+        key: "planment.start_date",
+        sortable: false,
+      },
+      {
+        title: "Fecha de finalización",
+        align: "planment.end_date",
+        key: "date",
+        sortable: false,
+      },
       { title: "Etapa", align: "center", key: "stage", sortable: false },
       { title: "Vendedor", align: "end", key: "seller.name", sortable: false },
       {
@@ -125,24 +141,28 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(useFilterTableStore, ['$subscribe']),
     async loadItems(
       {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      keyword = null,
-      typeKeyword = null
+      filters
     ) {
-      console.log('entrando°°°',sortBy);
       this.loading = true;
       const params = new URLSearchParams();
-      if (typeKeyword && keyword) {
-        this.filterCleaner = true;
-        params.append("typeKeyword", typeKeyword);
-        params.append("keyword", keyword);
-      } else {
-        this.filterCleaner = sortBy.length !== 0;
+      if (filters && filters.length > 0) {
+        filters.forEach((item, index) => {
+          params.append(`filters[${index}][key]`, item.key);
+          if(item.key == 'stages'){
+            item.value.forEach((item,iindex) => {
+              params.append(`filters[${index}][value][${iindex}]`, item);
+            });
+          }else{
+            params.append(`filters[${index}][value]`, item.value);
+          }
+        });
       }
       params.append("type", "E");
       params.append("page", page);
@@ -163,7 +183,11 @@ export default {
       this.totalRecords = response.data.total;
       this.loading = false;
     },
-
+    async setStages() {
+      const rta = (await petition.get("/type-invoices", `planment_stage=COM`))
+        .data;
+      return rta || [];
+    },
     async deleteItems(data) {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
@@ -195,7 +219,52 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useFilterTableStore),
+  },
+  async mounted() {
+    const stagesOptions = await this.setStages();
+    this.filterTableStore.setFilterList([
+      {
+        name: "Nombre del cliente",
+        key: "client",
+        select: false,
+        validation: RulesValidation.shortTextNull,
+      },
+      {
+        name: "Identificación del cliente",
+        key: "client_id",
+        select: false,
+        validation: RulesValidation.shortTextNull,
+      },
+      {
+        name: "ID",
+        key: "id",
+        select: false,
+        validation: RulesValidation.optionalPrice,
+      },
+      {
+        name: "Vendedor",
+        key: "seller",
+        select: false,
+        validation: RulesValidation.shortTextNull,
+      },
+      {
+        name: "Etapas",
+        key: "stages",
+        itemValue: "id",
+        multiple: true,
+        label: "name",
+        select: true,
+        validation: RulesValidation.shortTextNull,
+        options: stagesOptions,
+      },
+    ]);
+
+    this.$subscribe((mutation, state) => {
+      if (mutation.events.key == "filterCleanList") {
+        this.loadItems({}, state.filterCleanList);
+      }
+    });
   },
 };
 </script>

@@ -4,6 +4,8 @@ import formsRoute from "./Forms";
 import Petition from "@/services/PetitionStructure/Petition";
 import AuthUser from "@/services/auth/AuthUser";
 import { useUserAuthStore } from "@/store/userAuth";
+import { useFilterTableStore } from "@/store/filterTables";
+
 const authUser = new AuthUser();
 const petition = new Petition();
 const routes = [
@@ -24,6 +26,7 @@ const routes = [
       ...formsRoute,
     ],
     beforeEnter: async (to, from, next) => {
+      console.log('loading....')
       let path = null;
       try {
         //check auth 🚨
@@ -66,5 +69,10 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
+router.beforeEach((_to, _from, next) => {
+  const filterTableStore = useFilterTableStore();
+  filterTableStore.$reset();
+  next();
+})
 
 export default router;

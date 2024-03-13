@@ -151,8 +151,6 @@ export default {
   },
   data: () => ({
     editable: false,
-    searchClient: "",
-    searchSeller: "",
     clients: [],
     sellers: [],
     stages:[],
@@ -199,18 +197,6 @@ export default {
       this.typesInvoice = (
         await petition.get("/type-invoices")
       ).data;
-    },
-  },
-  watch: {
-    async searchClient(to) {
-      if (to.length > 3) {
-        this.setClients(to);
-      }
-    },
-    async searchSeller(to) {
-      if (to.length > 3) {
-        this.setSellers(to);
-      }
     },
   },
   async mounted() {

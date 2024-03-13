@@ -18,6 +18,7 @@ import invoiceRoute from "./InvoiceRoute";
 import taxRoute from "./taxRoute";
 import purchaseOrderRoute from "./purchaseOrderRoute";
 import planementRoute from "./PlanmentRoute";
+import librettoActivityRoute from "./librettoActivityRoute";
 
 const  formsRoute = [
     usersRoute,
@@ -40,7 +41,8 @@ const  formsRoute = [
     invoiceRoute,
     taxRoute,
     purchaseOrderRoute,
-    planementRoute
+    planementRoute,
+    librettoActivityRoute
 ];
 
 export default formsRoute;

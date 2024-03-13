@@ -1,5 +1,24 @@
 <template>
-  <v-card title="Filtros" variant="flat" :subtitle="filterTableStore.filtersList.length">
+  <v-form ref="filterForm">
+  <v-card title="Filtros" variant="flat" >
+
+      <v-card-subtitle class="text-wrap">
+
+        Adiciona filtros para obtener una mejor busqueda
+      </v-card-subtitle>
+
+
+    <template v-slot:prepend>
+      <v-btn
+        icon="mdi-close"
+        size="x-small"
+
+        variant="tonal"
+        class="mr-3"
+        @click="filterTableStore.close"
+      >
+      </v-btn>
+    </template>
     <v-card-text>
       <div v-for="(field, i) in filterTableStore.filtersList" :key="`${i}-field`">
         <v-text-field
@@ -7,17 +26,20 @@
           :maxlength="field.validation.maxLength"
           :label="field.name"
           variant="solo"
+          density="compact"
           v-model="field.value"
           :rules="field.validation.rules"
         ></v-text-field>
         <v-select
           v-else
+              :multiple="field.multiple"
               :label="field.name"
               :items="field.options"
               :item-title="field.label"
               variant="solo"
+              density="compact"
               v-model="field.value"
-              return-object
+              :item-value="field.itemValue"
             ></v-select>
       </div>
       <h5 v-if="!filterTableStore.filtersList ||  filterTableStore.filtersList.length == 0">No hay filtros disponibles</h5>
@@ -30,22 +52,25 @@
         color="success"
         variant="tonal"
         class="mr-3"
-        @click="filterTableStore.filter"
+        @click="filterRecords"
       >
       Filtrar
       </v-btn>
       <v-btn
-        prepend-icon="mdi-close"
+        v-if="filterTableStore.activeFilter"
+        prepend-icon="mdi-filter-off"
         size="small"
-        color="error"
+        color="red"
         variant="tonal"
         class="mr-3"
-        @click="filterTableStore.close"
+        @click="filterTableStore.clean"
       >
-      Cerrar
+      Limpiar
       </v-btn>
+
     </v-card-actions>
   </v-card>
+</v-form>
 </template>
 <script>
 import { mapStores } from "pinia";
@@ -57,6 +82,13 @@ export default {
   },
   data:() => ({
     rulesValidation: RulesValidation
-  })
+  }),
+  methods:{
+    async filterRecords(){
+      const { valid } = await this.$refs.filterForm.validate();
+      if(valid)
+        this.filterTableStore.filter()
+    }
+  }
 };
 </script>
