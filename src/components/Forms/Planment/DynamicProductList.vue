@@ -286,7 +286,7 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
 .max-w-custom {
   max-height: 430px;
   overflow-y: scroll;

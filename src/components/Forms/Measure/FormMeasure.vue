@@ -39,10 +39,10 @@
             <v-col cols="12" sm="6">
               <v-select
                 label="Tipo"
-                :items="types"
+                :items="typesMeasure"
                 v-model="editItem.type"
-                item-title="label"
-                item-value="name"
+                item-title="name"
+                item-value="id"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
               ></v-select>
@@ -79,9 +79,10 @@ import MeasureApi from "@/services/Forms/MeasureApi.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
+import Petition from '@/services/PetitionStructure/Petition';
 
 const measureApi = new MeasureApi();
-
+const petition = new Petition();
 export default {
   name: "FormMeasure",
   props: {
@@ -100,18 +101,14 @@ export default {
       { name: "A", label: "Activo" },
       { name: "I", label: "Inactivo" },
     ],
-    types: [
-      { name: "F", label: "No se que es F" },
-      { name: "T", label: "No se que es T" },
-      { name: "A", label: "Activo" },
-      { name: "I", label: "Inactivo" },
-    ],
+    typesMeasure: [],
   }),
   async mounted() {
     this.loading = true;
     try {
       await Promise.all([
         this.setEditItem(),
+        this.setTypeMeasure()
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
@@ -138,7 +135,7 @@ export default {
         formData.append("type", this.editItem.type);
         formData.append("symbol", this.editItem.symbol);
         formData.append("status", this.editItem.status);
-        
+
         if (this.idEditForm) {
           formData.append("measure_id", this.editItem.measure_id);
           response = await measureApi.update(formData);
@@ -162,6 +159,9 @@ export default {
         }
       }
       this.loading = false;
+    },
+    async setTypeMeasure() {
+      this.typesMeasure = (await petition.get('/type-measure')).data;
     },
     async setEditItem() {
       if (!this.idEditForm) return;

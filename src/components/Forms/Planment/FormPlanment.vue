@@ -48,6 +48,17 @@
         </v-form>
       </v-stepper-window-item>
       <v-stepper-window-item :value="3">
+        <v-form ref="formLibrettoActivity">
+          <dynamic-libretto-activity-list
+            :records="librettoActivities"
+            :serviceRelatedRecords="sLibrettoActivities"
+            :errorMessage="errorMessage"
+            :editable="false"
+            @update:records="(item) => (librettoActivities = item)"
+          ></dynamic-libretto-activity-list>
+        </v-form>
+      </v-stepper-window-item>
+      <v-stepper-window-item :value="4">
         <v-form ref="formEmployee">
           <dynamic-employee-list
             :records="employees"
@@ -97,11 +108,14 @@ import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
 import DynamicEmployeeList from "./DynamicEmployeeList.vue";
 import DynamicServiceList from "./DynamicServiceList.vue";
+import DynamicLibrettoActivityList from "./DynamicLibrettoActivityList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
 import EmployeeApi from "@/services/Forms/EmployeeApi";
+import LibrettoActivityApi from "@/services/Forms/LibrettoActivityApi";
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
 const employeeApi = new EmployeeApi();
+const librettoActivityApi = new LibrettoActivityApi();
 
 export default {
   props: {
@@ -114,6 +128,7 @@ export default {
     DynamicProductList,
     DynamicEmployeeList,
     DynamicServiceList,
+    DynamicLibrettoActivityList
   },
   data: () => ({
     // required data
@@ -138,6 +153,7 @@ export default {
       },
       { label: "Productos requeridos", complete: false },
       { label: "Adicionales", complete: false },
+      { label: "Libreto de actividades", complete: false },
       { label: "Empleados", complete: false },
     ],
 
@@ -145,6 +161,8 @@ export default {
     products: [],
     employees: [],
     furtherProducts: [],
+    librettoActivities: [],
+    sLibrettoActivities: []
   }),
 
   async mounted() {
@@ -157,6 +175,8 @@ export default {
           this.setAttributes("E", "products"),
           this.setAttributes("F", "furtherProducts"),
           this.setAttributes("W", "employees"),
+          this.setAttributes("L", "librettoActivies"),
+          this.setAttributes("L", "sLibrettoActivities",'&type_service=S'),
         ]);
       }
     } catch (error) {
@@ -190,13 +210,40 @@ export default {
         case 2:
           this.saveProducts(formData, true);
           break;
-        case 3:
+          case 3:
+          this.saveLibrettoActivies(formData, true);
+          break;
+        case 4:
           this.saveEmployees(formData);
           break;
         default:
           break;
       }
       this.loading = false;
+    },
+    async saveLibrettoActivies(formData){
+      const { valid } = await this.$refs.formLibrettoActivity.validate();
+      if (this.librettoActivities.length == 0) {
+        this.errorMessage.type = "librettoActivities";
+        this.errorMessage.message = "Se requiere minimo una actividad";
+
+      } else {
+        this.errorMessage = {};
+        if (valid) {
+        formData.append("invoice_id", this.editItem.invoiceId);
+        this.librettoActivities.forEach((la, eindex) => {
+          formData.append(`libretto_activities[${eindex}][libretto_activity_id]`, la.id);
+          formData.append(`libretto_activities[${eindex}][description]`, la.description);
+          formData.append(`libretto_activities[${eindex}][order]`, eindex);
+        });
+        const response = await librettoActivityApi.update(
+          formData,
+          "type_connection=I"
+        );
+        this.handleAlert(response, this.setAttributes("L", "librettoActivities"));
+      }
+      }
+
     },
     async saveEmployees(formData) {
       const { valid } = await this.$refs.formEmployee.validate();
@@ -323,7 +370,12 @@ export default {
         let response = {};
 
         response = await productApi.update(formData, `type_connection=${type}`);
-        this.handleAlert(response, this.setAttributes(type, source));
+        this.handleAlert(response, () => {
+          Promise.all([
+            this.setAttributes(type, source),
+            this.setAttributes('L', 'sLibrettoActivities'),
+          ])
+        });
       }
     },
     async handleAlert(response, callback = null) {
@@ -357,12 +409,12 @@ export default {
       this.step += 1;
     },
     // ------------------------ getting data from serve ----------
-    async setAttributes(key, keyArray) {
+    async setAttributes(key, keyArray, furtherQuery = '') {
       const response = await invoiceApi.read(
-        `invoice_id=${this.editItem.invoiceId}&attribute_key=${key}`
+        `invoice_id=${this.editItem.invoiceId}&attribute_key=${key}${furtherQuery}`
       );
 
-      this[keyArray] = response.data;
+      this[keyArray] = response.data ?? [];
     },
 
     async setEditItem(invoiceId = null) {

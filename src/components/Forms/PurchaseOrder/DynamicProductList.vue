@@ -8,31 +8,19 @@
       <div class="d-flex">
         <dynamic-select-field
           :options="options"
-          :itemSaved="itemSelected"
           @update:options="loadItems"
-          @update:itemSelected="(item) => (itemSelected = item)"
+          @update:itemSelected="appendItem"
           mainLabel="name"
           :secondLabel="['consecutive']"
           title="Productos"
-          subtitle=""
           class="pr-5"
         >
         </dynamic-select-field>
-        <v-btn
-          v-show="!editable"
-          icon="mdi-plus-circle"
-          color="primary"
-          variant="tonal"
-          class="mr-3"
-          :disabled="itemSelected ? false : true"
-          @click="appendItem"
-        >
-        </v-btn>
       </div>
     </v-col>
     <v-col class="max-w-custom">
       <v-row v-if="records && records.length > 0">
-        <v-col cols="12" lg="6" v-for="record in records" :key="record.code">
+        <v-col cols="12" md="6" v-for="record in records" :key="record.code">
           <v-card>
             <v-card-text>
               <v-row justify="end">
@@ -63,6 +51,7 @@
                     v-model="record.amount"
                     variant="outlined"
                     :disabled="editable"
+                    density="compact"
                     persistent-hint
                   ></v-text-field>
                 </v-col>
@@ -104,30 +93,26 @@ export default {
     DynamicSelectField,
   },
   data: () => ({
-    itemSelected: null,
     options: [],
     loading: false,
     rulesValidation: RulesValidation,
-    warehouses: [],
   }),
 
   methods: {
     async loadItems(name = null) {
-      let query = `types[0]=T&format=short&`;
+      let query = `format=short&`;
       query = query + (name ? `keyword=${name}&typeKeyword=acronym` : "");
 
       const response = await productApi.read(query);
       this.options = response.data;
     },
-    appendItem() {
-      const idIndex = this.itemSelected.id;
+    appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
-        return objeto.id === idIndex;
+        return objeto.id === item.id;
       });
       let newArray = this.records;
-      if (index === -1) newArray.push(this.itemSelected);
+      if (index === -1) newArray.push(item);
       this.emitRecords(newArray);
-      this.itemSelected = null;
     },
     deleteItem(dropItem) {
       this.emitRecords(this.records.filter((item) => item.id != dropItem.id));

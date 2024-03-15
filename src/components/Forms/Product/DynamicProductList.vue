@@ -118,9 +118,9 @@ export default {
   },
 };
 </script>
-<style>
+<style scoped>
 .max-w-custom {
-  max-height: 200px;
+  max-height: 900px;
   overflow-y: scroll;
 }
 </style>
