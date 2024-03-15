@@ -113,7 +113,7 @@ export default {
         sortable: true,
       },
       { title: "Servicio", align: "end", key: "name", sortable: true },
-      { title: "Descripción", align: "end", key: "description", sortable: false },
+      { title: "Descripción", align: "left", key: "description", sortable: false },
       { title: "Estado", align: "end", key: "status", sortable: false },
       { title: "Provedores", align: "end", key: "suppliers_count", sortable: false },
       { title: "Campos", align: "end", key: "fields_count", sortable: false },

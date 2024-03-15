@@ -77,3 +77,23 @@ export function errorHandler(errors) {
     return acc.concat(messages);
   }, []);
 }
+export function calTotalCostItems(items){
+  return items.reduce((acc, obj) => {
+    // Si el objeto no tiene 'amount' o 'cost', se toma como 0
+    const amount = obj.amount || 0;
+    const cost = obj.cost || 0;
+
+    // Sumar el producto de 'amount' y 'cost' al acumulador
+    return acc + amount * cost;
+  }, 0);
+}
+export function calTotalDiscountItems(items){
+  return items.reduce((acc, obj) => {
+    const taxes = obj.taxes ? obj.taxes.reduce((total, item) => total + (+item.percent || 0), 0) : 0;
+    // Si el objeto no tiene 'amount' o 'cost', se toma como 0
+    const discount = +obj.discount || 0;
+    const total = (obj.cost * obj.amount) || 0;
+    // Sumar el producto de 'amount' y 'cost' al acumulador
+    return (acc + discount + (taxes * (total)) / 100);
+  }, 0);
+}

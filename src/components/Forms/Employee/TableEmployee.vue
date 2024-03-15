@@ -121,7 +121,7 @@ export default {
       },
       { title: "Contrato", align: "end", key: "type_contract.name", sortable: false },
       { title: "Tipo de documento", align: "end", key: "third.type_document", sortable: false },
-      { title: "Empleado", align: "end", key: "third.employee", sortable: false },
+      { title: "Empleado", align: "end", key: "third.names", sortable: false },
       { title: "Contrato", align: "end", key: "type_contract.name", sortable: false },
       { title: "Inicio de contrato", align: "end", key: "hire_date", sortable: false },
       { title: "Fin de contrato", align: "end", key: "end_date_contract", sortable: false },

@@ -42,6 +42,35 @@
 
     <!-- --------------------------- end invoice data -------------------->
     <template v-slot:[`actions`]>
+      <div class="d-flex justify-start px-4">
+        <div class="mx-4">
+          <h3 class="text-h5 font-weight text-center text-primary">
+            {{ netTotal }}
+          </h3>
+          <h4 class="text-subtitle-2 text-right font-weight-light">
+            Costo neto
+          </h4>
+        </div>
+        <div class="pl-5">
+                  <h3 class="text-h5 font-weight text-center text-green">
+
+                    {{ calTotalCost() }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Costo total
+                  </h4>
+                </div>
+                <div class="pl-5">
+                  <h3 class="text-h5 font-weight text-center text-red">
+                    {{
+                      calTotalDiscount()
+                    }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Descuento
+                  </h4>
+                </div>
+      </div>
       <div class="d-flex pb-5 flex-row-reverse">
         <v-btn
           color="blue-darken-1"
@@ -76,7 +105,6 @@ import DynamicProductList from "./DynamicProductList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
-
 
 export default {
   props: {
@@ -113,7 +141,9 @@ export default {
     ],
     //data
     products: [],
-    employees: []
+    totalCost: 0,
+    totalDiscount: 0,
+
   }),
 
   async mounted() {
@@ -122,9 +152,9 @@ export default {
     try {
       await this.setEditItem();
       if (this.editItem.invoiceId) {
-          await this.setAttributes("I", "products");
-        }
-      } catch (error) {
+        await this.setAttributes("I", "products");
+      }
+    } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
     this.loading = false;
@@ -135,9 +165,37 @@ export default {
         ? `Edición de ${this.nameTable}`
         : `Creación de ${this.nameTable}`;
     },
+    netTotal(){
+      return (this.totalCost -this.totalDiscount).toFixed(2) || 0;
+    },
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+    calTotalCost() {
+      this.totalCost = this.products.reduce((acc, obj) => {
+        // Si el objeto no tiene 'amount' o 'cost', se toma como 0
+        const amount = obj.amount || 0;
+        const cost = obj.cost || 0;
+
+        // Sumar el producto de 'amount' y 'cost' al acumulador
+        return acc + amount * cost;
+      }, 0);
+      return this.totalCost.toFixed(2);
+    },
+    calTotalDiscount() {
+      this.totalDiscount = this.products.reduce((acc, obj) => {
+        const taxes = obj.taxes ? obj.taxes.reduce((total, item) => total + (+item.percent || 0), 0) : 0;
+        // Si el objeto no tiene 'amount' o 'cost', se toma como 0
+        const discount = +obj.discount || 0;
+        const total = (obj.cost * obj.amount) || 0;
+        // Sumar el producto de 'amount' y 'cost' al acumulador
+        return (acc + discount + (taxes * (total)) / 100);
+      }, 0);
+      const furtherDiscount =  this.editItem.furtherDiscount || 0;
+      return (furtherDiscount + this.totalDiscount).toFixed(2) ;
+    },
+
+
     updateStepper(value) {
       this.stepperLabels[value].complete = false;
       this.errorMessage = {};
@@ -162,7 +220,8 @@ export default {
       if (valid) {
         formData.append("client_id", this.editItem.client.id);
         formData.append("further_discount", this.editItem.furtherDiscount);
-        formData.append("note", this.editItem.note);
+        if (this.note && this.note.length > 0)
+          formData.append("note", this.editItem.note);
         formData.append("seller_id", this.editItem.seller.id);
         formData.append("date", castFullDate(this.editItem.date));
         let response = {};
@@ -170,7 +229,7 @@ export default {
           formData.append("invoice_id", this.editItem.invoiceId);
           response = await invoiceApi.update(formData);
         } else {
-          formData.append("sale_type", 'P');
+          formData.append("sale_type", "P");
           response = await invoiceApi.create(formData);
         }
         this.handleAlert(response, this.setEditItem(response.data));
@@ -180,9 +239,7 @@ export default {
       //validate form rules 🚥
       const { valid } = await this.$refs.formProduct.validate();
       //validate dynamic components 🚥
-      if (
-        (this.products.length == 0)
-      ) {
+      if (this.products.length == 0) {
         this.errorMessage.type = "products";
         this.errorMessage.message = "Se requiere minimo un producto";
 
@@ -211,23 +268,20 @@ export default {
             );
           });
         });
-          formData.append(`type_connection`, "I");
-          this.products.forEach((product, pindex) => {
+        formData.append(`type_connection`, "I");
+        this.products.forEach((product, pindex) => {
+          formData.append(`products[${pindex}][tracing]`, product.tracing || 0);
+          if (product.tracing)
             formData.append(
-              `products[${pindex}][tracing]`,
-              product.tracing || 0
+              `products[${pindex}][warehouse_id]`,
+              product.warehouse.id
             );
-            if (product.tracing)
-              formData.append(
-                `products[${pindex}][warehouse_id]`,
-                product.warehouse.id
-              );
-          });
+        });
 
         let response = {};
 
         response = await productApi.update(formData, "type_connection=I");
-        this.handleAlert(response, this.setAttributes('I', 'products'));
+        this.handleAlert(response, this.setAttributes("I", "products"));
       }
     },
     async handleAlert(response, callback = null) {

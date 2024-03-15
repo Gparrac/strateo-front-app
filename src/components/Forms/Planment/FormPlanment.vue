@@ -75,6 +75,35 @@
 
     <!-- --------------------------- end invoice data -------------------->
     <template v-slot:[`actions`]>
+      <div class="d-flex justify-start px-4">
+        <div class="mx-4">
+          <h3 class="text-h5 font-weight text-center text-primary">
+            {{ netTotal }}
+          </h3>
+          <h4 class="text-subtitle-2 text-right font-weight-light">
+            Costo neto
+          </h4>
+        </div>
+        <div class="pl-5">
+                  <h3 class="text-h5 font-weight text-center text-green">
+
+                    {{ calTotalCost() }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Costo total
+                  </h4>
+                </div>
+                <div class="pl-5">
+                  <h3 class="text-h5 font-weight text-center text-red">
+                    {{
+                      calTotalDiscount()
+                    }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Descuento
+                  </h4>
+                </div>
+      </div>
       <div class="d-flex pb-5 flex-row-reverse">
         <v-btn
           color="blue-darken-1"
@@ -102,7 +131,7 @@ import InvoiceApi from "@/services/Forms/InvoiceApi";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castFullDate, statusAllowed } from "@/utils/cast";
+import { castFullDate, statusAllowed, calTotalCostItems, calTotalDiscountItems } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
@@ -162,7 +191,9 @@ export default {
     employees: [],
     furtherProducts: [],
     librettoActivities: [],
-    sLibrettoActivities: []
+    sLibrettoActivities: [],
+    totalCost: 0,
+    totalDiscount: 0,
   }),
 
   async mounted() {
@@ -190,9 +221,25 @@ export default {
         ? `Edición de ${this.nameTable}`
         : `Creación de ${this.nameTable}`;
     },
+    netTotal(){
+      return (this.totalCost -this.totalDiscount).toFixed(2) || 0;
+    },
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+    // methods to cal total amounts
+    calTotalCost() {
+      const totalServices = calTotalCostItems(this.products);
+      const totalFurtherProducts = calTotalCostItems(this.furtherProducts)
+      this.totalCost = totalServices + totalFurtherProducts;
+      return this.totalCost.toFixed(2);
+    },
+    calTotalDiscount() {
+      this.totalDiscount = calTotalDiscountItems(this.products);
+      this.totalFPDiscount = calTotalDiscountItems(this.furtherProducts);
+      const furtherDiscount =  this.editItem.furtherDiscount || 0;
+      return (furtherDiscount + this.totalDiscount + this.totalFPDiscount).toFixed(2) ;
+    },
     updateStepper(value) {
       this.stepperLabels[value].complete = false;
       this.errorMessage = {};
@@ -273,7 +320,7 @@ export default {
       if (valid) {
         formData.append("client_id", this.editItem.client.id);
         formData.append("further_discount", this.editItem.furtherDiscount);
-        formData.append("note", this.editItem.note);
+        if(this.note && this.note.length > 0) formData.append("note", this.editItem.note);
         formData.append("seller_id", this.editItem.seller.id);
         formData.append("date", castFullDate(this.editItem.date));
         formData.append("start_date", castFullDate(this.editItem.startDate));

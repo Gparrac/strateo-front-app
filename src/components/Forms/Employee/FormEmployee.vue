@@ -213,7 +213,7 @@ import EmployeeApi from "@/services/Forms/EmployeeApi";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { statusAllowed } from "@/utils/cast";
+import { castFullDate, statusAllowed } from "@/utils/cast";
 import dynamicFieldList from "@/components/blocks/DynamicFieldList.vue";
 import thirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
 import Petition from "@/services/PetitionStructure/Petition.js";
@@ -277,12 +277,6 @@ export default {
 
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
-      if (!this.editItem.services || this.editItem.services.length == 0) {
-        this.customAlertError.type = "services";
-        this.customAlertError.message = "Debes seleccionar almenos un servicio";
-      } else {
-        this.customAlertError = {};
-      }
       if (valid) {
         //passing validations 🚥
         const formData = new FormData();
@@ -305,8 +299,8 @@ export default {
           "type_contract",
           this.editItem.typeContract
         );
-        formData.append("hire_date", this.editItem.hireDate);
-        formData.append("end_date_contract", this.editItem.endDateContract);
+        formData.append("hire_date", castFullDate(this.editItem.hireDate));
+        formData.append("end_date_contract", castFullDate(this.editItem.endDateContract));
         formData.append("status", this.editItem.status);
         if (
           this.editItem.resumeFile &&
@@ -410,7 +404,7 @@ export default {
           email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
           city: response.data.third.city,
-          services: response.data.services
+          services: response.data.dynamic_services
         }
       );
 

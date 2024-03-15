@@ -150,6 +150,7 @@
                 </div>
                 <div class="pl-5">
                   <h3 class="text-h5 font-weight-light text-center">
+
                     {{ totalCost(record.amount, record.cost) || '-'}}
                   </h3>
                   <h4 class="text-subtitle-2 text-right font-weight-light">
@@ -222,21 +223,21 @@ export default {
 
   methods: {
     totalCost(amount, cost) {
-      const tamount = amount ?? 0;
-      const tcost = cost ?? 0;
-      return ((+tamount ?? 0) * +tcost).toFixed(2);
+      const tamount = +amount || 0;
+      const tcost = +cost || 0;
+      return ((tamount) * tcost).toFixed(2);
     },
     totalDiscount(taxes, discount, amount, cost) {
-      const tDiscount = +(discount ?? 0);
+      const tDiscount = +discount || 0;
       const totalPercentTaxes =
-        taxes.reduce((total, item) => total + (+item.percent ?? 0), 0) ?? 0;
-      const tTotalcost = +this.totalCost(amount, cost);
+        taxes.reduce((total, item) => total + (+item.percent) || 0, 0) || 0;
+      const tTotalcost = +this.totalCost(amount, cost) || 0;
 
       return (tDiscount + (totalPercentTaxes * tTotalcost) / 100).toFixed(2);
     },
     netTotal(taxes, discount, amount, cost) {
-      const tDiscount = this.totalDiscount(taxes, discount, amount, cost);
-      const tTotalCost = this.totalCost(amount, cost);
+      const tDiscount = this.totalDiscount(taxes, discount, amount, cost) || 0;
+      const tTotalCost = this.totalCost(amount, cost) || 0;
       return (tTotalCost - tDiscount).toFixed(2);
     },
     async setProductInventory(item, product) {

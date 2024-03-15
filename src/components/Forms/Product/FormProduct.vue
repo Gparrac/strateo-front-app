@@ -31,12 +31,7 @@
                             :return-object="true"
                           ></v-select>
                         </v-col>
-                        <v-col
-                          v-if="editItem.type"
-                          cols="12"
-                          sm="6"
-                          md="4"
-                        >
+                        <v-col v-if="editItem.type" cols="12" sm="6" md="4">
                           <v-select
                             label="Tipo de contenido"
                             v-model="editItem.typeContent"
@@ -45,7 +40,6 @@
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
                             :return-object="true"
-
                           ></v-select>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
@@ -139,6 +133,14 @@
                             :loading="loading"
                           ></v-text-field>
                         </v-col>
+                        <v-col v-show="editItem.type && editItem.type.id == 'T'" cols="12" sm="6" md="4">
+                          <v-switch
+
+                            v-model="editItem.tracing"
+                            label="Inventario"
+                            :color="tracing ? 'orange' : 'primary'"
+                          ></v-switch>
+                        </v-col>
                       </v-row>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -172,7 +174,11 @@
               </v-card>
             </v-col>
             <v-col
-              v-if="editItem.type && editItem.typeContent.id == 'E'"
+              v-if="
+                editItem.type &&
+                editItem.typeContent &&
+                editItem.typeContent.id == 'E'
+              "
               cols="12"
               class="d-flex align-center"
             >
@@ -302,12 +308,15 @@ export default {
         formData.append("type", this.editItem.type.id);
         formData.append("consecutive", this.editItem.consecutive);
         formData.append("name", this.editItem.name);
-        if(this.editItem.description && this.editItem.description.length > 0) formData.append("description", this.editItem.description);
-        if(this.editItem.productCode ) formData.append("product_code", this.editItem.productCode);
+        if (this.editItem.description && this.editItem.description.length > 0)
+          formData.append("description", this.editItem.description);
+        if (this.editItem.productCode)
+          formData.append("product_code", this.editItem.productCode);
         formData.append("cost", this.editItem.cost);
         formData.append("brand_id", this.editItem.brand);
         formData.append("measure_id", this.editItem.measure);
-        if(this.editItem.barcode ) formData.append("barcode", this.editItem.barcode);
+        if (this.editItem.barcode)
+          formData.append("barcode", this.editItem.barcode);
         formData.append("size", this.editItem.size);
         formData.append("type_content", this.editItem.typeContent.id);
         formData.append("status", this.editItem.status);
@@ -318,7 +327,8 @@ export default {
           formData.append(`products[${index}][product_id]`, item.id);
           formData.append(`products[${index}][amount]`, item.amount);
         });
-
+        if(this.editItem.type.id == 'T')
+        formData.append("tracing", this.editItem.tracing ? 1 : 0);
         if (this.idEditForm) {
           formData.append("product_id", this.editItem.productId);
           response = await productApi.update(formData);
@@ -368,7 +378,7 @@ export default {
       }
     },
     async setTypesContent(type, setEditItem = null) {
-      if (setEditItem ) this.editItem.typeContent = null;
+      if (setEditItem) this.editItem.typeContent = null;
       const response = await petition.get(
         "/type-products",
         `attribute=typeContent&type=${type}`
@@ -408,7 +418,8 @@ export default {
             type: data.type,
             typeContent: data.type_content,
             products: data.subproducts || [],
-            barcode: data.barcode
+            barcode: data.barcode,
+            tracing: data.tracing ? true : false
           }
         );
         await this.setTypesContent(this.editItem.type);
