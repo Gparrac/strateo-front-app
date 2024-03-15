@@ -206,8 +206,9 @@ export default {
       { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
       { name: "Vendedor", key:'seller', select: false, validation: RulesValidation.shortTextNull},
     ]);
-
+    console.log('entry invoice')
     this.$subscribe((mutation, state) => {
+      console.log('mutation',mutation)
       if(mutation.events.key == 'filterCleanList'){
           this.loadItems({}, state.filterCleanList)
       }
