@@ -90,6 +90,7 @@ export default {
     secondKeyDelete: ["date"],
     selectedItems: [],
     toggleDelete: false,
+    furtherFilterKey: 0,
 
     //optional data
     headers: [
@@ -206,13 +207,12 @@ export default {
       { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
       { name: "Vendedor", key:'seller', select: false, validation: RulesValidation.shortTextNull},
     ]);
-    console.log('entry invoice')
     this.$subscribe((mutation, state) => {
-      console.log('mutation',mutation)
-      if(mutation.events.key == 'filterCleanList'){
+      if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
+        this.furtherFilterKey = state.furtherFilterKey;
           this.loadItems({}, state.filterCleanList)
       }
-    })
+    });
 
   },
 };

@@ -94,7 +94,7 @@ export default {
     secondKeyDelete: ["date"],
     selectedItems: [],
     toggleDelete: false,
-
+    furtherFilterKey: 0,
     //optional data
     headers: [
       {
@@ -263,14 +263,12 @@ console.log('entry;D')
       },
     ]);
 
-    // this.$subscribe((mutation, state) => {
-    //   console.log('temp', mutation);
-    //   if (mutation.events.key == "filterCleanList") {
-    //     console.log('entry?')
-    //     this.loadItems({}, state.filterCleanList);
-    //   }
-    //   console.log('falling', mutation);
-    // });
+    this.$subscribe((mutation, state) => {
+      if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
+        this.furtherFilterKey = state.furtherFilterKey;
+          this.loadItems({}, state.filterCleanList)
+      }
+    });
   } catch (error) {
      console.error(error);
     }
