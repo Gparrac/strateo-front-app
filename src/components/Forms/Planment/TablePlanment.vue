@@ -223,7 +223,7 @@ export default {
   },
   async mounted() {
     try {
-
+console.log('entry;D')
 
     const stagesOptions = await this.setStages();
     this.filterTableStore.setFilterList([
