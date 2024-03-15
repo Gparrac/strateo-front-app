@@ -222,6 +222,9 @@ export default {
     ...mapStores(useAlertMessageStore, useFilterTableStore),
   },
   async mounted() {
+    try {
+
+
     const stagesOptions = await this.setStages();
     this.filterTableStore.setFilterList([
       {
@@ -261,10 +264,16 @@ export default {
     ]);
 
     this.$subscribe((mutation, state) => {
+      console.log('temp', mutation);
       if (mutation.events.key == "filterCleanList") {
+        console.log('entry?')
         this.loadItems({}, state.filterCleanList);
       }
+      console.log('falling', mutation);
     });
+  } catch (error) {
+     console.error(error);
+    }
   },
 };
 </script>
