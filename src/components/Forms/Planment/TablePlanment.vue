@@ -263,14 +263,14 @@ export default {
       },
     ]);
 
-    this.$subscribe((mutation, state) => {
-      console.log('temp', mutation);
-      if (mutation.events.key == "filterCleanList") {
-        console.log('entry?')
-        this.loadItems({}, state.filterCleanList);
-      }
-      console.log('falling', mutation);
-    });
+    // this.$subscribe((mutation, state) => {
+    //   console.log('temp', mutation);
+    //   if (mutation.events.key == "filterCleanList") {
+    //     console.log('entry?')
+    //     this.loadItems({}, state.filterCleanList);
+    //   }
+    //   console.log('falling', mutation);
+    // });
   } catch (error) {
      console.error(error);
     }
