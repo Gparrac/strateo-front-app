@@ -18,45 +18,45 @@
         </dynamic-select-field>
       </div>
       <div class="max-h-custom px-5 w-100">
-      <v-row v-if="records && records.length > 0">
-        <v-col cols="12" v-for="record in records" :key="record.code">
-          <v-card
-            :title="record.name"
-            variant="outlined"
-          >
-            <template v-slot:prepend>
-              <v-btn
-                v-show="!editable"
-                icon="mdi-delete"
-                color="warning"
-                variant="tonal"
-                @click="deleteItem(record)"
-              >
-              </v-btn>
-            </template>
+        <v-row v-if="records && records.length > 0">
+          <v-col cols="12" v-for="record in records" :key="record.code">
+            <v-card :title="record.name" variant="outlined">
+              <template v-slot:prepend>
+                <v-btn
+                  v-show="!editable"
+                  icon="mdi-delete"
+                  color="warning"
+                  variant="tonal"
+                  @click="deleteItem(record)"
+                >
+                </v-btn>
+              </template>
 
-            <v-card-text>
-              <v-row>
-                <v-col cols="12">
-                  <v-textarea
-                    label="Observaciones"
-                    variant="outlined"
-                    :maxLength="rulesValidation.longTextNull.maxLength"
-                    :rules="rulesValidation.longTextNull.rules"
-                    v-model="record.description"
-                    :loading="loading"
-                    rows="2"
-                  ></v-textarea>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </div>
+              <v-card-text>
+                <v-row>
+                  <v-col cols="12">
+                    <v-textarea
+                      label="Observaciones"
+                      variant="outlined"
+                      :maxLength="rulesValidation.longTextNull.maxLength"
+                      :rules="rulesValidation.longTextNull.rules"
+                      v-model="record.description"
+                      :loading="loading"
+                      rows="2"
+                    ></v-textarea>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
     </v-col>
     <v-col cols="12" lg="5">
-      <v-card title="Actividades preseleccionadas" subtitle="Actividades que han sido parametrizadas segun los servicios que has escodigo para esta planeación">
+      <v-card
+        title="Actividades preseleccionadas"
+        subtitle="Actividades que han sido parametrizadas segun los servicios que has escodigo para esta planeación"
+      >
         <v-card-text>
           <v-data-table
             :items="serviceRelatedRecords"
@@ -90,13 +90,11 @@ import { RulesValidation } from "@/utils/validations";
 import LibrettoActivityApi from "@/services/Forms/LibrettoActivityApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 
-
 const librettoActivityApi = new LibrettoActivityApi();
-
 
 export default {
   props: {
-    records:Array,
+    records: Array,
     serviceRelatedRecords: Array,
     errorMessage: Object,
     editable: Boolean,
@@ -110,39 +108,41 @@ export default {
     testOptions: [1],
     loading: false,
     rulesValidation: RulesValidation,
-    headersPreLA:[
-    { title: 'id', align: 'start', sortable: false, key: 'id' },
-    { title: 'Actividad', align: 'center', sortable: false, key: 'name' },
-    { title: 'Servicio', align: 'center', sortable: false, key: 'service' },
-    ]
+    headersPreLA: [
+      { title: "id", align: "start", sortable: false, key: "id" },
+      { title: "Actividad", align: "center", sortable: false, key: "name" },
+      { title: "Servicio", align: "center", sortable: false, key: "service" },
+    ],
   }),
-  computed:{
-    recordIds(){
-      return this.records.map((item) => (item.id));
+  computed: {
+    recordIds() {
+      return this.records.map((item) => item.id);
     },
-    serviceRecordIds(){
-      return this.serviceRelatedRecords.map((item) => (item.id));
-    }
+    serviceRecordIds() {
+      return this.serviceRelatedRecords.map((item) => item.id);
+    },
   },
   methods: {
-    appendServiceItem(newItems){
-      console.log('appending',this.recordIds, this.serviceRecordIds, newItems);
+    appendServiceItem(newItems) {
+      // define which service's records will be dropped
+      const F = this.serviceRecordIds.filter(
+        (item) => !newItems.includes(item)
+      );
 
-        // define which service's records will be dropped
-        const F = this.serviceRecordIds.filter(item => !newItems.includes(item));
+      // define which service's records won't be dropped
+      const G = this.recordIds.filter((item) => !F.includes(item));
 
-        // define which service's records won't be dropped
-        const G = this.recordIds.filter(item => !F.includes(item));
+      // select service's records to update true records
+      let localRecords = this.records.filter((item) => G.includes(item.id));
+      const localServiceRecords = this.serviceRelatedRecords.filter((item) =>
+        newItems.includes(item.id)
+      );
 
-        // select service's records to update true records
-        let localRecords = this.records.filter(item => G.includes(item.id));
-        const localServiceRecords = this.serviceRelatedRecords.filter(item => newItems.includes(item.id));
-
-        localServiceRecords.forEach(newItem => {
-          if(!this.records.some(record => record.id === newItem))
-            localRecords.push(newItem);
-        });
-        this.emitRecords(localRecords);
+      localServiceRecords.forEach((newItem) => {
+        if (!this.records.some((record) => record.id === newItem))
+          localRecords.push(newItem);
+      });
+      this.emitRecords(localRecords);
     },
     async loadItems(name = null) {
       let query = `format=short&`;
@@ -169,7 +169,6 @@ export default {
     },
   },
   async mounted() {
-    console.log('entry')
     this.loading = true;
     try {
       await Promise.all([this.loadItems()]);
@@ -178,9 +177,6 @@ export default {
     }
     this.loading = false;
   },
-  updated(){
-    console.log('update',this.testOptions);
-  }
 };
 </script>
 <style scoped>

@@ -170,7 +170,6 @@ export default {
   },
   methods: {
     emitRecords(item, key) {
-      console.log('stage', item);
       this.$emit("update:records", { item: item, key: key });
     },
     async setClients(name = null) {
@@ -186,7 +185,6 @@ export default {
       ).data;
     },
     async setStages() {
-      console.log('entry')
       const queryStage = this.records?.stage?.id || 0;
       this.stages = (
         await petition.get("/type-invoices", `planment_stage=${queryStage}`)

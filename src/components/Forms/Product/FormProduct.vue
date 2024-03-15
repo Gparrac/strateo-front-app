@@ -278,7 +278,6 @@ export default {
         this.setMeasures(),
         this.setTypes(),
       ]);
-      console.log('editProduct', this.editItem);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -370,8 +369,6 @@ export default {
     },
     async setTypesContent(type, setEditItem = null) {
       if (setEditItem ) this.editItem.typeContent = null;
-
-      console.log('passing setTy',type);
       const response = await petition.get(
         "/type-products",
         `attribute=typeContent&type=${type}`

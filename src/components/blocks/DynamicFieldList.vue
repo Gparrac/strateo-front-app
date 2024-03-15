@@ -139,7 +139,6 @@ export default {
         ? `keyword=${name}&typeKeyword=name&format=short`
         : "format=short";
       this.options = (await serviceApi.read(query)).data;
-      console.log('sdf', this.options);
     },
     appendItem(item) {
       this.addRules(item.fields)
@@ -152,7 +151,6 @@ export default {
     },
     addRules(items){
       items.forEach(item => {
-        console.log('field',item)
         switch (item.type.id) {
           case 'T':
             item.rules = fieldText(item.length);

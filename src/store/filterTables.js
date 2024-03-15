@@ -5,7 +5,7 @@ export const useFilterTableStore = defineStore("filterTable", {
   state: () => ({
     toggleDrawer: false,
     filtersList: [],
-    filterCleanList: []
+    filterCleanList: [],
   }),
   getters: {
     activeFilter: (state) => {
@@ -16,21 +16,20 @@ export const useFilterTableStore = defineStore("filterTable", {
     show() {
       this.toggleDrawer = true;
     },
-    close(){
+    close() {
       this.toggleDrawer = false;
     },
-    setFilterList(item){
-      console.log('passing',item)
+    setFilterList(item) {
       this.filtersList = item;
     },
-    async filter(){
-      this.filterCleanList = this.filtersList.filter(item  => item.value && item.value.length > 0).map(item => ({key:item.key, value: item.value}))
+    async filter() {
+      this.filterCleanList = this.filtersList
+        .filter((item) => item.value && item.value.length > 0)
+        .map((item) => ({ key: item.key, value: item.value }));
     },
-    clean(){
-      console.log('hola?')
+    clean() {
       this.filterCleanList = [];
-      this.filtersList.forEach(item => item.value = null);
-      console.log('cleaned',this.filtersList);
-    }
+      this.filtersList.forEach((item) => (item.value = null));
+    },
   },
 });

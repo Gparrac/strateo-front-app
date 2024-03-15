@@ -270,7 +270,6 @@ export default {
     },
 
     async setEditItem(invoiceId = null) {
-      console.log('fetching data...')
       if (!this.idEditForm && !invoiceId) {
         this.editItem.services = [];
         return;

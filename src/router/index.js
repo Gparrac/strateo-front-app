@@ -26,7 +26,6 @@ const routes = [
       ...formsRoute,
     ],
     beforeEnter: async (to, from, next) => {
-      console.log('loading....')
       let path = null;
       try {
         //check auth 🚨
