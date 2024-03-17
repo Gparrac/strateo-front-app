@@ -5,7 +5,7 @@
         >* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a
         5 letras para completar la busqueda...</strong
       >
-      <div class="d-flex">
+      <div class="d-flex mx-2">
         <dynamic-select-field
           :options="options"
           @update:options="loadItems"
@@ -17,6 +17,7 @@
           class="pr-5"
         >
         </dynamic-select-field>
+        <modal-new-product @new-product="appendItem" type="T"></modal-new-product>
       </div>
     </v-col>
     <v-col class="max-w-custom px-5">
@@ -46,7 +47,7 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <v-row>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" >
                       <v-checkbox
                         v-model="record.tracing"
                         color="primary"
@@ -201,6 +202,7 @@ import WarehouseApi from "@/services/Forms/WarehouseApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import DynamicTaxList from "./DynamicTaxList.vue";
 import InventoryApi from "@/services/Forms/InventoryApi";
+import ModalNewProduct from '@/components/blocks/ModalNewProduct.vue';
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -213,6 +215,7 @@ export default {
   components: {
     DynamicSelectField,
     DynamicTaxList,
+    ModalNewProduct
   },
   data: () => ({
     options: [],
@@ -260,9 +263,12 @@ export default {
       this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;
     },
     appendItem(item) {
+
       const index = this.records.findIndex(function (objeto) {
         return objeto.id === item.id;
       });
+      // console.log('after', this.records,index)
+
       let newArray = this.records;
       if (index === -1) newArray.push(item);
       this.emitRecords(newArray);

@@ -6,12 +6,12 @@
         <v-col cols="12" sm="4">
           <v-select
             label="Tipo de documento"
-            :model-value="records.typeDocument"
             item-title="label"
             item-value="name"
             :items="typesDocument"
             :rules="rulesValidation.select.rules"
             :loading="loading"
+            :model-value="records.typeDocument"
             @update:model-value="(value) => emitRecords(value, 'typeDocument')"
           ></v-select>
         </v-col>

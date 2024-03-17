@@ -1,7 +1,7 @@
 <template>
   <v-form ref="form">
-    <v-row justify="center">
-      <v-card rounded="3" class="w-100" :loading="loading">
+    <v-row justify="center" class="">
+      <v-card rounded="3" class="w-100 pa-7" :loading="loading">
         <v-card-title>
           <span class="text-h5">{{ title }} </span>
         </v-card-title>
@@ -16,8 +16,9 @@
                     <v-col cols="12" sm="8" lg="8">
                       <v-row>
                         <!-- first row -->
-                        <v-col cols="12" sm="6" md="4">
+                        <v-col v-if="!this.type" cols="12" sm="6" md="4" >
                           <v-select
+
                             label="Tipo de producto"
                             v-model="editItem.type"
                             item-title="name"
@@ -135,10 +136,8 @@
                         </v-col>
                         <v-col v-show="editItem.type && editItem.type.id == 'T'" cols="12" sm="6" md="4">
                           <v-switch
-
                             v-model="editItem.tracing"
                             label="Inventario"
-                            :color="tracing ? 'orange' : 'primary'"
                           ></v-switch>
                         </v-col>
                       </v-row>
@@ -213,7 +212,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="() => $router.push(`/${path}`)"
+            @click="() => $emit('close-form')"
             :loading="loading"
           >
             Cerrar
@@ -254,7 +253,10 @@ export default {
   props: {
     idEditForm: Number,
     nameTable: String,
-    path: String,
+    type: {
+      type: String,
+      required:false,
+    },
   },
   components: {
     DynamicProductList,
@@ -348,7 +350,8 @@ export default {
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
-          this.$router.push(`/${this.path}`);
+          console.log('llegando', response)
+          this.$emit('close-success', {'productId': response.product_id})
         }
       }
       this.loading = false;
@@ -396,6 +399,10 @@ export default {
     async setEditItem() {
       if (!this.idEditForm) {
         this.editItem.products = [];
+        if(this.type){
+          this.editItem.type =  {id: this.type}
+          await this.setTypesContent(this.type, true);
+        }
         return;
       }
       const response = await productApi.read(`product_id=${this.idEditForm}`);

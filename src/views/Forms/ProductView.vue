@@ -7,6 +7,8 @@
         :idEditForm="idEditForm"
         :nameTable="nameTable"
         :path="path"
+        @close-success="() => $router.push(`/${path}`)"
+        @close-form="() => $router.push(`/${path}`)"
       />
       <TableProduct v-else :nameTable="nameTable" :path="path" />
     </div>

@@ -17,6 +17,7 @@
             class="pr-5"
           >
           </dynamic-select-field>
+          <modal-new-product @new-product="appendItem" type="I"></modal-new-product>
       </div>
     </v-col>
     <v-col class="max-w-custom px-5">
@@ -165,6 +166,7 @@ import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import DynamicTaxList from "./DynamicTaxList.vue";
 import DynamicSubproductList from './DynamicSubproductList.vue';
 import InventoryApi from "@/services/Forms/InventoryApi";
+import ModalNewProduct from '@/components/blocks/ModalNewProduct.vue';
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -177,7 +179,8 @@ export default {
   components: {
     DynamicSelectField,
     DynamicTaxList,
-    DynamicSubproductList
+    DynamicSubproductList,
+    ModalNewProduct
   },
   data: () => ({
     options: [],
