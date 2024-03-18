@@ -22,6 +22,7 @@
     <v-data-table-server
       :headers="headers"
       :items="records"
+      :sort-by="startSortBy"
       item-selectable="selectable"
       v-model="selectedItems"
       @update:options="loadItems"
@@ -98,6 +99,7 @@ export default {
     selectedItems: [],
     toggleDelete: false,
     //optional data
+    startSortBy:[{key:'id', order:'desc'}],
     headers: [
       {
         title: "ID",

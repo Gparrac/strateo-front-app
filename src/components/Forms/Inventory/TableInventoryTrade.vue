@@ -34,6 +34,7 @@
       :title="nameTable"
     ></modal-delete>
     <v-data-table-server
+    :sort-by="startSortBy"
     :headers="headers"
       :items="records"
       @update:options="loadItems"
@@ -111,6 +112,7 @@ export default {
     toggleDelete: false,
 
     //optional data
+    startSortBy:[{key:'id', order:'desc'}],
     headers: [
       {
         title: "ID",

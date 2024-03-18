@@ -31,6 +31,7 @@
       show-select
       return-object
       items-per-page-text="Items por Página"
+      :sort-by="startSortBy"
     >
       <template v-slot:[`item.actions`]="{ item }">
         <div>
@@ -98,6 +99,7 @@ export default {
     selectedItems: [],
     toggleDelete: false,
     //optional data
+    startSortBy:[{key:'id', order:'desc'}],
     headers: [
       {
         title: "ID",

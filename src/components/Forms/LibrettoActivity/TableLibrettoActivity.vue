@@ -9,6 +9,7 @@
       @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
+      :sort-by="startSortBy"
     ></header-table>
     <modal-delete
       v-if="toggleDelete"
@@ -105,6 +106,7 @@ export default {
     selectedItems: [],
     toggleDelete: false,
     //optional data
+    startSortBy:[{key:'id', order:'desc'}],
     headers: [
       {
         title: "ID",

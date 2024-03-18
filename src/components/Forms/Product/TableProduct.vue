@@ -20,6 +20,7 @@
       :title="nameTable"
     ></modal-delete>
     <v-data-table-server
+    :sort-by="startSortBy"
       :headers="headers"
       :items="records"
       item-selectable="selectable"
@@ -110,7 +111,7 @@ export default {
     secondKeyDelete: ["consecutive"],
     selectedItems: [],
     toggleDelete: false,
-
+    startSortBy:[{key:'id', order:'desc'}],
     //optional data
     headers: [
       {

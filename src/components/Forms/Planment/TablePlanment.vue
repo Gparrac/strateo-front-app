@@ -24,11 +24,13 @@
       v-model="selectedItems"
       @update:options="loadItems"
       :items-length="totalRecords"
+      :sort-by="startSortBy"
       v-model:items-per-page="recordsPerPage"
       :loading="loading"
       items-per-page-text="Items por Página"
       show-select
       return-object
+
     >
       <template v-slot:[`item.actions`]="{ item }">
         <div>
@@ -96,6 +98,7 @@ export default {
     toggleDelete: false,
     furtherFilterKey: 0,
     //optional data
+    startSortBy:[{key:'id', order:'desc'}],
     headers: [
       {
         title: "ID",
