@@ -9,6 +9,7 @@
           variant="outlined"
           :return-object="true"
           :rules="rules"
+          :density="density"
         >
         <template v-slot:item="{ props, item }">
                           <v-list-item v-bind="props">
@@ -51,6 +52,11 @@ export default {
     thirdkey: {
       required:false,
       type: Object
+    },
+    density:{
+      required:false,
+      type:String,
+      default:'default'
     }
   },
   data: () => ({

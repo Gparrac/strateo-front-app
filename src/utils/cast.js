@@ -82,18 +82,26 @@ export function calTotalCostItems(items){
     // Si el objeto no tiene 'amount' o 'cost', se toma como 0
     const amount = obj.amount || 0;
     const cost = obj.cost || 0;
+    const discount = obj.discount || 0;
 
     // Sumar el producto de 'amount' y 'cost' al acumulador
-    return acc + amount * cost;
+    return acc + (amount * cost - discount);
   }, 0);
 }
 export function calTotalDiscountItems(items){
   return items.reduce((acc, obj) => {
     const taxes = obj.taxes ? obj.taxes.reduce((total, item) => total + (+item.percent || 0), 0) : 0;
     // Si el objeto no tiene 'amount' o 'cost', se toma como 0
-    const discount = +obj.discount || 0;
-    const total = (obj.cost * obj.amount) || 0;
+    const total = (obj.cost * obj.amount - (obj.discount||0)) || 0;
     // Sumar el producto de 'amount' y 'cost' al acumulador
-    return (acc + discount + (taxes * (total)) / 100);
+    return (acc + (taxes * (total)) / 100);
   }, 0);
+}
+export function formatNumberToColPesos(number) {
+  // Crear una instancia de Intl.NumberFormat con la configuración para pesos colombianos
+  const formatter = new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP' // Define la moneda como pesos colombianos
+  });
+  return formatter.format(number);
 }

@@ -36,14 +36,14 @@
                   >
                   </v-btn>
                 </v-col>
-                <v-col cols="7" sm="4" md="4" lg="5">
+                <v-col cols="7" sm="4" md="4" lg="6">
                   <h6 class="text-h6">{{ record.acronym }}</h6>
                   <span class="font-weight-regular text-blue-grey-lighten-2">{{
                     record.name
                   }}</span>
                 </v-col>
 
-                <v-col cols="12" sm="5" md="6" lg="5">
+                <v-col cols="12" sm="5" md="6" lg="4">
                   <v-text-field
                     :maxlength="rulesValidation.percent.length"
                     label="Porcentaje"
@@ -53,6 +53,7 @@
                     v-model="record.percent"
                     variant="outlined"
                     :disabled="editable"
+                    density="compact"
                     persistent-hint
                     :hint="'% por defecto: ' + record.default_percent"
                   ></v-text-field>

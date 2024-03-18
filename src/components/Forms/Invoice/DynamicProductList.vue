@@ -133,47 +133,7 @@
                   </v-row>
                 </v-col>
               </v-row>
-              <div class="d-flex row-reverse justify-end">
-                <div>
-                  <h3 class="text-h5 font-weight-light text-center">
-                    {{
-                      netTotal(
-                        record.taxes,
-                        record.discount,
-                        record.amount,
-                        record.cost
-                      ) || '-'
-                    }}
-                  </h3>
-                  <h4 class="text-subtitle-2 text-right font-weight-light">
-                    Costo neto
-                  </h4>
-                </div>
-                <div class="pl-5">
-                  <h3 class="text-h5 font-weight-light text-center">
-
-                    {{ totalCost(record.amount, record.cost) || '-'}}
-                  </h3>
-                  <h4 class="text-subtitle-2 text-right font-weight-light">
-                    Costo total
-                  </h4>
-                </div>
-                <div class="pl-5">
-                  <h3 class="text-h5 font-weight-light text-center">
-                    {{
-                      totalDiscount(
-                        record.taxes,
-                        record.discount,
-                        record.amount,
-                        record.cost
-                      ) || '-'
-                    }}
-                  </h3>
-                  <h4 class="text-subtitle-2 text-right font-weight-light">
-                    Descuento
-                  </h4>
-                </div>
-              </div>
+              <total-records :record="record"></total-records>
             </v-card-text>
           </v-card>
         </v-col>
@@ -203,6 +163,7 @@ import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import DynamicTaxList from "./DynamicTaxList.vue";
 import InventoryApi from "@/services/Forms/InventoryApi";
 import ModalNewProduct from '@/components/blocks/ModalNewProduct.vue';
+import TotalRecords from "@/components/blocks/TotalRecords.vue";
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -215,7 +176,8 @@ export default {
   components: {
     DynamicSelectField,
     DynamicTaxList,
-    ModalNewProduct
+    ModalNewProduct,
+    TotalRecords
   },
   data: () => ({
     options: [],

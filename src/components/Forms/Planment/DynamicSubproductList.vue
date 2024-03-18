@@ -51,7 +51,7 @@
                     hide-details
                   ></v-checkbox>
                 </v-col>
-                <v-col cols="12" md="4" lg="3">
+                <v-col cols="12" md="4" lg="5">
                   <dynamic-select-field
                     v-if="record.tracing"
                     :options="warehouses"
@@ -65,6 +65,7 @@
                     :secondLabel="['city', 'name']"
                     title="Bodega"
                     subtitle="Ciudad:"
+                    density="compact"
                   >
                   </dynamic-select-field>
                 </v-col>
@@ -72,6 +73,7 @@
                   <v-text-field
                     :maxlength="rulesValidation.price.maxLength"
                     label="Cantidad"
+                    density="compact"
                     :rules="rulesValidation.price.rules"
                     :loading="loading"
                     append-inner-icon="mdi-delete-variant"

@@ -111,32 +111,7 @@
 
               ></dynamic-subproduct-list>
               <!-- ------------------------END SUBPRODUCTS----------------------- -->
-              <div class="d-flex row-reverse justify-end">
-                <div>
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{netTotal(record.taxes, record.discount, record.amount, record.cost)}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Costo neto
-                </h4>
-              </div>
-              <div class="pl-5">
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{totalCost(record.amount, record.cost)}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Costo total
-                </h4>
-              </div>
-              <div class="pl-5">
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{totalDiscount(record.taxes,record.discount, record.amount, record.cost)}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Descuento
-                </h4>
-              </div>
-            </div>
+              <total-records :record="record"></total-records>
             </v-card-text>
           </v-card>
         </v-col>
@@ -167,6 +142,8 @@ import DynamicTaxList from "./DynamicTaxList.vue";
 import DynamicSubproductList from './DynamicSubproductList.vue';
 import InventoryApi from "@/services/Forms/InventoryApi";
 import ModalNewProduct from '@/components/blocks/ModalNewProduct.vue';
+import TotalRecords from "@/components/blocks/TotalRecords.vue";
+import { formatNumberToColPesos } from "@/utils/cast";
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -180,7 +157,8 @@ export default {
     DynamicSelectField,
     DynamicTaxList,
     DynamicSubproductList,
-    ModalNewProduct
+    ModalNewProduct,
+    TotalRecords
   },
   data: () => ({
     options: [],
@@ -191,23 +169,22 @@ export default {
   }),
 
   methods: {
-    totalCost(amount, cost){
-     const tamount = amount ?? 0;
-     const tcost = cost ?? 0;
-     return ((+tamount ?? 0) * + tcost).toFixed(2);
+    totalCost(record){
+     const tamount = record.amount ?? 0;
+     const tcost = record.cost ?? 0;
+     const tDiscount = +(record.discount ?? 0);
+     record.ctotal = (+tamount ?? 0) * tcost - tDiscount;
+     return formatNumberToColPesos(record.ctotal);
     },
-    totalDiscount(taxes, discount, amount, cost){
-
-      const tDiscount = +(discount ?? 0);
-      const totalPercentTaxes = taxes.reduce((total, item) => total + (+item.percent ?? 0) , 0) ?? 0;
-      const tTotalcost = +this.totalCost(amount,cost);
-
-      return (tDiscount + totalPercentTaxes * tTotalcost/100).toFixed(2);
+    totalTaxes(record){
+      const totalPercentTaxes = record.taxes.reduce((total, item) => total + (+item.percent ?? 0) , 0) ?? 0;
+      record.ctaxes = totalPercentTaxes * record.ctotal/100;
+      return formatNumberToColPesos( record.ctaxes);
     },
-    netTotal(taxes, discount, amount, cost){
-      const tDiscount = this.totalDiscount(taxes, discount, amount, cost);
-      const tTotalCost = this.totalCost(amount, cost);
-      return (tTotalCost - tDiscount).toFixed(2);
+    netTotal(record){
+      const tDiscount = record.ctaxes;
+      const tTotalCost = record.ctotal;
+      return formatNumberToColPesos(tTotalCost - tDiscount);
     },
 
     async setProductInventory(item, product) {

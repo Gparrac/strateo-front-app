@@ -85,24 +85,21 @@
           </h4>
         </div>
         <div class="pl-5">
-                  <h3 class="text-h5 font-weight text-center text-green">
-
-                    {{ calTotalCost() }}
-                  </h3>
-                  <h4 class="text-subtitle-2 text-right font-weight-light">
-                    Costo total
-                  </h4>
-                </div>
-                <div class="pl-5">
-                  <h3 class="text-h5 font-weight text-center text-red">
-                    {{
-                      calTotalDiscount()
-                    }}
-                  </h3>
-                  <h4 class="text-subtitle-2 text-right font-weight-light">
-                    Descuento
-                  </h4>
-                </div>
+          <h3 class="text-h5 font-weight text-center text-green">
+            {{ calTotalCost() }}
+          </h3>
+          <h4 class="text-subtitle-2 text-right font-weight-light">
+            Costo total
+          </h4>
+        </div>
+        <div class="pl-5">
+          <h3 class="text-h5 font-weight text-center text-orange">
+            {{ calTotalDiscount() }}
+          </h3>
+          <h4 class="text-subtitle-2 text-right font-weight-light">
+            Impuestos
+          </h4>
+        </div>
       </div>
       <div class="d-flex pb-5 flex-row-reverse">
         <v-btn
@@ -131,7 +128,7 @@ import InvoiceApi from "@/services/Forms/InvoiceApi";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castFullDate, statusAllowed, calTotalCostItems, calTotalDiscountItems } from "@/utils/cast";
+import { castFullDate, statusAllowed, calTotalCostItems, calTotalDiscountItems, formatNumberToColPesos } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
@@ -222,7 +219,8 @@ export default {
         : `Creación de ${this.nameTable}`;
     },
     netTotal(){
-      return (this.totalCost -this.totalDiscount).toFixed(2) || 0;
+      console.log('this',this.totalCost, this.totalDiscount, this.editItem.furtherDiscount)
+      return formatNumberToColPesos(this.totalCost -this.totalDiscount - (this.editItem.furtherDiscount || 0));
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -232,13 +230,11 @@ export default {
       const totalServices = calTotalCostItems(this.products);
       const totalFurtherProducts = calTotalCostItems(this.furtherProducts)
       this.totalCost = totalServices + totalFurtherProducts;
-      return this.totalCost.toFixed(2);
+      return formatNumberToColPesos(this.totalCost);
     },
     calTotalDiscount() {
-      this.totalDiscount = calTotalDiscountItems(this.products);
-      this.totalFPDiscount = calTotalDiscountItems(this.furtherProducts);
-      const furtherDiscount =  this.editItem.furtherDiscount || 0;
-      return (furtherDiscount + this.totalDiscount + this.totalFPDiscount).toFixed(2) ;
+      this.totalDiscount = calTotalDiscountItems(this.products) + calTotalDiscountItems(this.furtherProducts);
+      return formatNumberToColPesos( this.totalDiscount) ;
     },
     updateStepper(value) {
       this.stepperLabels[value].complete = false;

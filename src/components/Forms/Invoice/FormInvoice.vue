@@ -52,24 +52,21 @@
           </h4>
         </div>
         <div class="pl-5">
-                  <h3 class="text-h5 font-weight text-center text-green">
-
-                    {{ calTotalCost() }}
-                  </h3>
-                  <h4 class="text-subtitle-2 text-right font-weight-light">
-                    Costo total
-                  </h4>
-                </div>
-                <div class="pl-5">
-                  <h3 class="text-h5 font-weight text-center text-red">
-                    {{
-                      calTotalDiscount()
-                    }}
-                  </h3>
-                  <h4 class="text-subtitle-2 text-right font-weight-light">
-                    Descuento
-                  </h4>
-                </div>
+          <h3 class="text-h5 font-weight text-center text-green">
+            {{ calTotalCost() }}
+          </h3>
+          <h4 class="text-subtitle-2 text-right font-weight-light">
+            Costo total
+          </h4>
+        </div>
+        <div class="pl-5">
+          <h3 class="text-h5 font-weight text-center text-orange">
+            {{ calTotalDiscount() }}
+          </h3>
+          <h4 class="text-subtitle-2 text-right font-weight-light">
+            Impuestos
+          </h4>
+        </div>
       </div>
       <div class="d-flex pb-5 flex-row-reverse">
         <v-btn
@@ -98,7 +95,7 @@ import InvoiceApi from "@/services/Forms/InvoiceApi";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castFullDate, statusAllowed } from "@/utils/cast";
+import { castFullDate, formatNumberToColPesos, statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
@@ -143,7 +140,6 @@ export default {
     products: [],
     totalCost: 0,
     totalDiscount: 0,
-
   }),
 
   async mounted() {
@@ -165,8 +161,8 @@ export default {
         ? `Edición de ${this.nameTable}`
         : `Creación de ${this.nameTable}`;
     },
-    netTotal(){
-      return (this.totalCost -this.totalDiscount).toFixed(2) || 0;
+    netTotal() {
+      return formatNumberToColPesos(this.totalCost - this.totalDiscount);
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -176,25 +172,25 @@ export default {
         // Si el objeto no tiene 'amount' o 'cost', se toma como 0
         const amount = obj.amount || 0;
         const cost = obj.cost || 0;
-
+        const discount = obj.discount || 0;
         // Sumar el producto de 'amount' y 'cost' al acumulador
-        return acc + amount * cost;
-      }, 0);
-      return this.totalCost.toFixed(2);
+        return acc + (amount * cost - discount);
+      }, 0) - (this.editItem.furtherDiscount || 0);
+      return formatNumberToColPesos(this.totalCost);
     },
     calTotalDiscount() {
       this.totalDiscount = this.products.reduce((acc, obj) => {
-        const taxes = obj.taxes ? obj.taxes.reduce((total, item) => total + (+item.percent || 0), 0) : 0;
+        const taxes = obj.taxes
+          ? obj.taxes.reduce((total, item) => total + (+item.percent || 0), 0)
+          : 0;
         // Si el objeto no tiene 'amount' o 'cost', se toma como 0
-        const discount = +obj.discount || 0;
-        const total = (obj.cost * obj.amount) || 0;
-        // Sumar el producto de 'amount' y 'cost' al acumulador
-        return (acc + discount + (taxes * (total)) / 100);
-      }, 0);
-      const furtherDiscount =  this.editItem.furtherDiscount || 0;
-      return (furtherDiscount + this.totalDiscount).toFixed(2) ;
-    },
 
+        const total = (obj.cost * obj.amount || 0) - (obj.discount || 0);
+        // Sumar el producto de 'amount' y 'cost' al acumulador
+        return acc  + (taxes * total) / 100;
+      }, 0);
+      return formatNumberToColPesos(this.totalDiscount);
+    },
 
     updateStepper(value) {
       this.stepperLabels[value].complete = false;
