@@ -98,10 +98,8 @@ export default {
 
   methods: {
     async loadItems(name = null) {
-      let query = `format=short&`;
-      query = query + (name ? `keyword=${name}&typeKeyword=name` : "");
-
-      const response = await employeeApi.read(query);
+      const query = name ? `&filters[0][key]=third&filters[0][value]=${name}` : "";
+      const response = await employeeApi.read(`format=short${query}`);
       this.options = response.data;
     },
     appendItem(item) {

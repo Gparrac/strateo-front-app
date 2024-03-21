@@ -350,7 +350,6 @@ export default {
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
-          console.log('llegando', response)
           this.$emit('close-success', {'productId': response.product_id})
         }
       }

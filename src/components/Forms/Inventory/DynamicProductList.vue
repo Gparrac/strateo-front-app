@@ -1,13 +1,12 @@
 <template>
   <v-row>
-    <v-col cols="12" >
+    <v-col cols="12">
       <strong class="text-caption d-block mb-2"
         >* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a
         5 letras para completar la busqueda...</strong
       >
-      <div class="d-flex" >
+      <div class="d-flex">
         <v-autocomplete
-
           label="Productos relacionados"
           v-model="itemSelected"
           :items="options"
@@ -41,7 +40,10 @@
     <v-col class="max-w-custom">
       <v-row v-if="records && records.length > 0">
         <v-col cols="12" v-for="record in records" :key="record.code">
-          <v-card :title="record.name" :subtitle="'Consecutivo: '+record.consecutive">
+          <v-card
+            :title="record.name"
+            :subtitle="'Consecutivo: ' + record.consecutive"
+          >
             <template v-slot:prepend>
               <v-btn
                 v-show="!editable"
@@ -53,59 +55,54 @@
               </v-btn>
             </template>
             <template v-slot:append>
-              <v-chip class="mx-2">{{record.measure.symbol}}</v-chip>
-              <v-chip class="mx-2">{{record.brand.name}}</v-chip>
+              <v-chip class="mx-2">{{ record.measure.symbol }}</v-chip>
+              <v-chip class="mx-2">{{ record.brand.name }}</v-chip>
               <span class="text-overline">{{ record.product_code }}</span>
             </template>
             <v-card-text>
-
-              <v-row >
-
-
-                <v-col
-                  cols="12" sm="6" lg="4"
-                >
-
-                    <v-text-field
-                      :maxlength="rulesValidation.price.maxLength"
-                      label="Costo"
-                      :rules="rulesValidation.price.rules"
-                      :loading="loading"
-                      prepend-inner-icon="mdi-cash"
-                      v-model="record.cost"
-                      variant="outlined"
-                      :disabled="editable"
-                      persistent-hint
-                      :hint="'Precio fijado: '+ record.defaultCost"
-                    ></v-text-field>
-
+              <v-row>
+                <v-col cols="12" sm="6" lg="4">
+                  <v-text-field
+                    :maxlength="rulesValidation.price.maxLength"
+                    label="Costo"
+                    :rules="rulesValidation.price.rules"
+                    :loading="loading"
+                    prepend-inner-icon="mdi-cash"
+                    v-model="record.cost"
+                    variant="outlined"
+                    :disabled="editable"
+                    persistent-hint
+                    :hint="'Precio fijado: ' + record.defaultCost"
+                  ></v-text-field>
                 </v-col>
-                <v-col
-                  cols="12" sm="2" lg="4"
-
-                >
-                    <v-text-field
+                <v-col cols="12" sm="2" lg="4">
+                  <v-text-field
                     class="pr-5"
-                      :maxlength="rulesValidation.quantity.maxLength"
-                      label="Cantidad"
-                      :rules="[...rulesValidation.quantity.rules, (v) => (!(record.stock < v && typeTransaction == 'D'))  || 'No hay stock suficiente en inventario.' ]"
-                      :loading="loading"
-                      variant="outlined"
-                      v-model="record.amount"
-                      :disabled="editable"
-                      persistent-hint
-                      :hint="'Stock actual: ' + record.stock "
-                    ></v-text-field>
-
+                    :maxlength="rulesValidation.quantity.maxLength"
+                    label="Cantidad"
+                    :rules="[
+                      ...rulesValidation.quantity.rules,
+                      (v) =>
+                        !(record.stock < v && typeTransaction == 'D') ||
+                        'No hay stock suficiente en inventario.',
+                    ]"
+                    :loading="loading"
+                    variant="outlined"
+                    v-model="record.amount"
+                    :disabled="editable"
+                    persistent-hint
+                    :hint="'Stock actual: ' + record.stock"
+                  ></v-text-field>
                 </v-col>
-                <v-col
-                  cols="12" sm="4" lg="4"
-                >
-                <h3 class="text-h4 font-weight-light text-right">{{  (record.amount ?? 0) *  record.cost }}</h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">Costo total</h4>
+                <v-col cols="12" sm="4" lg="4">
+                  <h3 class="text-h4 font-weight-light text-right">
+                    {{ (record.amount ?? 0) * record.cost }}
+                  </h3>
+                  <h4 class="text-subtitle-2 text-right font-weight-light">
+                    Costo total
+                  </h4>
                 </v-col>
               </v-row>
-
             </v-card-text>
           </v-card>
         </v-col>
@@ -120,8 +117,11 @@
       records.length
     }}</span>
   </div>
-  <span v-if="errorMessage.type && errorMessage.type == 'services'" class="text-error text-caption">
-  {{ errorMessage.message }}
+  <span
+    v-if="errorMessage.type && errorMessage.type == 'services'"
+    class="text-error text-caption"
+  >
+    {{ errorMessage.message }}
   </span>
 </template>
 <script>
@@ -140,46 +140,45 @@ export default {
     itemSelected: null,
     options: [],
     searchItem: "",
-    loading:false,
+    loading: false,
     rulesValidation: RulesValidation,
   }),
-  computed:{
-
-  },
+  computed: {},
   watch: {
     async searchItem(to) {
       if (to.length > 3 && to.length < 5) {
         this.loadItems(to);
       }
     },
-    warehouse(){
+    warehouse() {
       this.resetItems();
     },
-    typeTransaction(){
+    typeTransaction() {
       this.resetItems();
-    }
+    },
   },
   methods: {
-    resetItems(){
+    resetItems() {
       this.itemSelected = null;
       this.emitRecords([]);
     },
     async loadItems(name = null) {
-      let query = `types[0]=T&`
-        query = query + (name ? `keyword=${name}&typeKeyword=name&format=short`
-        : "format=short");
+      let query = `types[0]=T&`;
+      query =
+        query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
 
-      const response = (await productApi.read(query));
-      this.options = response.data
-
+      const response = await productApi.read(`format=short&${query}`);
+      this.options = response.data;
     },
     appendItem() {
-      const idIndex = this.itemSelected.id
+      const idIndex = this.itemSelected.id;
       const index = this.records.findIndex(function (objeto) {
         return objeto.id === idIndex;
       });
       let newArray = this.records;
-      (index !== -1) ? newArray.splice(index, 1, this.itemSelected) : newArray.push(this.itemSelected);
+      index !== -1
+        ? newArray.splice(index, 1, this.itemSelected)
+        : newArray.push(this.itemSelected);
       this.emitRecords(newArray);
       this.itemSelected = null;
     },
@@ -191,12 +190,9 @@ export default {
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);
     },
-
   },
   async mounted() {
-
     await this.loadItems();
-
   },
 };
 </script>

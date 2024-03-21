@@ -100,10 +100,10 @@ export default {
 
   methods: {
     async loadItems(name = null) {
-      let query = `format=short&`;
-      query = query + (name ? `keyword=${name}&typeKeyword=acronym` : "");
 
-      const response = await productApi.read(query);
+      const query = name ? `&filters[0][key]=name&filters[0][value]=${name}` : "";
+
+      const response = await productApi.read(`format=short${query}`);
       this.options = response.data;
     },
     appendItem(item) {

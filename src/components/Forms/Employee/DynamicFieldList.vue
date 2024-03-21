@@ -154,7 +154,7 @@ export default {
   methods: {
     async loadItems(name = null) {
       const query = name
-        ? `keyword=${name}&typeKeyword=name&format=short`
+        ? `filters[0][key]=${name}&filters[0][value]=${name}&format=short`
         : "format=short";
       this.options = (await serviceApi.read(query)).data;
     },

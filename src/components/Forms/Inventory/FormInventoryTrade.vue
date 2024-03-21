@@ -41,26 +41,17 @@
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
-                      <v-autocomplete
-                        label="Provedor"
-                        v-model="editItem.supplier"
-                        v-model:search="searchSupplier"
-                        item-title="supplier"
-                        :return-object="true"
-                        :items="suppliers"
-                        :rules="rulesValidation.select.rules"
-                        :loading="loading"
+                      <dynamic-select-field
+                        :options="suppliers"
+                        @update:options="setSuppliers"
+                        @update:itemSelected="(item) => editItem.supplier = item"
+                        mainLabel="supplier"
+                        :secondLabel="['commercial_registry']"
+                        subtitle="Registro comercial"
+                        title="Provedores"
+                        class="pr-5"
                       >
-                        <template v-slot:item="{ props, item }">
-                          <v-list-item v-bind="props">
-                            <v-list-item-subtitle class="d-flex">
-                              <span class="d-block">{{
-                                item.raw.commercial_registry
-                              }}</span>
-                            </v-list-item-subtitle>
-                          </v-list-item>
-                        </template>
-                      </v-autocomplete>
+                      </dynamic-select-field>
                     </v-col>
                     <v-col cols="12">
                       <v-textarea
@@ -115,14 +106,14 @@
             </v-col>
             <v-col cols="12" lg="12">
               <v-card
-              v-if="editItem.products && editItem.warehouse && editItem.type"
+                v-if="editItem.products && editItem.warehouse && editItem.type"
                 title="Productos relacionados"
                 variant="outlined"
                 padding="2"
               >
                 <v-card-text>
                   <DynamicProductList
-                    :typeTransaction=" editItem.type"
+                    :typeTransaction="editItem.type"
                     :records="editItem.products"
                     :error-message="customAlertError"
                     :editable="idEditForm"
@@ -169,8 +160,8 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import DynamicProductList from "./DynamicProductList.vue";
 import Petition from "@/services/PetitionStructure/Petition";
-import { castFullDate } from '@/utils/cast';
-
+import { castFullDate } from "@/utils/cast";
+import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const inventoryApi = new InventoryApi();
 const warehouseApi = new WarehouseApi();
 const supplierApi = new SupplierApi();
@@ -184,6 +175,7 @@ export default {
   },
   components: {
     DynamicProductList,
+    DynamicSelectField
   },
   data: () => ({
     // required data
@@ -204,7 +196,6 @@ export default {
     isEditForm: false,
   }),
   async mounted() {
-
     this.loading = true;
     try {
       await Promise.all([
@@ -241,20 +232,22 @@ export default {
         : 0;
       return total;
     },
-    editDisable(){
-      return this.idEditForm ? false: true;
-    }
+    editDisable() {
+      return this.idEditForm ? false : true;
+    },
   },
   methods: {
     async submitForm() {
       this.loading = true;
-      if (this.isEditForm && (!this.editItem.products || this.editItem.products.length == 0)) {
-            this.customAlertError.type = "products";
-            this.customAlertError.message =
-              "Debes seleccionar almenos un producto";
-          } else {
-            this.customAlertError = {};
-          }
+      if (
+        this.isEditForm &&
+        (!this.editItem.products || this.editItem.products.length == 0)
+      ) {
+        this.customAlertError.type = "products";
+        this.customAlertError.message = "Debes seleccionar almenos un producto";
+      } else {
+        this.customAlertError = {};
+      }
 
       const { valid } = await this.$refs.form.validate();
       if (valid) {
@@ -262,7 +255,7 @@ export default {
         const formData = new FormData();
         if (this.editItem.note) formData.append("note", this.editItem.note);
         formData.append("supplier_id", this.editItem.supplier.id);
-        formData.append("date", castFullDate(this.editItem.date) );
+        formData.append("date", castFullDate(this.editItem.date));
         let response = {};
         if (this.isEditForm) {
           formData.append("inventory_trade_id", this.editItem.inventoryTradeId);
@@ -341,12 +334,17 @@ export default {
     },
 
     async setWarehouses(name = null) {
-      const query = name ? `&name=${name}` : "";
-      this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;
+      let query = "format=short&${query}";
+      query =
+        query +
+        (name ? `&filters[0][key]=address&filters[0][value]=${name}` : "");
+      this.warehouses = (await warehouseApi.read(query)).data;
     },
 
     async setSuppliers(name = null) {
-      const query = name ? `&name=${name}` : "";
+      const query = name
+        ? `filters[0][key]=third&filters[0][value]=${name}`
+        : "";
       this.suppliers = (await supplierApi.read(`format=short&${query}`)).data;
     },
   },

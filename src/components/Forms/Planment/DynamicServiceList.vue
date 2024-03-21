@@ -7,17 +7,20 @@
       >
       <div class="d-flex">
         <dynamic-select-field
-            :options="options"
-            @update:options="loadItems"
-            @update:itemSelected="appendItem"
-            mainLabel="name"
-            :secondLabel="['consecutive']"
-            title="Servicios"
-            :thirdkey="{id:'product_code', label:'Cod: '}"
-            class="pr-5"
-          >
-          </dynamic-select-field>
-          <modal-new-product @new-product="appendItem" type="I"></modal-new-product>
+          :options="options"
+          @update:options="loadItems"
+          @update:itemSelected="appendItem"
+          mainLabel="name"
+          :secondLabel="['consecutive']"
+          title="Servicios"
+          :thirdkey="{ id: 'product_code', label: 'Cod: ' }"
+          class="pr-5"
+        >
+        </dynamic-select-field>
+        <modal-new-product
+          @new-product="appendItem"
+          type="I"
+        ></modal-new-product>
       </div>
     </v-col>
     <v-col class="max-w-custom px-5">
@@ -96,7 +99,7 @@
                         :records="record.taxes"
                         :editable="editable"
                         :errorMessage="{}"
-                        @update:records="(item) => record.taxes = item"
+                        @update:records="(item) => (record.taxes = item)"
                       ></dynamic-tax-list>
                     </v-col>
                   </v-row>
@@ -107,8 +110,7 @@
                 :records="record.subproducts"
                 :editable="editable"
                 :errorMessage="errorMessage"
-                @update:records="(item) => record.subproducts = item"
-
+                @update:records="(item) => (record.subproducts = item)"
               ></dynamic-subproduct-list>
               <!-- ------------------------END SUBPRODUCTS----------------------- -->
               <total-records :record="record"></total-records>
@@ -138,10 +140,10 @@ import { RulesValidation } from "@/utils/validations";
 import ProductApi from "@/services/Forms/ProductApi";
 import WarehouseApi from "@/services/Forms/WarehouseApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
-import DynamicTaxList from "./DynamicTaxList.vue";
-import DynamicSubproductList from './DynamicSubproductList.vue';
+import DynamicTaxList from "@/components/blocks/DynamicTaxList.vue";
+import DynamicSubproductList from "./DynamicSubproductList.vue";
 import InventoryApi from "@/services/Forms/InventoryApi";
-import ModalNewProduct from '@/components/blocks/ModalNewProduct.vue';
+import ModalNewProduct from "@/components/blocks/ModalNewProduct.vue";
 import TotalRecords from "@/components/blocks/TotalRecords.vue";
 import { formatNumberToColPesos } from "@/utils/cast";
 const productApi = new ProductApi();
@@ -158,7 +160,7 @@ export default {
     DynamicTaxList,
     DynamicSubproductList,
     ModalNewProduct,
-    TotalRecords
+    TotalRecords,
   },
   data: () => ({
     options: [],
@@ -169,19 +171,21 @@ export default {
   }),
 
   methods: {
-    totalCost(record){
-     const tamount = record.amount ?? 0;
-     const tcost = record.cost ?? 0;
-     const tDiscount = +(record.discount ?? 0);
-     record.ctotal = (+tamount ?? 0) * tcost - tDiscount;
-     return formatNumberToColPesos(record.ctotal);
+    totalCost(record) {
+      const tamount = record.amount ?? 0;
+      const tcost = record.cost ?? 0;
+      const tDiscount = +(record.discount ?? 0);
+      record.ctotal = (+tamount ?? 0) * tcost - tDiscount;
+      return formatNumberToColPesos(record.ctotal);
     },
-    totalTaxes(record){
-      const totalPercentTaxes = record.taxes.reduce((total, item) => total + (+item.percent ?? 0) , 0) ?? 0;
-      record.ctaxes = totalPercentTaxes * record.ctotal/100;
-      return formatNumberToColPesos( record.ctaxes);
+    totalTaxes(record) {
+      const totalPercentTaxes =
+        record.taxes.reduce((total, item) => total + (+item.percent ?? 0), 0) ??
+        0;
+      record.ctaxes = (totalPercentTaxes * record.ctotal) / 100;
+      return formatNumberToColPesos(record.ctaxes);
     },
-    netTotal(record){
+    netTotal(record) {
       const tDiscount = record.ctaxes;
       const tTotalCost = record.ctotal;
       return formatNumberToColPesos(tTotalCost - tDiscount);
@@ -196,14 +200,11 @@ export default {
       ).data;
     },
     async loadItems(name = null) {
-      let query = `types[0]=I&format=short&`;
+      let query = `&types[0]=I&`;
       query =
-        query +
-        (name
-          ? `keyword=${name}&typeKeyword=name`
-          : "");
+        query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
 
-      const response = await productApi.read(query);
+      const response = await productApi.read(`format=short${query}`);
       this.options = response.data;
     },
     async setWarehouses(name = null) {
@@ -240,7 +241,7 @@ export default {
 </script>
 <style scoped>
 .max-w-custom {
-  max-height: 827.200px;
+  max-height: 827.2px;
   overflow-y: scroll;
 }
 </style>

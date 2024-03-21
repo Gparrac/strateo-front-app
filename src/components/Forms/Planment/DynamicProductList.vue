@@ -160,7 +160,7 @@ import { RulesValidation } from "@/utils/validations";
 import ProductApi from "@/services/Forms/ProductApi";
 import WarehouseApi from "@/services/Forms/WarehouseApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
-import DynamicTaxList from "./DynamicTaxList.vue";
+import DynamicTaxList from "@/components/blocks/DynamicTaxList.vue";
 import InventoryApi from "@/services/Forms/InventoryApi";
 import ModalNewProduct from '@/components/blocks/ModalNewProduct.vue';
 import TotalRecords from "@/components/blocks/TotalRecords.vue";
@@ -197,15 +197,16 @@ export default {
       ).data;
     },
     async loadItems(name = null) {
-      let query = `types[0]=T&format=short&`;
-      query = query + (name ? `keyword=${name}&typeKeyword=name` : "");
+      let query = `&types[0]=T&`;
+      query =
+        query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
 
-      const response = await productApi.read(query);
+      const response = await productApi.read(`format=short${query}`);
       this.options = response.data;
     },
     async setWarehouses(name = null) {
-      const query = name ? `&name=${name}` : "";
-      this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;
+      const query = name ? `&filters[0][key]=address&filters[0][value]=${name}` : "";
+      this.warehouses = (await warehouseApi.read(`format=short${query}`)).data;
     },
     appendItem(item) {
       const index = this.records.findIndex(function (objeto) {

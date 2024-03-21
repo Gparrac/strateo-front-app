@@ -6,34 +6,18 @@
         5 letras para completar la busqueda...</strong
       >
       <div class="d-flex">
-        <v-autocomplete
-          label="Campos adicionales"
-          :items="options"
-          class="flex-grow-1 mr-5"
-          v-model:search="searchItem"
-          v-on:update:model-value="appendItem"
-          item-title="name"
-          :return-object="true"
-          :loading="loading"
+        <dynamic-select-field
+          :options="options"
+          @update:options="loadItems"
+          @update:itemSelected="appendItem"
+          mainLabel="name"
+          :secondLabel="['type', 'name']"
+          title="Servicios"
+          :thirdkey="{id:'length', label:'Tamaño maximo: '}"
+          subtitle="Tipo:"
+          class="pr-5"
         >
-          <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props">
-              <template v-slot:prepend>
-                <v-avatar color="grey-lighten-1">
-                  <!-- <v-icon color="white">{{item.raw.type.icon}}</v-icon> -->
-                  <v-icon color="white">{{ item.raw.type.icon }}</v-icon>
-                </v-avatar>
-              </template>
-              <v-list-item-subtitle class="d-flex">
-                <span class="d-block">{{ item.raw.type.name }}</span>
-                <v-spacer></v-spacer>
-                <span class="d-block"
-                  >Tamaño maximo: {{ item.raw.length }}
-                </span>
-              </v-list-item-subtitle>
-            </v-list-item>
-          </template>
-        </v-autocomplete>
+        </dynamic-select-field>
       </div>
     </v-col>
     <v-col class="max-w-custom">
@@ -85,11 +69,15 @@
 <script>
 import { RulesValidation } from "@/utils/validations";
 import FieldApi from "@/services/Forms/FieldApi";
+import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const fieldApi = new FieldApi();
 export default {
   name: 'DynamicFieldList',
   props: {
     records: Array,
+  },
+  components:{
+    DynamicSelectField
   },
   data: () => ({
     options: [],
@@ -107,10 +95,10 @@ export default {
   methods: {
     async loadItems(name = null) {
       this.loading = true;
+      console.log('name', name);
       const query = name
-      ? `keyword=${name}&typeKeyword=name&format=short`
-      : "format=short";
-      this.options = (await fieldApi.read(query)).data;
+      ? `&filters[0][key]=name&filters[0][value]=${name}` : "";
+      this.options = (await fieldApi.read(`format=short${query}`)).data;
       this.loading = false;
     },
     appendItem(item) {

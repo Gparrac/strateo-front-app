@@ -10,8 +10,8 @@
           :options="options"
           @update:options="loadItems"
           @update:itemSelected="appendItem"
-          mainLabel="name"
-          :secondLabel="['acronym']"
+          mainLabel="acronym"
+          :secondLabel="['name']"
           title="Impuestos"
           subtitle=""
           class="pr-5"
@@ -103,10 +103,11 @@ export default {
 
   methods: {
     async loadItems(name = null) {
-      let query = `format=short&`;
-      query = query + (name ? `keyword=${name}&typeKeyword=acronym` : "");
+      console.log('entry')
+      const query = name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
 
-      const response = await taxApi.read(query);
+      const response = await taxApi.read(`format=short${query}`);
+      console.log('finish')
       this.options = response.data;
     },
     appendItem(item) {

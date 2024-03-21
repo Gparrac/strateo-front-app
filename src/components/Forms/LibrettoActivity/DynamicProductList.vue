@@ -80,16 +80,12 @@ export default {
   }),
   methods: {
     async loadItems(name = null) {
-      this.loading = true;
-      let query = `types[0]=I&format=short&`;
+      let query = `types[0]=T&`;
       query =
-        query +
-        (name
-          ? `keyword=${name}&typeKeyword=name`
-          : "");
-      const response = (await productApi.read(query))
-      this.options = response.data
-      this.loading = false;
+        query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
+
+      const response = await productApi.read(`format=short&${query}`);
+      this.options = response.data;
     },
     appendItem(item) {
       const index = this.records.findIndex(function (objeto) {

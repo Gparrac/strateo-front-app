@@ -64,24 +64,6 @@
                     :records="editItem.fields"
                     @update:records="(item) => (editItem.fields = item)"
                   >
-                    <template #dynamic-item-icon="{ raw }">
-                      <v-avatar color="grey-lighten-1">
-                        <v-icon color="white">{{ raw.type.icon }}</v-icon>
-                      </v-avatar>
-                    </template>
-                    <template #dynamic-item="{ raw }">
-                      <v-list-item-subtitle class="d-flex">
-                        <span class="d-block">{{ raw.type.name }}</span>
-                        <v-spacer></v-spacer>
-                        <span class="d-block"
-                          >Tamaño maximo: {{ raw.length }}
-                        </span>
-                      </v-list-item-subtitle>
-                    </template>
-                    <v-chip class="ma-2" color="primary" label>
-                      <v-icon start :icon="record.type.icon"></v-icon>
-                      {{ record.type.name }}
-                    </v-chip>
                   </dynamic-field-list>
                   <!------------------------------- END DYNAMIC ITEM --------------------------->
                 </v-card-text>

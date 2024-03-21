@@ -88,7 +88,7 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 import DynamicProductList from "@/components/Forms/Category/DynamicProductList.vue"
 
 const categoryApi = new CategoryApi();
- 
+
 export default {
   name: "FormCategory",
   props: {
@@ -97,7 +97,7 @@ export default {
     path: String,
   },
   components: {
-    DynamicProductList 
+    DynamicProductList
   },
   data: () => ({
     // required data
@@ -111,7 +111,6 @@ export default {
     ],
     thirdKeyCard:0,
     cities: [],
-    searchCity: ''
   }),
   async mounted() {
     this.loading = true;
@@ -144,7 +143,7 @@ export default {
         formData.append("name", this.editItem.name);
         formData.append("code", this.editItem.code);
         formData.append("status", this.editItem.status);
-        
+
         this.editItem.products.forEach((item, index) => {
           formData.append(`products_ids[${index}]`, item.id);
         });
@@ -198,12 +197,5 @@ export default {
 
     },
   },
-  watch: {
-    async searchCity(to) {
-        if (to.length > 3) {
-            this.setCities(to);
-        }
-    },
-  }
 };
 </script>

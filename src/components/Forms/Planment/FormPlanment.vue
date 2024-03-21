@@ -75,20 +75,20 @@
 
     <!-- --------------------------- end invoice data -------------------->
     <template v-slot:[`actions`]>
-      <div class="d-flex justify-start px-4">
+      <div class="d-flex justify-md-start px-4 flex-wrap justify-center">
         <div class="mx-4">
           <h3 class="text-h5 font-weight text-center text-primary">
             {{ netTotal }}
           </h3>
-          <h4 class="text-subtitle-2 text-right font-weight-light">
+          <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
             Costo neto
           </h4>
         </div>
         <div class="pl-5">
-          <h3 class="text-h5 font-weight text-center text-green">
+          <h3 class="text-h5 font-weight text-md-right text-center text-green">
             {{ calTotalCost() }}
           </h3>
-          <h4 class="text-subtitle-2 text-right font-weight-light">
+          <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
             Costo total
           </h4>
         </div>
@@ -96,7 +96,7 @@
           <h3 class="text-h5 font-weight text-center text-orange">
             {{ calTotalDiscount() }}
           </h3>
-          <h4 class="text-subtitle-2 text-right font-weight-light">
+          <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
             Impuestos
           </h4>
         </div>
@@ -219,7 +219,6 @@ export default {
         : `Creación de ${this.nameTable}`;
     },
     netTotal(){
-      console.log('this',this.totalCost, this.totalDiscount, this.editItem.furtherDiscount)
       return formatNumberToColPesos(this.totalCost -this.totalDiscount - (this.editItem.furtherDiscount || 0));
     },
     ...mapStores(useAlertMessageStore),

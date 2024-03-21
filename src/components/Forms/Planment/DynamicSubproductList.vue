@@ -139,10 +139,10 @@ export default {
 
   methods: {
     async loadItems(name = null) {
-      let query = `types[0]=T&format=short&`;
-      query = query + (name ? `keyword=${name}&typeKeyword=acronym` : "");
-
-      const response = await productApi.read(query);
+      let query = `&types[0]=T&`;
+      query =
+        query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
+      const response = await productApi.read(`format=short${query}`);
       this.options = response.data;
     },
     appendItem(item) {
@@ -160,8 +160,9 @@ export default {
       this.$emit("update:records", newRecords);
     },
     async setWarehouses(name = null) {
-      const query = name ? `&name=${name}` : "";
-      this.warehouses = (await warehouseApi.read(`format=short&${query}`)).data;
+      let query = 'format=short&${query}';
+      query = query + (name ? `&filters[0][key]=address&filters[0][value]=${name}` : "");
+      this.warehouses = (await warehouseApi.read(query)).data;
     },
     async setProductInventory(item, product) {
       product.warehouse = item;

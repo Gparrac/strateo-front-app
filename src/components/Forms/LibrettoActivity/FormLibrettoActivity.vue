@@ -205,12 +205,5 @@ export default {
       this.thirdKeyCard = this.thirdKeyCard + 1;
     },
   },
-  watch: {
-    async searchCity(to) {
-      if (to.length > 3) {
-        this.setCities(to);
-      }
-    },
-  },
 };
 </script>

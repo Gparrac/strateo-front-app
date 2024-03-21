@@ -160,11 +160,11 @@ export default {
   },
   methods: {
     async setSuppliers(name = null) {
-      const query = name ? `&typeKeyword=third&keyword=${name}` : "";
+      const query = name ? `&filters[0][key]=third&filters[0][value]=${name}` : "";
       this.suppliers = (await supplierApi.read(`format=short${query}`)).data;
     },
     async setProducts(name = null) {
-      const query = name ? `&typeKeyword=name&keyword=${name}` : "";
+      const query = name ? `&filters[0][key]=name&filters[0][value]=${name}` : ""
       this.products = (await productApi.read(`format=short${query}`)).data;
     },
     async submitForm() {
