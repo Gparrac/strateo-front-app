@@ -9,128 +9,12 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12" sm="4">
-              <v-select
-                label="Tipo de documento"
-                v-model="editItem.typeDocument"
-                item-title="label"
-                item-value="name"
-                :items="typesDocument"
-                :rules="rulesValidation.select.rules"
-                :loading="loading"
-              ></v-select>
-            </v-col>
-            <v-col cols="12" sm="4">
-              <v-text-field
-                :maxlength="rulesValidation.identification.maxLength"
-                label="Número de documento"
-                v-model="editItem.identification"
-                :rules="rulesValidation.identification.rules"
-                :loading="loading"
-                :suffix="verificationNitNumber"
-              ></v-text-field>
-            </v-col>
-            <template
-              v-if="editItem.typeDocument && editItem.typeDocument != 'NIT'"
-            >
-              <v-col cols="12" sm="4">
-                <v-text-field
-                  :maxlength="rulesValidation.text.maxLength"
-                  label="Nombres"
-                  v-model="editItem.names"
-                  :rules="rulesValidation.text.rules"
-                  :loading="loading"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="4">
-                <v-text-field
-                  :maxlength="rulesValidation.text.maxLength"
-                  label="Apellidos"
-                  v-model="editItem.surnames"
-                  :rules="rulesValidation.text.rules"
-                  :loading="loading"
-                ></v-text-field>
-              </v-col>
-            </template>
-            <template v-else>
-              <v-col cols="12" sm="4">
-                <v-text-field
-                  :maxlength="rulesValidation.text.maxLength"
-                  label="Nombre de empresa"
-                  v-model="editItem.business"
-                  :rules="rulesValidation.text.rules"
-                  :loading="loading"
-                ></v-text-field>
-              </v-col>
-            </template>
-            <v-col cols="12" sm="4">
-              <v-text-field
-                label="Dirección"
-                v-model="editItem.address"
-                :rules="rulesValidation.text.rules"
-                :loading="loading"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="4">
-              <v-text-field
-                :maxlength="rulesValidation.mobile.maxLength"
-                label="Teléfono"
-                v-model="editItem.mobile"
-                :rules="rulesValidation.mobile.rules"
-                :loading="loading"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="4">
-              <v-text-field
-                label="Correo Principal"
-                v-model="editItem.email"
-                placeholder="ejemplo@ejemplo.com"
-                :rules="rulesValidation.email.rules"
-                :loading="loading"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="4">
-              <v-text-field
-                label="Correo Secundario (opcional)"
-                v-model="editItem.email2"
-                placeholder="ejemplo@ejemplo.com"
-                :rules="verificationSecondEmail"
-                :loading="loading"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="4">
-              <v-text-field
-                :maxlength="rulesValidation.text.maxLength"
-                label="Código Postal"
-                v-model="editItem.postal_code"
-                :rules="rulesValidation.text.rules"
-                :loading="loading"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="4">
-              <dynamic-select-field
-            :options="cities"
-            :itemSaved="editItem.city"
-            @update:options="setCities"
-            @update:itemSelected="(item) => editItem.city = item"
-            mainLabel="name"
-            title="Ciudad"
-            :rules="rulesValidation.select.rules"
-          >
-          </dynamic-select-field>
-            </v-col>
-            <v-col cols="12" :sm="editItem.typeDocument == 'NIT' ? '12' : '8'">
-
-              <dynamic-select-field
-            :options="ciiuCodes"
-            :itemSaved="editItem.ciiu"
-            @update:options="setCiiuCodes"
-            @update:itemSelected="(item) => editItem.ciiu = item"
-            mainLabel="description"
-            title="Codigo CIIU"
-            :rules="rulesValidation.select.rules"
-          >
-          </dynamic-select-field>
+            <v-col cols="12">
+              <thirdFieldCard
+                :records="editItem"
+                @update:records="updateAttributes"
+                :thirdPerson="false"
+              ></thirdFieldCard>
             </v-col>
           </v-row>
 
@@ -235,7 +119,8 @@
               <v-text-field
                 label="Nota"
                 v-model="editItem.note"
-                :rules="rulesValidation.text.rules"
+                :rules="rulesValidation.longTextNull.rules"
+                :maxLength="rulesValidation.longTextNull.maxLength"
                 :loading="loading"
               ></v-text-field>
             </v-col>
@@ -283,8 +168,8 @@ import Petition from "@/services/PetitionStructure/Petition.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
+import ThirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
 import { castNit } from "@/utils/cast";
-import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const clientApi = new ClientApi();
 const petition = new Petition();
 
@@ -295,8 +180,8 @@ export default {
     nameTable: String,
     path: String,
   },
-  components: {
-    DynamicSelectField
+  components:{
+    ThirdFieldCard
   },
   data: () => ({
     // required data
@@ -356,7 +241,12 @@ export default {
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+    updateAttributes(data) {
+      console.log('update',data);
+      this.editItem[data.key] = data.item;
+    },
     async submitForm() {
+
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {
@@ -368,9 +258,9 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        formData.append("postal_code", this.editItem.postal_code);
+        if(this.editItem.postal_code) formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city.id);
-        formData.append("code_ciiu_id", this.editItem.ciiu.id);
+        if(this.editItem.ciiu)formData.append("code_ciiu_id", this.editItem.ciiu.id);
 
         formData.append(
           "commercial_registry",
@@ -475,6 +365,7 @@ export default {
     async setCiiuCodes(name = null) {
       const query = name ? `?name=${name}` : "";
       this.ciiuCodes = (await petition.get("/ciiu-codes",query)).data;
+      console.log('ciius',this.ciiuCodes)
     },
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;

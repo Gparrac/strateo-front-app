@@ -13,6 +13,8 @@
             @update:itemSelected="appendCiiu"
             mainLabel="description"
             title="Codigos secundarios CIIU"
+            subtitle="codigo:"
+            :secondLabel="['code']"
           >
           </dynamic-select-field>
       </div>

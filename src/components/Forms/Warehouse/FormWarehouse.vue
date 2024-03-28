@@ -25,8 +25,8 @@
                       <v-textarea
                         label="Nota"
                         v-model="editItem.note"
-                        :maxLength="rulesValidation.longText.maxLength"
-                        :rules="rulesValidation.longText.rules"
+                        :maxLength="rulesValidation.longTextNull.maxLength"
+                        :rules="rulesValidation.longTextNull.rules"
                         :loading="loading"
                       ></v-textarea>
                     </v-col>
@@ -35,8 +35,15 @@
                           :rules="rulesValidation.text.rules" :loading="loading"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-autocomplete label="Ciudad" v-model="editItem.city_warehouse_id" :items="cities" v-model:search="searchCity"
-                            item-title="name" item-value="id" :rules="rulesValidation.select.rules" :loading="loading"></v-autocomplete>
+                      <dynamic-select-field
+                      :options="cities"
+            :itemSaved="editItem.wcity"
+            @update:options="setCities"
+            @update:itemSelected="(item) => editItem.wcity = item"
+            mainLabel="name"
+            title="Ciudad"
+            :rules="rulesValidation.select.rules"
+                      ></dynamic-select-field>
                     </v-col>
                     <v-col cols="12" sm="4">
                       <v-select
@@ -87,7 +94,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import ThirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
 import Petition from "@/services/PetitionStructure/Petition.js";
-
+import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const petition = new Petition();
 const warehouseApi = new WarehouseApi();
 
@@ -99,7 +106,8 @@ export default {
     path: String,
   },
   components: {
-    ThirdFieldCard
+    ThirdFieldCard,
+    DynamicSelectField
   },
   data: () => ({
     // required data
@@ -113,7 +121,6 @@ export default {
     ],
     thirdKeyCard:0,
     cities: [],
-    searchCity: ''
   }),
   async mounted() {
     this.loading = true;
@@ -144,6 +151,8 @@ export default {
       this.cities = (await petition.get("/cities", query)).data;
     },
     async submitForm() {
+      // console.log('city', this.editItem)
+      // return
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {
@@ -157,7 +166,7 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        formData.append("code_ciiu_id", this.editItem.ciiu.id);
+       if(this.editItem.ciiu) formData.append("code_ciiu_id", this.editItem.ciiu.id);
         if (this.editItem.typeDocument == "NIT") {
           formData.append("business_name", this.editItem.business);
         } else {
@@ -166,15 +175,15 @@ export default {
         }
         if (this.editItem.email2)
           formData.append("email2", this.editItem.email2);
-        formData.append("postal_code", this.editItem.postal_code);
-        formData.append("city_id", this.editItem.city_id);
+        if(this.editItem.postal_code) formData.append("postal_code", this.editItem.postal_code);
+        formData.append("city_id", this.editItem.city.id);
         this.editItem.secondaryCiius.forEach((item, cindex) => {
           formData.append(`secondary_ciiu_ids[${cindex}]`, item.id);
         });
 
         // warehouse field
-        formData.append("note", this.editItem.note);
-        formData.append("city_warehouse_id", this.editItem.city_warehouse_id);
+        if(this.editItem.note) formData.append("note", this.editItem.note);
+        formData.append("city_warehouse_id", this.editItem.wcity.id);
         formData.append("address_warehouse", this.editItem.address_warehouse);
         formData.append("status", this.editItem.status);
 
@@ -216,7 +225,7 @@ export default {
           warehouse_id: response.data.id,
           note: response.data.note,
           address_warehouse: response.data.address,
-          city_warehouse_id: response.data.city_id,
+          wcity: response.data.city,
           status: response.data.status,
 
           //third attributes
@@ -229,7 +238,7 @@ export default {
           mobile: response.data.third.mobile,
           email: response.data.third.email,
           postal_code: response.data.third.postal_code,
-          city_id: response.data.third.city_id,
+          city: response.data.third.city,
           ciiu: response.data.third.ciiu,
           secondaryCiius: response.data.third.secondary_ciius,
           services: response.data.services,
@@ -240,12 +249,6 @@ export default {
 
     },
   },
-  watch: {
-    async searchCity(to) {
-        if (to.length > 3) {
-            this.setCities(to);
-        }
-    },
-  }
+
 };
 </script>

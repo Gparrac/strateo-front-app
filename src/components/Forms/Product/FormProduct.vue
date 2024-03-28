@@ -13,165 +13,187 @@
               <v-card rounded="true" elevation="0">
                 <v-card-text>
                   <v-row>
-                    <v-col cols="12" sm="8" lg="8">
-                      <v-row>
-                        <!-- first row -->
-                        <v-col v-if="!this.type" cols="12" sm="6" md="4" >
-                          <v-select
-
-                            label="Tipo de producto"
-                            v-model="editItem.type"
-                            item-title="name"
-                            item-value="id"
-                            :items="types"
-                            :rules="rulesValidation.select.rules"
-                            :loading="loading"
-                            @update:model-value="
-                              setTypesContent(editItem.type.id, true)
-                            "
-                            :return-object="true"
-                          ></v-select>
-                        </v-col>
-                        <v-col v-if="editItem.type" cols="12" sm="6" md="4">
-                          <v-select
-                            label="Tipo de contenido"
-                            v-model="editItem.typeContent"
-                            item-title="name"
-                            :items="typesContent"
-                            :rules="rulesValidation.select.rules"
-                            :loading="loading"
-                            :return-object="true"
-                          ></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            :maxlength="rulesValidation.shortText.maxLength"
-                            label="Consecutivo"
-                            v-model="editItem.consecutive"
-                            :rules="rulesValidation.shortText.rules"
-                            :loading="loading"
-                          ></v-text-field>
-                        </v-col>
-                        <!-- second row -->
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            :maxlength="rulesValidation.text.maxLength"
-                            label="Nombre"
-                            v-model="editItem.name"
-                            :rules="rulesValidation.text.rules"
-                            :loading="loading"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            :maxlength="rulesValidation.price.maxLength"
-                            label="Costo"
-                            v-model="editItem.cost"
-                            :rules="rulesValidation.price.rules"
-                            :loading="loading"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            :maxlength="rulesValidation.shortTextNull.length"
-                            label="Codigo de producto"
-                            v-model="editItem.productCode"
-                            :rules="rulesValidation.shortTextNull.rules"
-                            :loading="loading"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            :maxlength="rulesValidation.shortText.length"
-                            label="Presentación"
-                            v-model="editItem.size"
-                            :rules="rulesValidation.shortText.rules"
-                            :loading="loading"
-                          ></v-text-field>
-                        </v-col>
-                        <!-- third row -->
-                        <v-col cols="12" sm="6" md="4">
-                          <v-select
-                            label="Medida"
-                            v-model="editItem.measure"
-                            item-title="name"
-                            item-value="id"
-                            :items="measures"
-                            :rules="rulesValidation.select.rules"
-                            :loading="loading"
-                          ></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-select
-                            label="Marca"
-                            v-model="editItem.brand"
-                            item-title="name"
-                            item-value="id"
-                            :items="brands"
-                            :rules="rulesValidation.select.rules"
-                            :loading="loading"
-                          ></v-select>
-                        </v-col>
-
-                        <v-col cols="12" sm="6" md="4">
-                          <v-select
-                            label="Estado"
-                            v-model="editItem.status"
-                            item-title="name"
-                            item-value="id"
-                            :items="status"
-                            :rules="rulesValidation.select.rules"
-                            :loading="loading"
-                          ></v-select>
-                        </v-col>
-
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field
-                            :maxlength="rulesValidation.shortTextNull.length"
-                            label="Codigo de barras"
-                            v-model="editItem.barcode"
-                            :rules="rulesValidation.shortTextNull.rules"
-                            :loading="loading"
-                          ></v-text-field>
-                        </v-col>
-                        <v-col v-show="editItem.type && editItem.type.id == 'T'" cols="12" sm="6" md="4">
-                          <v-switch
-                            v-model="editItem.tracing"
-                            label="Inventario"
-                          ></v-switch>
-                        </v-col>
-                      </v-row>
+                    <!-- first row -->
+                    <v-col v-if="!this.type" cols="12" sm="6" md="4">
+                      <v-select
+                        label="Tipo de producto"
+                        v-model="editItem.type"
+                        item-title="name"
+                        item-value="id"
+                        :items="types"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                        @update:model-value="
+                          setTypesContent(editItem.type.id, true)
+                        "
+                        :return-object="true"
+                      ></v-select>
                     </v-col>
-                    <v-col cols="12" sm="4">
-                      <v-row>
-                        <v-col cols="12">
-                          <v-select
-                            label="Categorias"
-                            v-model="editItem.categories"
-                            item-title="name"
-                            item-value="id"
-                            multiple
-                            :items="categories"
-                            :rules="rulesValidation.select.rules"
-                            :loading="loading"
-                          ></v-select>
-                        </v-col>
-                        <v-col cols="12">
-                          <v-textarea
-                            label="Descripción"
-                            v-model="editItem.description"
-                            :maxLength="rulesValidation.longTextNull.maxLength"
-                            :rules="rulesValidation.longTextNull.rules"
-                            rows="10"
-                            :loading="loading"
-                          ></v-textarea>
-                        </v-col>
-                      </v-row>
+                    <v-col v-if="editItem.type" cols="12" sm="6" md="4">
+                      <v-select
+                        label="Tipo de contenido"
+                        v-model="editItem.typeContent"
+                        item-title="name"
+                        :items="typesContent"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                        :return-object="true"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.shortText.maxLength"
+                        label="Consecutivo"
+                        v-model="editItem.consecutive"
+                        :rules="rulesValidation.shortText.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- second row -->
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.text.maxLength"
+                        label="Nombre"
+                        v-model="editItem.name"
+                        :rules="rulesValidation.text.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.price.maxLength"
+                        label="Costo"
+                        v-model="editItem.cost"
+                        :rules="rulesValidation.price.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.shortTextNull.length"
+                        label="Codigo de producto"
+                        v-model="editItem.productCode"
+                        :rules="rulesValidation.shortTextNull.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.shortText.length"
+                        label="Presentación"
+                        v-model="editItem.size"
+                        :rules="rulesValidation.shortText.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+                    <!-- third row -->
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        label="Medida"
+                        v-model="editItem.measure"
+                        item-title="name"
+                        item-value="id"
+                        :items="measures"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        label="Marca"
+                        v-model="editItem.brand"
+                        item-title="name"
+                        item-value="id"
+                        :items="brands"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                      ></v-select>
+                    </v-col>
+
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        label="Estado"
+                        v-model="editItem.status"
+                        item-title="name"
+                        item-value="id"
+                        :items="status"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                      ></v-select>
+                    </v-col>
+
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        :maxlength="rulesValidation.shortTextNull.length"
+                        label="Codigo de barras"
+                        v-model="editItem.barcode"
+                        :rules="rulesValidation.shortTextNull.rules"
+                        :loading="loading"
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        label="Categorias"
+                        v-model="editItem.categories"
+                        item-title="name"
+                        item-value="id"
+                        multiple
+                        :items="categories"
+                        :rules="rulesValidation.select.rules"
+                        :loading="loading"
+                      ></v-select>
+                    </v-col>
+                    <v-col
+                      v-show="editItem.type && editItem.type.id == 'T'"
+                      cols="12"
+                      md="6"
+                    >
+                      <v-switch
+                        v-model="editItem.tracing"
+                        label="Inventario"
+                        color="primary"
+                      ></v-switch>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-textarea
+                        label="Descripción"
+                        v-model="editItem.description"
+                        :maxLength="rulesValidation.longTextNull.maxLength"
+                        :rules="rulesValidation.longTextNull.rules"
+                        rows="10"
+                        :loading="loading"
+                      ></v-textarea>
                     </v-col>
                   </v-row>
                 </v-card-text>
               </v-card>
             </v-col>
+            <v-col
+                    v-if="
+                      editItem.taxes
+                    "
+                    cols="12"
+                    class="d-flex align-center"
+                  >
+                    <v-card
+                      title="Impuestos"
+                      variant="outlined"
+                      padding="2"
+                      class="w-100"
+                    >
+                      <v-card-text>
+                        <!------------------------------- DYNAMIC TAXES ITEM --------------------------->
+                        <dynamic-tax-list
+                          v-if="editItem.taxes"
+                          :records="editItem.taxes"
+                          :errorMessage="{}"
+                          @update:records="(item) => (editItem.taxes = item)"
+                        ></dynamic-tax-list>
+                        <!------------------------------- END DYNAMIC TAXES ITEM --------------------------->
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
             <v-col
               v-if="
                 editItem.type &&
@@ -202,7 +224,7 @@
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12"> </v-col>
+
           </v-row>
         </v-card-text>
         <!----------------------- FORM --------------------------->
@@ -242,6 +264,7 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import DynamicProductList from "./DynamicProductList.vue";
+import DynamicTaxList from "@/components/blocks/DynamicTaxList.vue";
 import Petition from "@/services/PetitionStructure/Petition";
 const productApi = new ProductApi();
 const categoryApi = new CategoryApi();
@@ -255,11 +278,12 @@ export default {
     nameTable: String,
     type: {
       type: String,
-      required:false,
+      required: false,
     },
   },
   components: {
     DynamicProductList,
+    DynamicTaxList,
   },
   data: () => ({
     // required data
@@ -329,8 +353,12 @@ export default {
           formData.append(`products[${index}][product_id]`, item.id);
           formData.append(`products[${index}][amount]`, item.amount);
         });
-        if(this.editItem.type.id == 'T')
-        formData.append("tracing", this.editItem.tracing ? 1 : 0);
+        this.editItem.taxes.forEach((item, index) => {
+          formData.append(`taxes[${index}][tax_id]`, item.id);
+          formData.append(`taxes[${index}][percent]`, item.percent);
+        });
+        if (this.editItem.type.id == "T")
+          formData.append("tracing", this.editItem.tracing ? 1 : 0);
         if (this.idEditForm) {
           formData.append("product_id", this.editItem.productId);
           response = await productApi.update(formData);
@@ -350,7 +378,7 @@ export default {
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
-          this.$emit('close-success', {'productId': response.product_id})
+          this.$emit("close-success", { productId: response.product_id });
         }
       }
       this.loading = false;
@@ -398,8 +426,9 @@ export default {
     async setEditItem() {
       if (!this.idEditForm) {
         this.editItem.products = [];
-        if(this.type){
-          this.editItem.type =  {id: this.type}
+        this.editItem.taxes = [];
+        if (this.type) {
+          this.editItem.type = { id: this.type };
           await this.setTypesContent(this.type, true);
         }
         return;
@@ -425,7 +454,8 @@ export default {
             typeContent: data.type_content,
             products: data.subproducts || [],
             barcode: data.barcode,
-            tracing: data.tracing ? true : false
+            tracing: data.tracing ? true : false,
+            taxes: data.taxes || []
           }
         );
         await this.setTypesContent(this.editItem.type);

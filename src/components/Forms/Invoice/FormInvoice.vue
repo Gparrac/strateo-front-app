@@ -322,6 +322,8 @@ export default {
     async setEditItem(invoiceId = null) {
       if (!this.idEditForm && !invoiceId) {
         this.editItem.services = [];
+        this.editItem.date = new Date().toISOString().substr(0, 10);
+        console.log('passing', this.editItem.date);
         return;
       }
       const id = this.idEditForm ?? invoiceId;

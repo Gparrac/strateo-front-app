@@ -5,7 +5,6 @@
         <v-card-title>
           <span class="text-h5">{{ title }} </span>
         </v-card-title>
-
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
@@ -13,9 +12,7 @@
               <v-card rounded="true" elevation="0">
                 <v-card-text>
                   <v-row>
-
-
-                        <v-col cols="12" sm="6">
+                        <v-col cols="12" sm="6" md="4">
                           <v-text-field
                             :maxlength="
                               rulesValidation.text.maxLength
@@ -26,7 +23,7 @@
                             :loading="loading"
                           ></v-text-field>
                         </v-col>
-                        <v-col cols="12" sm="6">
+                        <v-col cols="12" sm="6" md="4">
                           <v-select
                             label="Estado"
                             v-model="editItem.status"
@@ -37,17 +34,7 @@
                             :loading="loading"
                           ></v-select>
                         </v-col>
-
-
-                    <v-col cols="12" sm="6">
-                      <v-text-field
-                            label="Tamaño"
-                            v-model="editItem.maxLength"
-                            :rules="rulesValidation.quantity.rules"
-                            :loading="loading"
-                          ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="12" sm="12" md="4">
                       <v-select
                             label="Tipo"
                             v-model="editItem.typeField"
@@ -68,6 +55,16 @@
             </v-list-item>
           </template>
                         </v-select>
+                    </v-col>
+
+                    <v-col v-if="editItem.typeField && editItem.typeField.id != 'F'" cols="12" sm="6" >
+                      <v-text-field
+                            label="Tamaño"
+                            :maxlength="rulesValidation.quantity.maxLength"
+                            v-model="editItem.maxLength"
+                            :rules="rulesValidation.quantityNull.rules"
+                            :loading="loading"
+                          ></v-text-field>
                     </v-col>
 
                   </v-row>
@@ -161,7 +158,7 @@ export default {
         let response = {};
         formData.append("name", this.editItem.name);
         formData.append("type", this.editItem.typeField.id);
-        formData.append("length", this.editItem.length);
+        if(this.editItem.typeField && this.editItem.typeField.id != 'F') formData.append("length", this.editItem.maxLength);
         formData.append("status", this.editItem.status);
 
         if (this.idEditForm) {

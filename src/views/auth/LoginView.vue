@@ -48,8 +48,10 @@
             <v-text-field
               :maxlength="rulesValidation.password.maxLength"
               label="Contraseña"
-              type="password"
               :rules="rulesValidation.password.rules"
+              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="showPassword ? 'text' : 'password'"
+              @click:append-inner="showPassword = !showPassword"
               v-model="form.password"
             ></v-text-field>
           </v-col>
@@ -93,6 +95,7 @@ export default {
     typesDocument: [],
     loader: false,
     rulesValidation: RulesValidation,
+    showPassword: false
   }),
   mounted() {
     this.getTypeDocument();

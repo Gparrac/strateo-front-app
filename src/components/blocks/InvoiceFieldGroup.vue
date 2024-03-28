@@ -33,9 +33,9 @@
 
         <v-col cols="12" sm="6" lg="3">
           <v-text-field
-            type="datetime-local"
+            type="date"
             variant="outlined"
-            label="Fecha y hora"
+            :label="'Fecha y hora' + /^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?$/.test(records.date)"
             @update:model-value="(value) => emitRecords(value, 'date')"
             :model-value="records.date"
             :rules="rulesValidation.date.rules"

@@ -10,7 +10,9 @@
           <v-col cols="12">
             <v-text-field
               label="Contraseña actual"
-              type="password"
+              :append-inner-icon="showPasswords[0] ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="showPasswords[0] ? 'text' : 'password'"
+              @click:append-inner="showPasswords[0] = !showPasswords[0]"
               :rules="rulesValidation.password.rules"
               v-model="editItem.oldPassword"
             ></v-text-field>
@@ -18,7 +20,9 @@
           <v-col cols="12">
             <v-text-field
               label="Nueva contraseña"
-              type="password"
+              :append-inner-icon="showPasswords[1] ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="showPasswords[1] ? 'text' : 'password'"
+              @click:append-inner="showPasswords[1] = !showPasswords[1]"
               v-model="editItem.newPassword"
               :rules="passwordRule"
               :loading="loading"
@@ -27,7 +31,9 @@
           <v-col cols="12">
             <v-text-field
               label="Confirmar contraseña"
-              type="password"
+              :append-inner-icon="showPasswords[2] ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="showPasswords[2] ? 'text' : 'password'"
+              @click:append-inner="showPasswords[2] = !showPasswords[2]"
               v-model="editItem.confirmPassword"
               :rules="confirmPasswordRule"
               :loading="loading"
@@ -52,6 +58,8 @@ const authApi = new AuthApi();
 export default {
   data() {
     return {
+      showPasswords: [false, false, false],
+
       editItem: {},
       rulesValidation: RulesValidation,
     };

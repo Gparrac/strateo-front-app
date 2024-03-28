@@ -62,7 +62,9 @@ export default {
   }),
   watch: {
     async searchItem(to) {
+      console.log('watch', to)
       if (to.length > 2 && to.length < 5) {
+        console.log('entry', to)
         this.$emit("update:options", to);
       } else if (to.length == 0) {
         this.$emit("update:options", "");

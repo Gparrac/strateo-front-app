@@ -142,7 +142,7 @@
           >
           </dynamic-select-field>
         </v-col>
-        <v-col v-if="!thirdPerson && records.typeDocument == 'NIT'" cols="12">
+        <v-col v-if="!thirdPerson" cols="12">
           <strong class="text-caption d-block mb-2"
             >*
             <span class="text-overline">Campo dinamico. </span>
@@ -151,18 +151,20 @@
           <dynamic-select-field
             :options="ciiuCodes"
             :itemSaved="records.ciiu"
-            @update:options="setCities"
+            @update:options="setCiiuCodes"
             @update:itemSelected="(item) => emitRecords(item, 'ciiu')"
             mainLabel="description"
             title="Codigo principal CIIU"
             :rules="rulesValidation.select.rules"
+            subtitle="codigo:"
+            :secondLabel="['code']"
 
           >
           </dynamic-select-field>
         </v-col>
       </v-row>
       <ciiu-secondary-field
-        v-if="!thirdPerson && records.secondaryCiius && records.typeDocument == 'NIT'"
+        v-if="!thirdPerson && records.secondaryCiius"
         :records="records.secondaryCiius"
         @update:records="(value) => emitRecords(value, 'secondaryCiius')"
       ></ciiu-secondary-field>
@@ -203,6 +205,7 @@ export default {
 
   methods: {
     emitRecords(item, key) {
+      console.log('ThirdCardentry',item,key)
       this.$emit("update:records", { item: item, key: key });
     },
     async setEditItem() {
@@ -213,9 +216,11 @@ export default {
       const query = name ? `name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
     },
-    async setCiiuCodes(name = null) {
-      const query = name ? `name=${name}` : "";
+    async setCiiuCodes(code = null) {
+      console.log('set???')
+      const query = code ? `code=${code}` : "";
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
+      console.log('ciiuUpdates***', this.ciiuCodes)
     },
     async setTypesDocument() {
       const query = this.thirdPerson ? "type=person" : "";

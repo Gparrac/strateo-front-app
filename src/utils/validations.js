@@ -28,7 +28,9 @@ export const RulesValidation = {
   date: {
     rules: [
       v => !!v || 'La fecha y hora son requeridas',  // Validación de campo requerido
-      v => (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) || /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(
+      v => (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v)
+      || /^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?$/.test(v)
+      || /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(
         v
       ) ) || 'Formato de fecha y hora no válido', // Validación de formato
     ]
@@ -130,6 +132,23 @@ export const RulesValidation = {
         value < 10000 && value >= 0 ||
         "Rango de cantidad no valida",
     ],
+  },
+  quantityNull: {
+    maxLength:4,
+    rules: [
+      (value) => {
+        if (value !== null && value !== undefined) {
+          return !isNaN(value) || typeof value == 'number' || "La cantidad debe ser de tipo numérico";
+        }
+        return true; // Si el campo es nulo o undefined, no aplicamos la regla de validación
+      },
+      (value) => {
+        if (value !== null && value !== undefined) {
+          return value < 10000 && value >= 0 || "Rango de cantidad no válido";
+        }
+        return true; // Si el campo es nulo o undefined, no aplicamos la regla de validación
+      }
+    ]
   },
   price: {
     maxLength:9,

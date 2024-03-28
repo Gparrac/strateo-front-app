@@ -26,6 +26,7 @@
               ></v-textarea>
             </v-col>
           </v-row>
+          <v-card  >
           <v-table>
             <thead>
               <tr class="text-left">
@@ -70,6 +71,7 @@
               </tr>
             </tbody>
           </v-table>
+        </v-card>
         </v-card-text>
         <!----------------------- FORM --------------------------->
         <v-card-actions>
