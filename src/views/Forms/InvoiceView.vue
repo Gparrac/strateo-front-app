@@ -20,8 +20,8 @@ import { getFormRoute } from "@/utils/routes.js";
 
 export default {
   data: () => ({
-    titleView: "Ordenes de compra directa",
-    nameTable: "ordenes de compra directa",
+    titleView: "Ventas",
+    nameTable: "venta",
     path: "invoices",
     isForm: false,
     idEditForm: null,

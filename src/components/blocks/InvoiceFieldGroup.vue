@@ -3,7 +3,7 @@
     <v-card-text>
       <!-- Business Name or normal name -->
       <v-row>
-        <v-col cols="12" sm="6" lg="3">
+        <v-col cols="12" sm="6" >
           <dynamic-select-field
             :options="clients"
             :itemSaved="records.client"
@@ -17,7 +17,21 @@
           >
           </dynamic-select-field>
         </v-col>
-        <v-col cols="12" sm="6" lg="3">
+        <v-col cols="12" sm="6" >
+          <v-select
+              label="Tipo de orden"
+              :items="types"
+              item-title="name"
+              variant="outlined"
+              v-on:update:modelValue="(value) => changeType(value)"
+              :model-value="records.type"
+              :rules="rulesValidation.select.rules"
+              :loading="loading"
+
+              return-object
+            ></v-select>
+        </v-col>
+        <v-col cols="12" md="4" >
           <dynamic-select-field
             :options="sellers"
             :itemSaved="records.seller"
@@ -31,20 +45,20 @@
           </dynamic-select-field>
         </v-col>
 
-        <v-col cols="12" sm="6" lg="3">
+        <v-col cols="12" md="4" >
           <v-text-field
             type="date"
             variant="outlined"
-            :label="'Fecha y hora' + /^(\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?)?$/.test(records.date)"
+            :label="'Fecha'"
             @update:model-value="(value) => emitRecords(value, 'date')"
             :model-value="records.date"
             :rules="rulesValidation.date.rules"
           ></v-text-field>
         </v-col>
-        <v-col cols="12" sm="6" lg="3">
+        <v-col cols="12" md="4" >
           <v-text-field
             :maxlength="rulesValidation.price.maxLength"
-            label="Descuento"
+            label="Descuento general"
             @update:model-value="
               (value) => emitRecords(value, 'furtherDiscount')
             "
@@ -73,10 +87,10 @@
         class="pt-4 pb-2 px-5"
         variant="outlined"
         title="Datos para planeación"
-        v-if="showPlanment"
+        v-if="showPlanment|| (records.type && records.type.id == 'E')"
       >
         <v-row>
-          <v-col cols="12" sm="6" lg="3">
+          <v-col cols="12" sm="6" >
             <v-text-field
               :maxlength="rulesValidation.price.maxLength"
               label="Abono"
@@ -154,6 +168,7 @@ export default {
     clients: [],
     sellers: [],
     stages:[],
+    types:[],
     typesInvoice: [],
     loading: false,
     searchCiiu: "",
@@ -169,6 +184,9 @@ export default {
     }
   },
   methods: {
+    changeType(value){
+      this.$emit('update:type', value)
+    },
     emitRecords(item, key) {
       this.$emit("update:records", { item: item, key: key });
     },
@@ -185,12 +203,13 @@ export default {
         await userApi.read(`format=short${query}`)
       ).data;
     },
-    async setStages() {
-      const queryStage = this.records?.stage?.id || 0;
-      this.stages = (
-        await petition.get("/type-invoices", `planment_stage=${queryStage}`)
+    async setStages(planmentStage = true) {
+      const queryStage = planmentStage ? `planment_stage=${this.records?.stage?.id || 0}` : '';
+      this[planmentStage ? 'stages' : 'types'] = (
+        await petition.get("/type-invoices", queryStage)
       ).data;
     },
+
     async setTypesInvoice() {
 
       this.typesInvoice = (
@@ -205,7 +224,8 @@ export default {
         this.setClients(),
         this.setSellers(),
         this.setTypesInvoice(),
-        this.setStages()
+        this.setStages(),
+        this.setStages(false)
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);

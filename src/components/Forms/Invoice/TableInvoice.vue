@@ -40,7 +40,19 @@
           </v-chip>
         </div>
       </template>
-
+      <template v-slot:[`item.sale_type`]="{ item }">
+    <div >
+      <v-chip
+            variant="tonal"
+            class="ma-1 "
+            size="small"
+            :prepend-icon="item.sale_type.id == 'P' ? 'mdi-ray-start-arrow' : 'mdi-source-branch'"
+            :color="item.sale_type.id == 'P' ? 'pink' : 'purple'"
+          >
+          {{ item.sale_type.name }}
+          </v-chip>
+        </div>
+  </template>
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon
@@ -123,6 +135,12 @@ export default {
         sortable: false,
       },
       {
+        title: "Tipo",
+        align: "center",
+        key: "sale_type",
+        sortable: false,
+      },
+      {
         title: "Ultima actulización",
         align: "center",
         key: "updated_at",
@@ -150,7 +168,6 @@ export default {
           params.append(`filters[${index}][value]`, item.value);
         });
       }
-      params.append("type", "P");
       params.append("page", page);
       params.append("pagination", itemsPerPage);
       sortBy.forEach((item, index) => {

@@ -50,7 +50,7 @@
             variant="tonal"
             class="ma-1 "
             size="small"
-            :prepend-icon="record.type == 'I' ? 'mdi-cart-plus' : 'mdi-cart-minus'"
+            :prepend-icon="record.type == 'I' ? 'mdi-trending-up' : 'mdi-trending-down'"
             :color="record.type == 'I' ? 'pink' : 'purple'"
           >
           {{ record.type == 'I' ? 'Incremento' : 'Decremento' }}

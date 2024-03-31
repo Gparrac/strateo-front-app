@@ -92,7 +92,7 @@ export default {
 
   methods: {
     async loadItems(name = null) {
-      let query = `&`;
+      let query = `&filters[0][key]=non-subproducts&filters[0][value]=true`;
       query =
         query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
       const response = await productApi.read(`format=short${query}`);
