@@ -180,8 +180,8 @@ export default {
     nameTable: String,
     path: String,
   },
-  components:{
-    ThirdFieldCard
+  components: {
+    ThirdFieldCard,
   },
   data: () => ({
     // required data
@@ -206,7 +206,7 @@ export default {
         this.setEditItem(),
         this.setCities(),
         this.setTypesDocument(),
-        this.setCiiuCodes()
+        this.setCiiuCodes(),
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
@@ -242,11 +242,9 @@ export default {
   },
   methods: {
     updateAttributes(data) {
-      console.log('update',data);
       this.editItem[data.key] = data.item;
     },
     async submitForm() {
-
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {
@@ -258,9 +256,11 @@ export default {
         formData.append("address", this.editItem.address);
         formData.append("mobile", this.editItem.mobile);
         formData.append("email", this.editItem.email);
-        if(this.editItem.postal_code) formData.append("postal_code", this.editItem.postal_code);
+        if (this.editItem.postal_code)
+          formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city.id);
-        if(this.editItem.ciiu)formData.append("code_ciiu_id", this.editItem.ciiu.id);
+        if (this.editItem.ciiu)
+          formData.append("code_ciiu_id", this.editItem.ciiu.id);
 
         formData.append(
           "commercial_registry",
@@ -278,7 +278,7 @@ export default {
         formData.append("note", this.editItem.note);
         formData.append("status", this.editItem.status);
 
-        if(this.editItem.email2 && this.editItem.email2 != ''){
+        if (this.editItem.email2 && this.editItem.email2 != "") {
           formData.append("email2", this.editItem.email2);
         }
 
@@ -346,8 +346,7 @@ export default {
           postal_code: response.data.third.postal_code,
           city: response.data.third.city,
           ciiu: response.data.third.ciiu,
-          // status: response.data.third.status, Estas repitiendo atributos ⚠️
-
+          secondaryCiius: response.data.third.secondary_ciius,
           commercial_registry: response.data.commercial_registry,
           legal_representative_name: response.data.legal_representative_name,
           legal_representative_id: response.data.legal_representative_id,
@@ -359,13 +358,12 @@ export default {
       this.showFileRutSelected = response.data.rut_file;
     },
     async setCities(name = null) {
-        const query = name ? `name=${name}` : "";
-        this.cities = (await petition.get("/cities", query)).data;
+      const query = name ? `name=${name}` : "";
+      this.cities = (await petition.get("/cities", query)).data;
     },
     async setCiiuCodes(name = null) {
       const query = name ? `?name=${name}` : "";
-      this.ciiuCodes = (await petition.get("/ciiu-codes",query)).data;
-      console.log('ciius',this.ciiuCodes)
+      this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
     },
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;

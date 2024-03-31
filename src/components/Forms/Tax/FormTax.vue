@@ -9,7 +9,7 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12" sm="12">
+            <v-col cols="12" sm="6">
               <v-text-field
                 :maxlength="rulesValidation.text.maxLength"
                 label="Nombre"
@@ -18,7 +18,7 @@
                 :loading="loading"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6">
               <v-text-field
                 :maxlength="5"
                 label="Acrónimo"
@@ -27,7 +27,7 @@
                 :loading="loading"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6" lg="4">
               <v-text-field
                 :maxlength="rulesValidation.percent.maxLength"
                 label="Porcentaje"
@@ -37,11 +37,22 @@
                 append-inner-icon="mdi-percent"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6" lg="4">
               <v-select
                 label="Estado"
                 :items="status"
                 v-model="editItem.status"
+                item-title="label"
+                item-value="name"
+                :rules="rulesValidation.select.rules"
+                :loading="loading"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" lg="4">
+              <v-select
+                label="Tipo"
+                :items="types"
+                v-model="editItem.type"
                 item-title="label"
                 item-value="name"
                 :rules="rulesValidation.select.rules"
@@ -103,6 +114,10 @@ export default {
       { name: "A", label: "Activo" },
       { name: "I", label: "Inactivo" },
     ],
+    types: [
+      { name: "D", label: "Decremento" },
+      { name: "I", label: "Incremento" },
+    ]
   }),
   async mounted() {
     this.loading = true;
@@ -140,7 +155,7 @@ export default {
         formData.append("acronym", this.editItem.acronym);
         formData.append("default_percent", this.editItem.default_percent);
         formData.append("status", this.editItem.status);
-
+        formData.append("type", this.editItem.type);
         if (this.idEditForm) {
           formData.append("tax_id", this.editItem.tax_id);
           response = await taxApi.update(formData);
@@ -177,6 +192,7 @@ export default {
           acronym: response.data.acronym,
           default_percent: response.data.default_percent,
           status: response.data.status,
+          type: response.data.type
         }
       );
     },

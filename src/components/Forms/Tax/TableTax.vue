@@ -44,6 +44,19 @@
           </v-icon>
         </div>
       </template>
+      <template v-slot:[`item.type`]="{ item }">
+        <div>
+          <v-chip
+            variant="tonal"
+            class="ma-1"
+            label
+            :prepend-icon="item.type == 'I' ? 'mdi-cart-plus' : 'mdi-cart-minus'"
+            :color="item.type == 'I' ? 'pink' : 'purple'"
+          >
+            {{ item.type == 'I' ? 'Incremento' : 'Decremento' }}
+          </v-chip>
+        </div>
+      </template>
       <template v-slot:[`item.status`]="{ item }">
         <div>
           <v-chip
@@ -111,6 +124,7 @@ export default {
       { title: "Nombre", align: "end", key: "name", sortable:true},
       { title: "Acrónimo", align: "end", key: "acronym", sortable:false},
       { title: "Porcentaje", align: "end", key: "default_percent", sortable:false},
+      { title: "Tipo", align: "end", key: "type", sortable:false},
       { title: "Estado", align: "end", key: "status", sortable:false},
       { title: "Acciones", align: "end", key: "actions", sortable:false},
     ],

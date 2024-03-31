@@ -174,13 +174,14 @@
                       editItem.taxes
                     "
                     cols="12"
+                    md="6"
                     class="d-flex align-center"
                   >
                     <v-card
                       title="Impuestos"
                       variant="outlined"
                       padding="2"
-                      class="w-100"
+                      class="w-100 h-100"
                     >
                       <v-card-text>
                         <!------------------------------- DYNAMIC TAXES ITEM --------------------------->
@@ -201,6 +202,7 @@
                 editItem.typeContent.id == 'E'
               "
               cols="12"
+              md="6"
               class="d-flex align-center"
             >
               <v-card
@@ -221,9 +223,38 @@
                     </v-chip>
                   </dynamic-product-list>
                   <!------------------------------- END DYNAMIC ITEM --------------------------->
+
                 </v-card-text>
               </v-card>
+
             </v-col>
+            <v-col
+            v-if="
+                editItem.librettoActivities &&
+                editItem.type &&
+                editItem.typeContent &&
+                editItem.typeContent.id == 'E'
+              "
+                    cols="12"
+                    class="d-flex align-center"
+                  >
+                    <v-card
+                      title="Actividades relacionadas"
+                      variant="outlined"
+                      padding="2"
+                      class="w-100"
+                    >
+                      <v-card-text>
+                        <!------------------------------- DYNAMIC TAXES ITEM --------------------------->
+                        <dynamic-libretto-activity-list
+                          :records="editItem.librettoActivities"
+                          :errorMessage="{}"
+                          @update:records="(item) => (editItem.librettoActivities = item)"
+                        ></dynamic-libretto-activity-list>
+                        <!------------------------------- END DYNAMIC TAXES ITEM --------------------------->
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
 
           </v-row>
         </v-card-text>
@@ -263,6 +294,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
+import DynamicLibrettoActivityList from "./DynamicLibrettoActivityList.vue";
 import DynamicProductList from "./DynamicProductList.vue";
 import DynamicTaxList from "@/components/blocks/DynamicTaxList.vue";
 import Petition from "@/services/PetitionStructure/Petition";
@@ -284,6 +316,7 @@ export default {
   components: {
     DynamicProductList,
     DynamicTaxList,
+    DynamicLibrettoActivityList
   },
   data: () => ({
     // required data
@@ -357,6 +390,9 @@ export default {
           formData.append(`taxes[${index}][tax_id]`, item.id);
           formData.append(`taxes[${index}][percent]`, item.percent);
         });
+        this.editItem.librettoActivities.forEach((item, index) => {
+          formData.append(`libretto_activity_ids[${index}]`, item.id);
+        })
         if (this.editItem.type.id == "T")
           formData.append("tracing", this.editItem.tracing ? 1 : 0);
         if (this.idEditForm) {
@@ -417,16 +453,11 @@ export default {
         this.typesContent = response.data;
       }
     },
-    async setProducts() {
-      const response = await productApi.read("format=short");
-      if (response.statusResponse == 200) {
-        this.products = response.data;
-      }
-    },
     async setEditItem() {
       if (!this.idEditForm) {
         this.editItem.products = [];
         this.editItem.taxes = [];
+        this.editItem.librettoActivities = [];
         if (this.type) {
           this.editItem.type = { id: this.type };
           await this.setTypesContent(this.type, true);
@@ -455,7 +486,8 @@ export default {
             products: data.subproducts || [],
             barcode: data.barcode,
             tracing: data.tracing ? true : false,
-            taxes: data.taxes || []
+            taxes: data.taxes || [],
+            librettoActivities: data.libretto_activities || []
           }
         );
         await this.setTypesContent(this.editItem.type);

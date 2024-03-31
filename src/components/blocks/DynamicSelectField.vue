@@ -10,6 +10,7 @@
     :return-object="true"
     :rules="rules"
     :density="density"
+    :custom-filter="filter"
   >
     <template v-slot:item="{ props, item }">
       <v-list-item v-bind="props">
@@ -38,6 +39,16 @@ export default {
       required: false,
       type: Array,
     },
+    customFilter:{
+      required: false,
+      type: Function,
+      default: () => false
+    },
+    customFilterAble:{
+      required: false,
+      type: Boolean,
+      default: false
+    },
     options: Array,
     itemSaved: {
       required: false,
@@ -62,9 +73,7 @@ export default {
   }),
   watch: {
     async searchItem(to) {
-      console.log('watch', to)
       if (to.length > 2 && to.length < 5) {
-        console.log('entry', to)
         this.$emit("update:options", to);
       } else if (to.length == 0) {
         this.$emit("update:options", "");
@@ -75,6 +84,11 @@ export default {
     useSearchKey(item, array) {
       return searchKey(item, array);
     },
+    filter (_itemTitle, queryText, item) {
+      if(this.customFilterAble)
+        return this.customFilter(queryText, item);
+      return item;
+      },
   },
 };
 </script>

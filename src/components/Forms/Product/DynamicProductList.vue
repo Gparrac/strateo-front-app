@@ -22,7 +22,7 @@
     </v-col>
     <v-col class="max-w-custom">
       <v-row>
-        <v-col cols="12" md="6" v-for="record in records" :key="record.code">
+        <v-col cols="12"  v-for="record in records" :key="record.code">
           <v-card
             :title="record.name"
             :subtitle="'Consecutivo: ' + record.consecutive"
@@ -41,17 +41,18 @@
             </template>
             <v-card-text >
               <v-row >
-                <v-col cols="12" sm="8" md="6" lg="4">
+                <v-col cols="12" sm="8" md="8" lg="9">
                   <v-chip class="mx-2">{{record.measure.symbol}}</v-chip>
               <v-chip class="mx-2">{{record.brand.name}}</v-chip>
                 </v-col>
-                <v-col cols="12" sm="6" lg="8">
+                <v-col cols="12" sm="6" md="4" lg="3">
                 <v-text-field
                   :maxlength="rulesValidation.quantity.maxLength"
                   label="Cantidad"
                   variant="outlined"
                   v-model="record.amount"
                   :rules="rulesValidation.quantity.rules"
+                  density="compact"
                   :loading="loading"
                 ></v-text-field>
               </v-col>
@@ -91,7 +92,7 @@ export default {
 
   methods: {
     async loadItems(name = null) {
-      let query = `&types[0]=T&`;
+      let query = `&`;
       query =
         query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
       const response = await productApi.read(`format=short${query}`);
@@ -119,7 +120,7 @@ export default {
 </script>
 <style scoped>
 .max-w-custom {
-  max-height: 900px;
+  max-height: 356px;
   overflow-y: scroll;
 }
 </style>

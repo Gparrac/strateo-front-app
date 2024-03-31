@@ -158,7 +158,9 @@
             :rules="rulesValidation.select.rules"
             subtitle="codigo:"
             :secondLabel="['code']"
-
+            :customFilter="filterCiiuItems"
+            :customFilterAble="true"
+            >
           >
           </dynamic-select-field>
         </v-col>
@@ -204,8 +206,14 @@ export default {
   }),
 
   methods: {
+    filterCiiuItems(queryText, item){
+      const searchText = queryText.toLowerCase();
+        const textOne = item.raw['description'].toLowerCase();
+        let keyTwo = item.raw.code.toString().toLowerCase();
+          return textOne.indexOf(searchText) > -1 ||
+          keyTwo.indexOf(searchText) > -1
+    },
     emitRecords(item, key) {
-      console.log('ThirdCardentry',item,key)
       this.$emit("update:records", { item: item, key: key });
     },
     async setEditItem() {
@@ -217,10 +225,8 @@ export default {
       this.cities = (await petition.get("/cities", query)).data;
     },
     async setCiiuCodes(code = null) {
-      console.log('set???')
       const query = code ? `code=${code}` : "";
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
-      console.log('ciiuUpdates***', this.ciiuCodes)
     },
     async setTypesDocument() {
       const query = this.thirdPerson ? "type=person" : "";

@@ -170,7 +170,6 @@ export default {
   },
   methods: {
     emitRecords(item, key) {
-      console.log('entry',key, item);
       this.$emit("update:records", { item: item, key: key });
     },
     async setClients(name = null) {
@@ -181,12 +180,10 @@ export default {
 
     },
     async setSellers(name = null) {
-      console.log('client AFTER', this.sellers)
       const query = name ? `&filters[0][key]=third&filters[0][value]=${name}` : "";
       this.sellers = (
         await userApi.read(`format=short${query}`)
       ).data;
-      console.log('client', this.sellers)
     },
     async setStages() {
       const queryStage = this.records?.stage?.id || 0;

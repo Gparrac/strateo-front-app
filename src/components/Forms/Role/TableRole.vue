@@ -133,7 +133,6 @@ export default {
     ) {
       this.loading = true;
       const params = new URLSearchParams();
-      console.log('filters', filters)
       if (filters && filters.length > 0) {
         filters.forEach((item, index) => {
           params.append(`filters[${index}][key]`, item.key);

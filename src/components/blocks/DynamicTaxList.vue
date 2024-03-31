@@ -44,19 +44,35 @@
                 </v-col>
 
                 <v-col cols="12" sm="5" md="6" lg="4">
-                  <v-text-field
-                    :maxlength="rulesValidation.percent.length"
-                    label="Porcentaje"
-                    :rules="rulesValidation.percent.rules"
-                    :loading="loading"
-                    append-inner-icon="mdi-brightness-percent"
-                    v-model="record.percent"
-                    variant="outlined"
-                    :disabled="editable"
-                    density="compact"
-                    persistent-hint
-                    :hint="'% por defecto: ' + record.default_percent"
-                  ></v-text-field>
+                  <v-row>
+                    <v-col cols="12" class="d-flex justify-end">
+                      <v-chip
+            variant="tonal"
+            class="ma-1 "
+            size="small"
+            :prepend-icon="record.type == 'I' ? 'mdi-cart-plus' : 'mdi-cart-minus'"
+            :color="record.type == 'I' ? 'pink' : 'purple'"
+          >
+          {{ record.type == 'I' ? 'Incremento' : 'Decremento' }}
+          </v-chip>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                      :maxlength="rulesValidation.percent.length"
+                      label="Porcentaje"
+                      :rules="rulesValidation.percent.rules"
+                      :loading="loading"
+                      append-inner-icon="mdi-brightness-percent"
+                      v-model="record.percent"
+                      variant="outlined"
+                      :disabled="editable"
+                      density="compact"
+                      persistent-hint
+                      :hint="'% por defecto: ' + record.default_percent"
+                    ></v-text-field>
+                    </v-col>
+
+                  </v-row>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -103,12 +119,11 @@ export default {
 
   methods: {
     async loadItems(name = null) {
-      console.log('entry')
       const query = name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
 
       const response = await taxApi.read(`format=short${query}`);
-      console.log('finish')
       this.options = response.data;
+      console.log('taxes',this.options)
     },
     appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
