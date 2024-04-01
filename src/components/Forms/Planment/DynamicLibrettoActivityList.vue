@@ -1,5 +1,5 @@
 <template>
-  <v-row>
+  <v-row class="flex-column-reverse">
     <v-col cols="12" lg="7">
       <strong class="text-caption d-block mb-2"
         >* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a
@@ -19,7 +19,7 @@
       </div>
       <div class="max-h-custom px-5 w-100">
         <v-row v-if="records && records.length > 0">
-          <v-col cols="12" v-for="record in records" :key="record.code">
+          <v-col cols="12" v-for="(record, i) in records" :key="`${record.code}-${i}`">
             <v-card :title="record.name" variant="outlined">
               <template v-slot:prepend>
                 <v-btn
@@ -47,6 +47,27 @@
                   </v-col>
                 </v-row>
               </v-card-text>
+              <template v-slot:append>
+                <v-btn
+                  class="mx-2"
+                  v-show="!editable"
+                  icon="mdi-chevron-down"
+                  size="small"
+                  color="success"
+                  variant="tonal"
+                  @click="pullDown(i)"
+                >
+                </v-btn>
+                <v-btn
+                  v-show="!editable"
+                  icon="mdi-chevron-up"
+                  size="small"
+                  color="success"
+                  variant="tonal"
+                  @click="pushUp(i)"
+                >
+                </v-btn>
+              </template>
             </v-card>
           </v-col>
         </v-row>
@@ -61,11 +82,23 @@
           <v-data-table
             :items="serviceRelatedRecords"
             :headers="headersPreLA"
-            :model-value="recordIds"
-            item-value="id"
-            @update:model-value="(value) => appendServiceItem(value)"
-            show-select
-          ></v-data-table>
+
+          >
+          <template v-slot:[`item.actions`]="{ item }">
+        <div>
+          <v-btn
+
+                  icon="mdi-plus"
+                  size="small"
+                  color="primary"
+                  variant="tonal"
+                  @click="appendItem(item)"
+                >
+                </v-btn>
+        </div>
+      </template>
+
+        </v-data-table>
         </v-card-text>
       </v-card>
     </v-col>
@@ -89,6 +122,7 @@
 import { RulesValidation } from "@/utils/validations";
 import LibrettoActivityApi from "@/services/Forms/LibrettoActivityApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
+import { deepCopy } from '@/utils/cast';
 
 const librettoActivityApi = new LibrettoActivityApi();
 
@@ -112,55 +146,49 @@ export default {
       { title: "id", align: "start", sortable: false, key: "id" },
       { title: "Actividad", align: "center", sortable: false, key: "name" },
       { title: "Servicio", align: "center", sortable: false, key: "service" },
+      { title: "Agregar", align: "center", sortable: false, key: "actions" },
     ],
   }),
   computed: {
     recordIds() {
       return this.records.map((item) => item.id);
     },
-    serviceRecordIds() {
-      return this.serviceRelatedRecords.map((item) => item.id);
-    },
+
   },
   methods: {
-    appendServiceItem(newItems) {
-      // define which service's records will be dropped
-      const F = this.serviceRecordIds.filter(
-        (item) => !newItems.includes(item)
-      );
-
-      // define which service's records won't be dropped
-      const G = this.recordIds.filter((item) => !F.includes(item));
-
-      // select service's records to update true records
-      let localRecords = this.records.filter((item) => G.includes(item.id));
-      const localServiceRecords = this.serviceRelatedRecords.filter((item) =>
-        newItems.includes(item.id)
-      );
-
-      localServiceRecords.forEach((newItem) => {
-        if (!this.records.some((record) => record.id === newItem))
-          localRecords.push(newItem);
-      });
-      this.emitRecords(localRecords);
-    },
     async loadItems(name = null) {
       const query = (name ? `&filters[0][key]=name&filters[0][value]=${name}` : "");
       const response = await librettoActivityApi.read(`format=short${query}`);
       this.options = response.data;
     },
     appendItem(item) {
-      const index = this.records.findIndex(function (objeto) {
-        return objeto.id === item.id;
-      });
-      let newArray = this.records;
-      if (index === -1) newArray.push(item);
-      this.emitRecords(newArray);
+      let localRecords = deepCopy(this.records);
+      localRecords.push(item);
+      this.emitRecords(localRecords);
     },
-    deleteItem(itemSelected) {
+    deleteItem(index) {
       this.emitRecords(
-        this.records.filter((item) => item.id != itemSelected.id)
+        this.records.filter((item,i) => i != index)
       );
+    },
+    pushUp(index){
+
+      if(index >= this.records.length - 1){
+        let tempRecords  = deepCopy(this.records);
+        const temp = tempRecords[index];
+        tempRecords[index] = tempRecords[index - 1];
+        tempRecords[index - 1] = temp
+        this.emitRecords(tempRecords);
+      }
+    },
+    pullDown(index){
+      if(index < this.records.length - 1){
+        let tempRecords  = deepCopy(this.records);
+        const temp = tempRecords[index];
+        tempRecords[index] = tempRecords[index + 1];
+        tempRecords[index + 1] = temp
+        this.emitRecords(tempRecords);
+      }
     },
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);

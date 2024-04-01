@@ -3,7 +3,7 @@
     <v-card-text>
       <!-- Business Name or normal name -->
       <v-row>
-        <v-col cols="12" sm="6" lg="3" >
+        <v-col cols="12" :sm="showPlanment ? 4 : 6" :lg="showPlanment ? 4 : 3" >
           <dynamic-select-field
             :options="clients"
             :itemSaved="records.client"
@@ -17,7 +17,7 @@
           >
           </dynamic-select-field>
         </v-col>
-        <v-col cols="12" sm="6" lg="3" >
+        <v-col v-if="!showPlanment" cols="12" sm="6" lg="3" >
           <v-select
               label="Tipo de orden"
               :items="types"
@@ -31,7 +31,7 @@
               return-object
             ></v-select>
         </v-col>
-        <v-col cols="12" sm="6" lg="3" >
+        <v-col cols="12" :sm="showPlanment ? 4 : 6" :lg="showPlanment ? 4 : 3" >
           <dynamic-select-field
             :options="sellers"
             :itemSaved="records.seller"
@@ -45,7 +45,7 @@
           </dynamic-select-field>
         </v-col>
 
-        <v-col cols="12" sm="6"  lg="3">
+        <v-col cols="12" :sm="showPlanment ? 4 : 6" :lg="showPlanment ? 4 : 3">
           <v-text-field
             type="date"
             variant="outlined"

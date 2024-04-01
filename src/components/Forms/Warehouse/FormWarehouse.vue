@@ -151,7 +151,6 @@ export default {
       this.cities = (await petition.get("/cities", query)).data;
     },
     async submitForm() {
-      // console.log('city', this.editItem)
       // return
       this.loading = true;
       const { valid } = await this.$refs.form.validate();

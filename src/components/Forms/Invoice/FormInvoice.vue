@@ -199,12 +199,10 @@ export default {
     changeSteppers(value){
       this.editItem.type = value;
       this.products = [];
-      console.log('before',this.editItem)
       if(value.id == 'E'){
         this.stepperLabels[1].label = 'Servicios requeridos'
         if(this.stepperLabels.length < 3) this.stepperLabels.push({label:'Productos adicionales', complete: false})
       }else{
-        console.log('entry', this.stepperLabels.length)
         this.stepperLabels[1].label = 'Productos requeridos';
         if(this.stepperLabels.length == 3) this.stepperLabels.splice(-1);
       }
@@ -334,7 +332,6 @@ export default {
           });
 
         } else {
-          console.log('else',this.editItem.type);
           type = this.editItem.type.id == 'P' ? 'I' : "F";
           formData.append(`type_connection`, type);
           this[source].forEach((product, pindex) => {
@@ -400,7 +397,6 @@ export default {
         this.editItem.services = [];
         this.editItem.taxes = [];
         this.editItem.date = new Date().toISOString().substr(0, 10);
-        console.log('entry?')
         return;
       }
       const id = this.idEditForm ?? invoiceId;
@@ -419,7 +415,6 @@ export default {
           taxes: response.data.taxes || []
         }
       );
-      console.log('type invoice', response.data.sale_type)
       if(response.data.sale_type.id == 'E'){
         this.stepperLabels[1].label = 'Servicios requeridos'
         this.stepperLabels.push({label:'Productos adicionales', complete: false})

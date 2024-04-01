@@ -63,7 +63,7 @@ export function statusAllowed() {
   ];
 }
 export function searchKey(item, arrayKeys) {
-  if(!item || !arrayKeys) return;
+  if (!item || !arrayKeys) return;
   let label = item;
   for (let clave of arrayKeys) {
     label = label[clave];
@@ -77,7 +77,7 @@ export function errorHandler(errors) {
     return acc.concat(messages);
   }, []);
 }
-export function calTotalCostItems(items){
+export function calTotalCostItems(items) {
   return items.reduce((acc, obj) => {
     // Si el objeto no tiene 'amount' o 'cost', se toma como 0
     const amount = obj.amount || 0;
@@ -88,25 +88,30 @@ export function calTotalCostItems(items){
     return acc + (amount * cost - discount);
   }, 0);
 }
-export function calTotalDiscountItems(items){
+export function calTotalDiscountItems(items) {
   return items.reduce((acc, obj) => {
-    const total = (obj.cost * obj.amount - (obj.discount||0)) || 0;
-    const taxes = obj.taxes.reduce((rtotal, item) => {
-      console.log('totalesItem', obj);
-      const totalTax = (item.type == 'D' ? -1 : 1 ) * (item.percent || 0)*total/100 ?? 0;
-      console.log('totales', totalTax);
-      return rtotal + (+totalTax);
-    }, 0) ?? 0;
+    const total = obj.cost * obj.amount - (obj.discount || 0) || 0;
+    const taxes =
+      obj.taxes.reduce((rtotal, item) => {
+        const totalTax =
+          ((item.type == "D" ? -1 : 1) * (item.percent || 0) * total) / 100 ??
+          0;
+
+        return rtotal + +totalTax;
+      }, 0) ?? 0;
     // Si el objeto no tiene 'amount' o 'cost', se toma como 0
     // Sumar el producto de 'amount' y 'cost' al acumulador
-    return (acc + taxes );
+    return acc + taxes;
   }, 0);
 }
 export function formatNumberToColPesos(number) {
   // Crear una instancia de Intl.NumberFormat con la configuración para pesos colombianos
-  const formatter = new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP' // Define la moneda como pesos colombianos
+  const formatter = new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP", // Define la moneda como pesos colombianos
   });
   return formatter.format(number);
+}
+export function deepCopy(item) {
+  return JSON.parse(JSON.stringify(item));
 }

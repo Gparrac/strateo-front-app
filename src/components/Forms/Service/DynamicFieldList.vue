@@ -95,7 +95,6 @@ export default {
   methods: {
     async loadItems(name = null) {
       this.loading = true;
-      console.log('name', name);
       const query = name
       ? `&filters[0][key]=name&filters[0][value]=${name}` : "";
       this.options = (await fieldApi.read(`format=short${query}`)).data;

@@ -484,7 +484,7 @@ export default {
           invoiceId: response.data.id,
           note: response.data.note,
           furtherDiscount: response.data.further_discount,
-          date: response.data.date,
+          date: response.data.date.split(" ")[0],
           seller: response.data.seller,
           client: response.data.client,
           payOff: response.data.planment.pay_off,

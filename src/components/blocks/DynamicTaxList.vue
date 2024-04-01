@@ -148,7 +148,6 @@ export default {
 
       const response = await taxApi.read(`format=short${query}`);
       this.options = response.data;
-      console.log("taxes", this.options);
     },
     appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
@@ -167,7 +166,6 @@ export default {
   },
   async mounted() {
     this.loading = true;
-    console.log("loading", this.records);
     try {
       await Promise.all([this.loadItems()]);
     } catch (error) {

@@ -369,7 +369,6 @@ export default {
     },
     async setOffices() {
       this.offices = (await officeApi.read("format=short")).data;
-      console.log('offices', this.offices);
     },
     async setCities(name = null) {
       const query = name ? `name=${name}` : "";
