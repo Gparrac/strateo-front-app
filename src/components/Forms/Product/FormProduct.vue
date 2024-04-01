@@ -188,6 +188,7 @@
                         <dynamic-tax-list
                           v-if="editItem.taxes"
                           :records="editItem.taxes"
+                          context="P"
                           :errorMessage="{}"
                           @update:records="(item) => (editItem.taxes = item)"
                         ></dynamic-tax-list>

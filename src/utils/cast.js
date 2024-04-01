@@ -90,11 +90,16 @@ export function calTotalCostItems(items){
 }
 export function calTotalDiscountItems(items){
   return items.reduce((acc, obj) => {
-    const taxes = obj.taxes ? obj.taxes.reduce((total, item) => total + (+item.percent || 0), 0) : 0;
-    // Si el objeto no tiene 'amount' o 'cost', se toma como 0
     const total = (obj.cost * obj.amount - (obj.discount||0)) || 0;
+    const taxes = obj.taxes.reduce((rtotal, item) => {
+      console.log('totalesItem', obj);
+      const totalTax = (item.type == 'D' ? -1 : 1 ) * (item.percent || 0)*total/100 ?? 0;
+      console.log('totales', totalTax);
+      return rtotal + (+totalTax);
+    }, 0) ?? 0;
+    // Si el objeto no tiene 'amount' o 'cost', se toma como 0
     // Sumar el producto de 'amount' y 'cost' al acumulador
-    return (acc + (taxes * (total)) / 100);
+    return (acc + taxes );
   }, 0);
 }
 export function formatNumberToColPesos(number) {

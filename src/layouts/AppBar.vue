@@ -34,7 +34,7 @@
       >
         <alert-message></alert-message>
         <ModalUserSettings :expand="toggleSettings"></ModalUserSettings>
-        <div class="w-100 pa-16">
+        <div class="w-100 pa-2 pa-sm-16">
           <router-view />
         </div>
       </v-main>

@@ -9,7 +9,7 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="6" lg="4">
               <v-text-field
                 :maxlength="rulesValidation.text.maxLength"
                 label="Nombre"
@@ -18,7 +18,7 @@
                 :loading="loading"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="6" lg="4">
               <v-text-field
                 :maxlength="5"
                 label="Acrónimo"
@@ -42,6 +42,17 @@
                 label="Estado"
                 :items="status"
                 v-model="editItem.status"
+                item-title="label"
+                item-value="name"
+                :rules="rulesValidation.select.rules"
+                :loading="loading"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" lg="4">
+              <v-select
+                label="Contexto"
+                :items="contexts"
+                v-model="editItem.context"
                 item-title="label"
                 item-value="name"
                 :rules="rulesValidation.select.rules"
@@ -117,6 +128,10 @@ export default {
     types: [
       { name: "D", label: "Decremento" },
       { name: "I", label: "Incremento" },
+    ],
+    contexts: [
+      { name: "P", label: "Por producto o servicio" },
+      { name: "I", label: "Por venta" },
     ]
   }),
   async mounted() {
@@ -155,6 +170,7 @@ export default {
         formData.append("acronym", this.editItem.acronym);
         formData.append("default_percent", this.editItem.default_percent);
         formData.append("status", this.editItem.status);
+        formData.append("context", this.editItem.context);
         formData.append("type", this.editItem.type);
         if (this.idEditForm) {
           formData.append("tax_id", this.editItem.tax_id);
@@ -192,7 +208,8 @@ export default {
           acronym: response.data.acronym,
           default_percent: response.data.default_percent,
           status: response.data.status,
-          type: response.data.type
+          type: response.data.type,
+          context:response.data.context
         }
       );
     },

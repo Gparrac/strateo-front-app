@@ -25,7 +25,8 @@
           <v-card>
             <v-card-text>
               <v-row justify="end">
-                <v-col cols="5" sm="2">
+
+                <v-col cols="12" sm="12"  md="5"  class="d-flex">
                   <v-btn
                     v-show="!editable"
                     icon="mdi-delete"
@@ -35,43 +36,56 @@
                     @click="deleteItem(record)"
                   >
                   </v-btn>
-                </v-col>
-                <v-col cols="7" sm="4" md="4" lg="6">
+                  <div class="pl-3">
                   <h6 class="text-h6">{{ record.acronym }}</h6>
                   <span class="font-weight-regular text-blue-grey-lighten-2">{{
                     record.name
                   }}</span>
+                  </div>
                 </v-col>
 
-                <v-col cols="12" sm="5" md="6" lg="4">
-                  <v-row>
-                    <v-col cols="12" class="d-flex justify-end">
+                <v-col cols="12" sm="12" md="7" >
+                  <v-row justify="end">
+                    <v-col v-if="this.totalCost != -1" cols="6" sm="6" md="6">
+                      <div >
+                      <h3 class="text-subtitle-1 text-sm-h6 font-weight-light text-sm-left text-md-right text-right">
+                        {{ castTotalCost(record) }}
+                      </h3>
+                      <h4 class="text-caption text-sm-subtitle-2 text-right text-sm-left text-md-right font-weight-light">
+                        Precio
+                      </h4>
+                    </div>
+                    </v-col>
+                    <v-col cols="6" sm="6" :md="totalCost != -1 ? 6 : 12" class="d-flex justify-end">
                       <v-chip
-            variant="tonal"
-            class="ma-1 "
-            size="small"
-            :prepend-icon="record.type == 'I' ? 'mdi-trending-up' : 'mdi-trending-down'"
-            :color="record.type == 'I' ? 'pink' : 'purple'"
-          >
-          {{ record.type == 'I' ? 'Incremento' : 'Decremento' }}
-          </v-chip>
+                        variant="tonal"
+                        class=""
+                        size="small"
+                        :prepend-icon="
+                          record.type == 'I'
+                            ? 'mdi-trending-up'
+                            : 'mdi-trending-down'
+                        "
+                        :color="record.type == 'I' ? 'pink' : 'purple'"
+                      >
+                        {{ record.type == "I" ? "Incremento" : "Decremento" }}
+                      </v-chip>
                     </v-col>
-                    <v-col cols="12">
+                    <v-col cols="12" md="9" >
                       <v-text-field
-                      :maxlength="rulesValidation.percent.length"
-                      label="Porcentaje"
-                      :rules="rulesValidation.percent.rules"
-                      :loading="loading"
-                      append-inner-icon="mdi-brightness-percent"
-                      v-model="record.percent"
-                      variant="outlined"
-                      :disabled="editable"
-                      density="compact"
-                      persistent-hint
-                      :hint="'% por defecto: ' + record.default_percent"
-                    ></v-text-field>
+                        :maxlength="rulesValidation.percent.length"
+                        label="Porcentaje"
+                        :rules="rulesValidation.percent.rules"
+                        :loading="loading"
+                        append-inner-icon="mdi-brightness-percent"
+                        v-model="record.percent"
+                        variant="outlined"
+                        :disabled="editable"
+                        density="compact"
+                        persistent-hint
+                        :hint="'% por defecto: ' + record.default_percent"
+                      ></v-text-field>
                     </v-col>
-
                   </v-row>
                 </v-col>
               </v-row>
@@ -100,12 +114,18 @@
 import { RulesValidation } from "@/utils/validations";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import TaxApi from "@/services/Forms/TaxApi";
+import { formatNumberToColPesos } from '@/utils/cast';
 const taxApi = new TaxApi();
 export default {
   props: {
     records: Array,
     errorMessage: Object,
     editable: Boolean,
+    context: String,
+    totalCost:{
+      type:Number,
+      default:-1
+    },
   },
   components: {
     DynamicSelectField,
@@ -118,12 +138,17 @@ export default {
   }),
 
   methods: {
+    castTotalCost(item){
+      const castTotal = (this.totalCost|| 0) * (item.percent || 0) /100;
+      return formatNumberToColPesos(castTotal);
+    },
     async loadItems(name = null) {
-      const query = name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
+      let query = `&filters[0][key]=context&filters[0][value]=${this.context}`;
+      query += name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
 
       const response = await taxApi.read(`format=short${query}`);
       this.options = response.data;
-      console.log('taxes',this.options)
+      console.log("taxes", this.options);
     },
     appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
@@ -142,6 +167,7 @@ export default {
   },
   async mounted() {
     this.loading = true;
+    console.log("loading", this.records);
     try {
       await Promise.all([this.loadItems()]);
     } catch (error) {

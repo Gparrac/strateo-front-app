@@ -57,6 +57,12 @@
           </v-chip>
         </div>
       </template>
+      <template v-slot:[`item.context`]="{ item }">
+
+
+        {{ item.context == 'I' ? 'Venta' : 'Por producto' }}
+
+      </template>
       <template v-slot:[`item.status`]="{ item }">
         <div>
           <v-chip
@@ -124,7 +130,8 @@ export default {
       { title: "Nombre", align: "end", key: "name", sortable:true},
       { title: "Acrónimo", align: "end", key: "acronym", sortable:false},
       { title: "Porcentaje", align: "end", key: "default_percent", sortable:false},
-      { title: "Tipo", align: "end", key: "type", sortable:false},
+      { title: "Contexto", align: "center", key: "context", sortable:false},
+      { title: "Tipo", align: "center", key: "type", sortable:false},
       { title: "Estado", align: "end", key: "status", sortable:false},
       { title: "Acciones", align: "end", key: "actions", sortable:false},
     ],

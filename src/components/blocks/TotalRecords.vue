@@ -5,7 +5,7 @@
                   {{netTotal(record) || '-'}}
                 </h3>
                 <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Costo neto
+                  Precio neto
                 </h4>
               </div>
               <div class="pl-5">
@@ -13,7 +13,7 @@
                   {{totalCost(record) || '-'}}
                 </h3>
                 <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Costo total
+                  Precio total
                 </h4>
               </div>
               <div class="pl-5">
@@ -43,8 +43,11 @@ export default {
      return formatNumberToColPesos(record.ctotal);
     },
     totalTaxes(record){
-      const totalPercentTaxes = record.taxes.reduce((total, item) => total + (+item.percent ?? 0) , 0) ?? 0;
-      record.ctaxes = totalPercentTaxes * record.ctotal/100;
+      const totalTaxes = record.taxes.reduce((total, item) => {
+        const totalTax = (item.type == 'D' ? -1 : 1 ) * (item.percent || 0)*record.ctotal/100 ?? 0;
+        return total + (+totalTax);
+      }, 0) ?? 0;
+      record.ctaxes = totalTaxes;
       return formatNumberToColPesos( record.ctaxes);
     },
     netTotal(record){

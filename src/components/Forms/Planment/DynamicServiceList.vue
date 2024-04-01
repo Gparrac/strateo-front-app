@@ -53,7 +53,7 @@
                     <v-col cols="12">
                       <v-text-field
                         :maxlength="rulesValidation.price.maxLength"
-                        label="Costo"
+                        label="Precio"
                         :rules="rulesValidation.price.rules"
                         :loading="loading"
                         prepend-inner-icon="mdi-cash"
@@ -99,6 +99,7 @@
                         :records="record.taxes"
                         :editable="editable"
                         :errorMessage="{}"
+                        context="P"
                         @update:records="(item) => (record.taxes = item)"
                       ></dynamic-tax-list>
                     </v-col>

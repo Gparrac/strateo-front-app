@@ -127,6 +127,7 @@
                         :records="record.taxes"
                         :editable="editable"
                         :errorMessage="{}"
+                        context="P"
                         @update:records="(item) => (record.taxes = item)"
                       ></dynamic-tax-list>
                     </v-col>

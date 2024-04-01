@@ -3,7 +3,7 @@
     <v-card-text>
       <!-- Business Name or normal name -->
       <v-row>
-        <v-col cols="12" sm="6" >
+        <v-col cols="12" sm="6" lg="3" >
           <dynamic-select-field
             :options="clients"
             :itemSaved="records.client"
@@ -17,7 +17,7 @@
           >
           </dynamic-select-field>
         </v-col>
-        <v-col cols="12" sm="6" >
+        <v-col cols="12" sm="6" lg="3" >
           <v-select
               label="Tipo de orden"
               :items="types"
@@ -31,7 +31,7 @@
               return-object
             ></v-select>
         </v-col>
-        <v-col cols="12" md="4" >
+        <v-col cols="12" sm="6" lg="3" >
           <dynamic-select-field
             :options="sellers"
             :itemSaved="records.seller"
@@ -45,7 +45,7 @@
           </dynamic-select-field>
         </v-col>
 
-        <v-col cols="12" md="4" >
+        <v-col cols="12" sm="6"  lg="3">
           <v-text-field
             type="date"
             variant="outlined"
@@ -53,21 +53,6 @@
             @update:model-value="(value) => emitRecords(value, 'date')"
             :model-value="records.date"
             :rules="rulesValidation.date.rules"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" md="4" >
-          <v-text-field
-            :maxlength="rulesValidation.price.maxLength"
-            label="Descuento general"
-            @update:model-value="
-              (value) => emitRecords(value, 'furtherDiscount')
-            "
-            :model-value="records.furtherDiscount"
-            :rules="rulesValidation.price.rules"
-            :loading="loading"
-            prepend-inner-icon="mdi-cash"
-            variant="outlined"
-            :disabled="editable"
           ></v-text-field>
         </v-col>
         <v-col cols="12">
@@ -84,13 +69,13 @@
         </v-col>
       </v-row>
       <v-card
-        class="pt-4 pb-2 px-5"
+        class="pt-4 pb-2 px-5 mb-5"
         variant="outlined"
         title="Datos para planeación"
         v-if="showPlanment|| (records.type && records.type.id == 'E')"
       >
         <v-row>
-          <v-col cols="12" sm="6" >
+          <v-col cols="12" sm="6" lg="3" >
             <v-text-field
               :maxlength="rulesValidation.price.maxLength"
               label="Abono"
@@ -138,6 +123,29 @@
           </v-col>
         </v-row>
       </v-card>
+                    <v-card
+                    v-if="
+                      records.taxes
+                    "
+                      title="Impuestos"
+                      variant="outlined"
+                      padding="2"
+                      class="w-100 h-100"
+                    >
+                      <v-card-text>
+                        <!------------------------------- DYNAMIC TAXES ITEM --------------------------->
+                        <dynamic-tax-list
+                          v-if="records.taxes"
+                          :records="records.taxes"
+                          context="I"
+                          :errorMessage="{}"
+                          @update:records="(value) => emitRecords(value, 'taxes')"
+                          :totalCost="totalCost"
+                        ></dynamic-tax-list>
+                        <!------------------------------- END DYNAMIC TAXES ITEM --------------------------->
+                      </v-card-text>
+                    </v-card>
+
     </v-card-text>
   </v-card>
 </template>
@@ -148,6 +156,7 @@ import { RulesValidation } from "@/utils/validations";
 import ClientApi from "@/services/Forms/ClientApi";
 import UserApi from "@/services/Forms/UserApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
+import DynamicTaxList from "./DynamicTaxList.vue";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { mapStores } from "pinia";
 const clientApi = new ClientApi();
@@ -158,10 +167,12 @@ const petition = new Petition();
 export default {
   props: {
     records: Object,
-    showPlanment: Boolean
+    showPlanment: Boolean,
+    totalCost: Number
   },
   components: {
     DynamicSelectField,
+    DynamicTaxList
   },
   data: () => ({
     editable: false,

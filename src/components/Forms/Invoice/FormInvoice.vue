@@ -25,6 +25,7 @@
             @update:records="updateAttributes"
             :showPlanment="false"
             @update:type="changeSteppers"
+            :totalCost="totalCost"
           ></invoice-field-group>
         </v-form>
       </v-stepper-window-item>
@@ -67,7 +68,7 @@
             {{ netTotal }}
           </h3>
           <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
-            Costo neto
+            Precio neto
           </h4>
         </div>
         <div class="pl-5">
@@ -75,7 +76,7 @@
             {{ calTotalCost() }}
           </h3>
           <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
-            Costo total
+            Precio total
           </h4>
         </div>
         <div class="pl-5">
@@ -114,7 +115,7 @@ import InvoiceApi from "@/services/Forms/InvoiceApi";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { calTotalCostItems, castFullDate, formatNumberToColPesos, statusAllowed } from "@/utils/cast";
+import { calTotalCostItems, calTotalDiscountItems, castFullDate, formatNumberToColPesos, statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
@@ -163,7 +164,6 @@ export default {
     totalCost: 0,
     totalDiscount: 0,
   }),
-
   async mounted() {
     this.loading = true;
     this.status = statusAllowed();
@@ -187,7 +187,11 @@ export default {
         : `Creación de ${this.nameTable}`;
     },
     netTotal() {
-      return formatNumberToColPesos(this.totalCost - this.totalDiscount);
+      const wholeTax = this.editItem.taxes ? this.editItem.taxes.reduce((total, item) => {
+        const totalTax = (item.type == 'D' ? -1 : 1 ) * (item.percent || 0)*this.totalCost/100 ?? 0;
+        return total + (+totalTax);
+      }, 0) : 0;
+      return formatNumberToColPesos(this.totalCost - this.totalDiscount + wholeTax);
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -212,16 +216,7 @@ export default {
       return formatNumberToColPesos(this.totalCost);
     },
     calTotalDiscount() {
-      this.totalDiscount = this.products.reduce((acc, obj) => {
-        const taxes = obj.taxes
-          ? obj.taxes.reduce((total, item) => total + (+item.percent || 0), 0)
-          : 0;
-        // Si el objeto no tiene 'amount' o 'cost', se toma como 0
-
-        const total = (obj.cost * obj.amount || 0) - (obj.discount || 0);
-        // Sumar el producto de 'amount' y 'cost' al acumulador
-        return acc  + (taxes * total) / 100;
-      }, 0);
+      this.totalDiscount = calTotalDiscountItems(this.products)
       return formatNumberToColPesos(this.totalDiscount);
     },
 
@@ -263,6 +258,13 @@ export default {
           formData.append("end_date", castFullDate(this.editItem.endDate));
           formData.append("pay_off", this.editItem.payOff);
           formData.append("stage", this.editItem.stage.id);
+        }
+        if(this.editItem.taxes && this.editItem.taxes.length > 0){
+          formData.append('taxes', this.editItem.taxes);
+          this.editItem.taxes.forEach((tax, pindex) => {
+          formData.append(`taxes[${pindex}][tax_id]`, tax.id);
+          formData.append(`taxes[${pindex}][percent]`, tax.percent);
+        })
         }
         if (this.editItem.invoiceId) {
           formData.append("invoice_id", this.editItem.invoiceId);
@@ -396,6 +398,7 @@ export default {
     async setEditItem(invoiceId = null) {
       if (!this.idEditForm && !invoiceId) {
         this.editItem.services = [];
+        this.editItem.taxes = [];
         this.editItem.date = new Date().toISOString().substr(0, 10);
         console.log('entry?')
         return;
@@ -413,6 +416,7 @@ export default {
           seller: response.data.seller,
           client: response.data.client,
           type: response.data.sale_type,
+          taxes: response.data.taxes || []
         }
       );
       console.log('type invoice', response.data.sale_type)
