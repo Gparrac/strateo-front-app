@@ -155,7 +155,6 @@
             @update:itemSelected="(item) => emitRecords(item, 'ciiu')"
             mainLabel="description"
             title="Codigo principal CIIU"
-            :rules="rulesValidation.select.rules"
             subtitle="codigo:"
             :secondLabel="['code']"
             :customFilter="filterCiiuItems"

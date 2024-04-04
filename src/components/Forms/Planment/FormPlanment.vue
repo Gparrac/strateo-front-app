@@ -35,6 +35,7 @@
             :errorMessage="errorMessage"
             :editable="false"
             @update:records="(item) => (products = item)"
+            :showSubproducts="true"
           ></dynamic-service-list>
         </v-form>
       </v-stepper-window-item>
@@ -319,16 +320,16 @@ export default {
       const { valid } = await this.$refs.formInvoice.validate();
       if (valid) {
         formData.append("client_id", this.editItem.client.id);
-        formData.append("further_discount", this.editItem.furtherDiscount);
         if(this.note && this.note.length > 0) formData.append("note", this.editItem.note);
+        formData.append('sale_type', 'E')
         formData.append("seller_id", this.editItem.seller.id);
         formData.append("date", castFullDate(this.editItem.date));
         formData.append("start_date", castFullDate(this.editItem.startDate));
         formData.append("end_date", castFullDate(this.editItem.endDate));
-        formData.append("pay_off", this.editItem.payOff);
+        if(this.editItem.payOff) formData.append("pay_off", this.editItem.payOff);
+
         formData.append("stage", this.editItem.stage.id);
         if(this.editItem.taxes && this.editItem.taxes.length > 0){
-          formData.append('taxes', this.editItem.taxes);
           this.editItem.taxes.forEach((tax, pindex) => {
           formData.append(`taxes[${pindex}][tax_id]`, tax.id);
           formData.append(`taxes[${pindex}][percent]`, tax.percent);
@@ -483,7 +484,6 @@ export default {
         {
           invoiceId: response.data.id,
           note: response.data.note,
-          furtherDiscount: response.data.further_discount,
           date: response.data.date.split(" ")[0],
           seller: response.data.seller,
           client: response.data.client,
@@ -491,7 +491,7 @@ export default {
           startDate: response.data.planment.start_date,
           endDate: response.data.planment.end_date,
           stage: response.data.planment.stage,
-          taxes: response.data.taxes || []
+          taxes: response.data.taxes || [],
         }
       );
 

@@ -25,7 +25,7 @@
                 :maxlength="rulesValidation.text.maxLength"
                 label="Registro Comercial"
                 v-model="editItem.commercial_registry"
-                :rules="rulesValidation.text.rules"
+                :rules="rulesValidation.shortTextNull.rules"
                 :loading="loading"
               ></v-text-field>
             </v-col>
@@ -102,7 +102,7 @@
               <v-text-field
                 label="Nombre de Representante Legal"
                 v-model="editItem.legal_representative_name"
-                :rules="rulesValidation.text.rules"
+                :rules="rulesValidation.shortTextNull.rules"
                 :loading="loading"
               ></v-text-field>
             </v-col>
@@ -111,7 +111,7 @@
                 :maxlength="rulesValidation.legal_representative_id"
                 label="Identificación del Representante Legal"
                 v-model="editItem.legal_representative_id"
-                :rules="rulesValidation.identification.rules"
+                :rules="rulesValidation.nullIdentification.rules"
                 :loading="loading"
               ></v-text-field>
             </v-col>
@@ -261,20 +261,24 @@ export default {
         formData.append("city_id", this.editItem.city.id);
         if (this.editItem.ciiu)
           formData.append("code_ciiu_id", this.editItem.ciiu.id);
-
+        if(this.commercial_registry)
         formData.append(
           "commercial_registry",
           this.editItem.commercial_registry
         );
+
         formData.append("status", this.editItem.status);
+        if(this.legal_representative_name && this.legal_representative_name.length > 0)
         formData.append(
           "legal_representative_name",
           this.editItem.legal_representative_name
         );
+        if(this.legal_representative_id && this.legal_representative_id.length > 0)
         formData.append(
           "legal_representative_id",
           this.editItem.legal_representative_id
         );
+        if(this.note && this.note.length > 0)
         formData.append("note", this.editItem.note);
         formData.append("status", this.editItem.status);
 
@@ -282,17 +286,17 @@ export default {
           formData.append("email2", this.editItem.email2);
         }
 
-        if (typeof this.showFileCommercialSelected != "string") {
+        if (this.showFileCommercialSelected && typeof this.showFileCommercialSelected != "string") {
           formData.append(
             "commercial_registry_file",
             this.showFileCommercialSelected
           );
         }
-        if (typeof this.showFileRutSelected != "string") {
+        if (this.showFileRutSelected && typeof this.showFileRutSelected != "string") {
           formData.append("rut_file", this.showFileRutSelected);
         }
 
-        if (this.editItem.business) {
+        if (this.editItem.business && this.editItem.business.length > 0) {
           formData.append("business_name", this.editItem.business);
         } else {
           formData.append("names", this.editItem.names);

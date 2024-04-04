@@ -254,7 +254,7 @@ export default {
         if(this.editItem.type.id == 'E'){
           formData.append("start_date", castFullDate(this.editItem.startDate));
           formData.append("end_date", castFullDate(this.editItem.endDate));
-          formData.append("pay_off", this.editItem.payOff);
+        if(this.editItem.payOff) formData.append("pay_off", this.editItem.payOff);
           formData.append("stage", this.editItem.stage.id);
         }
         if(this.editItem.taxes && this.editItem.taxes.length > 0){
@@ -275,7 +275,7 @@ export default {
     },
     async saveProducts(formData, further = false) {
       //validate form rules 🚥
-      const { valid } = await this.$refs.formProduct.validate();
+      const { valid } = await this.$refs[further ? 'formFurtherProduct' : 'formProduct'].validate();
       //validate dynamic components 🚥
       if ((this.products.length == 0 && this.step == 1) || (this.furtherProducts.length == 0 && this.step == 2)) {
         this.errorMessage.type = "products";

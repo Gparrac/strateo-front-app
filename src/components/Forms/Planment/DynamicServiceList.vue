@@ -81,7 +81,7 @@
                       <v-text-field
                         :maxlength="rulesValidation.price.maxLength"
                         label="Descuento"
-                        :rules="rulesValidation.price.rules"
+                        :rules="rulesValidation.optionalPrice.rules"
                         :loading="loading"
                         prepend-inner-icon="mdi-cash"
                         v-model="record.discount"
@@ -106,8 +106,20 @@
                   </v-row>
                 </v-col>
               </v-row>
+              <div v-if="!showSubproducts" class="d-flex justify-center py-5">
+                <v-btn
+                variant="text"
+                :append-icon="record.seeSubproduct ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                size="small"
+                color="success"
+                @click="record.seeSubproduct = ! (record.seeSubproduct || false)"
+                >
+                  Editar subproductos
+                </v-btn>
+              </div>
               <!-- ------------------------SUBPRODUCTS----------------------- -->
               <dynamic-subproduct-list
+                v-if="showSubproducts || record.seeSubproduct"
                 :records="record.subproducts"
                 :editable="editable"
                 :errorMessage="errorMessage"
@@ -155,6 +167,11 @@ export default {
     records: Array,
     errorMessage: Object,
     editable: Boolean,
+    showSubproducts: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
   },
   components: {
     DynamicSelectField,

@@ -107,6 +107,7 @@ export default {
         key: "id",
         sortable: true
       },
+      {title: "cliente", align: "center", key: "third.fullname", sortable:false},
       { title: "Nombre del Representante", align: "center", key: "legal_representative_name", sortable:true },
       { title: "Código del representante", align: "center", key: "legal_representative_id", sortable:false },
       { title: "Identificación", align: "center", key: "third.identification", sortable:false },

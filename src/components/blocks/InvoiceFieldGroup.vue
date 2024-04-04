@@ -81,7 +81,7 @@
               label="Abono"
               @update:model-value="(value) => emitRecords(value, 'payOff')"
               :model-value="records.payOff"
-              :rules="rulesValidation.price.rules"
+              :rules="rulesValidation.optionalPrice.rules"
               :loading="loading"
               prepend-inner-icon="mdi-cash"
               variant="outlined"
