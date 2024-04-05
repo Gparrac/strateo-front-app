@@ -54,7 +54,7 @@
         </div>
   </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <div>
+        <div class="pa-2">
           <v-icon
             size="small"
             class="me-2"
@@ -62,6 +62,7 @@
           >
             mdi-pencil
           </v-icon>
+          <btn-invoice-download :invoiceId="item.id" size="x-small"></btn-invoice-download>
         </div>
       </template>
     </v-data-table-server>
@@ -77,6 +78,7 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 import { castDate } from "@/utils/cast";
 import { useFilterTableStore } from "@/store/filterTables";
 import { RulesValidation } from "@/utils/validations";
+import BtnInvoiceDownload from "@/components/blocks/BtnInvoiceDownload.vue";
 const invoiceApi = new InvoiceApi();
 export default {
   props: {
@@ -86,6 +88,7 @@ export default {
   components: {
     ModalDelete,
     HeaderTable,
+    BtnInvoiceDownload
   },
   data: () => ({
     //required data

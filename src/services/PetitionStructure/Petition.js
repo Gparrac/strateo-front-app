@@ -32,7 +32,7 @@ export default class Petition {
             });
         })
     }
-    getFile(url, query = '', token = false){
+    getFile(url, query = '', token = false, fileName = 'datos.xlsx'){
       if(query.length != 0) query = `?${query}`
         return new Promise((resolve, reject) => {
             fetch(`${this.routeEndpoint}${url}${query}`, {
@@ -46,7 +46,7 @@ export default class Petition {
               // Crea un enlace temporal y haz clic en él para descargar el archivo
               const link = document.createElement('a');
               link.href = url;
-              link.setAttribute('download', 'datos.xlsx');
+              link.setAttribute('download', fileName);
               document.body.appendChild(link);
               link.click();
 

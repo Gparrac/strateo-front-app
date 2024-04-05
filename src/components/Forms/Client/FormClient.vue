@@ -56,7 +56,7 @@
                   :href="getFileUrl(showFileCommercialSelected)"
                   target="_blank"
                   prepend-icon="mdi-folder-download"
-                  size="x-large"
+                  size="small"
                   download
                 >
                   Descargar

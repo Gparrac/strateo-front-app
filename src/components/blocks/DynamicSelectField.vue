@@ -73,7 +73,7 @@ export default {
   }),
   watch: {
     async searchItem(to) {
-      if (to.length > 2 && to.length < 5) {
+      if (to.length > 2 && to.length < 6) {
         this.$emit("update:options", to);
       } else if (to.length == 0) {
         this.$emit("update:options", "");

@@ -1,4 +1,5 @@
 <template>
+ <btn-invoice-download v-if="editItem.invoiceId" :invoiceId="editItem.invoiceId"></btn-invoice-download>
   <v-stepper
     class="mt-3"
     v-model="step"
@@ -140,6 +141,7 @@ import DynamicLibrettoActivityList from "./DynamicLibrettoActivityList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
 import EmployeeApi from "@/services/Forms/EmployeeApi";
 import LibrettoActivityApi from "@/services/Forms/LibrettoActivityApi";
+import BtnInvoiceDownload from "@/components/blocks/BtnInvoiceDownload.vue";
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
 const employeeApi = new EmployeeApi();
@@ -156,7 +158,8 @@ export default {
     DynamicProductList,
     DynamicEmployeeList,
     DynamicServiceList,
-    DynamicLibrettoActivityList
+    DynamicLibrettoActivityList,
+    BtnInvoiceDownload
   },
   data: () => ({
     // required data
@@ -225,7 +228,8 @@ export default {
         const totalTax = (item.type == 'D' ? -1 : 1 ) * (item.percent || 0)*this.totalCost/100 ?? 0;
         return total + (+totalTax);
       }, 0) : 0;
-      return formatNumberToColPesos(this.totalCost - this.totalDiscount + wholeTax);
+      console.log('taxes', this.totalDiscount, this.totalCost, wholeTax, this.totalCost - this.totalDiscount + wholeTax)
+      return formatNumberToColPesos(this.totalCost + this.totalDiscount + (wholeTax));
     },
     ...mapStores(useAlertMessageStore),
   },
@@ -470,7 +474,10 @@ export default {
 
       this[keyArray] = response.data ?? [];
     },
-
+    async downloadPDF(){
+      await invoiceApi.downloadPdf(this.editItem.invoiceId);
+      // window.location.href = `http://127.0.0.1:8000/api/invoice-pdf?invoice_id=${this.editItem.invoiceId}`;
+    },
     async setEditItem(invoiceId = null) {
       if (!this.idEditForm && !invoiceId) {
         this.editItem.services = [];

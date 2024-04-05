@@ -1,4 +1,5 @@
 <template>
+  <btn-invoice-download v-if="editItem.invoiceId" :invoiceId="editItem.invoiceId"></btn-invoice-download>
   <v-stepper
     class="mt-3"
     v-model="step"
@@ -121,6 +122,7 @@ import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
 import DynamicServiceList from "../Planment/DynamicServiceList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
+import BtnInvoiceDownload from "@/components/blocks/BtnInvoiceDownload.vue";
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
 
@@ -133,7 +135,8 @@ export default {
   components: {
     InvoiceFieldGroup,
     DynamicProductList,
-    DynamicServiceList
+    DynamicServiceList,
+    BtnInvoiceDownload
   },
   data: () => ({
     // required data
