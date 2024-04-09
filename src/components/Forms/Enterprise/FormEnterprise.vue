@@ -2,10 +2,11 @@
   <v-form ref="form">
     <v-row justify="center">
       <v-card rounded="3" class="w-100" :loading="loading">
-        <v-card-title>
+        <v-card-title class="d-flex">
           <span class="text-h5"> Información General </span>
+          <v-spacer></v-spacer>
+          <button-login-google :userAuth="editItem.enterpriseId ? true : false" :googleAccount="editItem.googleUser "></button-login-google>
         </v-card-title>
-
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
@@ -289,7 +290,7 @@ import CiiuSecondaryField from "@/components/blocks/CiiuSecondaryField.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castNit } from "@/utils/cast";
-
+import ButtonLoginGoogle from './ButtonLoginGoogle.vue';
 const enterpriseApi = new EnterpriseApi();
 const petition = new Petition();
 
@@ -301,6 +302,7 @@ export default {
   },
   components: {
     CiiuSecondaryField,
+    ButtonLoginGoogle
   },
   data: () => ({
     // required data
@@ -453,6 +455,7 @@ export default {
           header: response.data.header,
           footer: response.data.footer,
           secondaryCiius: response.data.secondary_ciius,
+          googleUser: response.data.google_user
         }
       );
       this.showImageSelected = response.data.path_logo;
