@@ -71,7 +71,6 @@ export const RulesValidation = {
     maxLength: 12,
     rules: [
       (value) =>{
-        console.log('entryValidation?',value, typeof value)
         if(value !== null  && value !== undefined && value.length != 0)
         return (value.length >= 7 && value.length <= 12) ||
         "Identificación tiene que ser entre 7 y 10 caracteres";

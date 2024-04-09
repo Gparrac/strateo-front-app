@@ -118,7 +118,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { calTotalCostItems, calTotalDiscountItems, castFullDate, formatNumberToColPesos, statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
-import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
+import InvoiceFieldGroup from "@/components/Cards/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
 import DynamicServiceList from "../Planment/DynamicServiceList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
@@ -261,7 +261,6 @@ export default {
           formData.append("stage", this.editItem.stage.id);
         }
         if(this.editItem.taxes && this.editItem.taxes.length > 0){
-          formData.append('taxes', this.editItem.taxes);
           this.editItem.taxes.forEach((tax, pindex) => {
           formData.append(`taxes[${pindex}][tax_id]`, tax.id);
           formData.append(`taxes[${pindex}][percent]`, tax.percent);

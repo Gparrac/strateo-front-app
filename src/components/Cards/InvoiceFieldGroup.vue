@@ -3,7 +3,7 @@
     <v-card-text>
       <!-- Business Name or normal name -->
       <v-row>
-        <v-col cols="12" :sm="showPlanment ? 4 : 6" :lg="showPlanment ? 4 : 3" >
+        <v-col cols="12" :sm="showPlanment ? 4 : 6" :lg="showPlanment ? 4 : 3">
           <dynamic-select-field
             :options="clients"
             :itemSaved="records.client"
@@ -17,21 +17,20 @@
           >
           </dynamic-select-field>
         </v-col>
-        <v-col v-if="!showPlanment" cols="12" sm="6" lg="3" >
+        <v-col v-if="!showPlanment" cols="12" sm="6" lg="3">
           <v-select
-              label="Tipo de orden"
-              :items="types"
-              item-title="name"
-              variant="outlined"
-              v-on:update:modelValue="(value) => changeType(value)"
-              :model-value="records.type"
-              :rules="rulesValidation.select.rules"
-              :loading="loading"
-
-              return-object
-            ></v-select>
+            label="Tipo de orden"
+            :items="types"
+            item-title="name"
+            variant="outlined"
+            v-on:update:modelValue="(value) => changeType(value)"
+            :model-value="records.type"
+            :rules="rulesValidation.select.rules"
+            :loading="loading"
+            return-object
+          ></v-select>
         </v-col>
-        <v-col cols="12" :sm="showPlanment ? 4 : 6" :lg="showPlanment ? 4 : 3" >
+        <v-col cols="12" :sm="showPlanment ? 4 : 6" :lg="showPlanment ? 4 : 3">
           <dynamic-select-field
             :options="sellers"
             :itemSaved="records.seller"
@@ -72,10 +71,10 @@
         class="pt-4 pb-2 px-5 mb-5"
         variant="outlined"
         title="Datos para planeación"
-        v-if="showPlanment|| (records.type && records.type.id == 'E')"
+        v-if="showPlanment || (records.type && records.type.id == 'E')"
       >
         <v-row>
-          <v-col cols="12" sm="6" lg="3" >
+          <v-col cols="12" sm="6" lg="3">
             <v-text-field
               :maxlength="rulesValidation.price.maxLength"
               label="Abono"
@@ -106,7 +105,7 @@
               type="datetime-local"
               variant="outlined"
               label="Fecha de inicio"
-              :rules="rulesValidation.date.rules"
+              :rules="startDateRule"
               @update:model-value="(value) => emitRecords(value, 'startDate')"
               :model-value="records.startDate"
             ></v-text-field>
@@ -123,29 +122,26 @@
           </v-col>
         </v-row>
       </v-card>
-                    <v-card
-                    v-if="
-                      records.taxes
-                    "
-                      title="Impuestos"
-                      variant="outlined"
-                      padding="2"
-                      class="w-100 h-100"
-                    >
-                      <v-card-text>
-                        <!------------------------------- DYNAMIC TAXES ITEM --------------------------->
-                        <dynamic-tax-list
-                          v-if="records.taxes"
-                          :records="records.taxes"
-                          context="I"
-                          :errorMessage="{}"
-                          @update:records="(value) => emitRecords(value, 'taxes')"
-                          :totalCost="totalCost"
-                        ></dynamic-tax-list>
-                        <!------------------------------- END DYNAMIC TAXES ITEM --------------------------->
-                      </v-card-text>
-                    </v-card>
-
+      <v-card
+        v-if="records.taxes"
+        title="Impuestos"
+        variant="outlined"
+        padding="2"
+        class="w-100 h-100"
+      >
+        <v-card-text>
+          <!------------------------------- DYNAMIC TAXES ITEM --------------------------->
+          <dynamic-tax-list
+            v-if="records.taxes"
+            :records="records.taxes"
+            context="I"
+            :errorMessage="{}"
+            @update:records="(value) => emitRecords(value, 'taxes')"
+            :totalCost="totalCost"
+          ></dynamic-tax-list>
+          <!------------------------------- END DYNAMIC TAXES ITEM --------------------------->
+        </v-card-text>
+      </v-card>
     </v-card-text>
   </v-card>
 </template>
@@ -156,7 +152,7 @@ import { RulesValidation } from "@/utils/validations";
 import ClientApi from "@/services/Forms/ClientApi";
 import UserApi from "@/services/Forms/UserApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
-import DynamicTaxList from "./DynamicTaxList.vue";
+import DynamicTaxList from "@/components/blocks/DynamicTaxList.vue";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { mapStores } from "pinia";
 const clientApi = new ClientApi();
@@ -168,64 +164,74 @@ export default {
   props: {
     records: Object,
     showPlanment: Boolean,
-    totalCost: Number
+    totalCost: Number,
   },
   components: {
     DynamicSelectField,
-    DynamicTaxList
+    DynamicTaxList,
   },
   data: () => ({
     editable: false,
     clients: [],
     sellers: [],
-    stages:[],
-    types:[],
+    stages: [],
+    types: [],
     typesInvoice: [],
     loading: false,
     searchCiiu: "",
     rulesValidation: RulesValidation,
-
   }),
   computed: {
     ...mapStores(useAlertMessageStore),
     endDateRule() {
-      return [...this.rulesValidation.date.rules,                 (value) =>
-                    new Date(value) > new Date(this.records.startDate) ||
-                    "La fecha de finalización debe ser mayor a la de inicio. ",]
-    }
+      return [
+        ...this.rulesValidation.date.rules,
+        (value) =>
+          new Date(value) > new Date(this.records.startDate) ||
+          "La fecha de finalización debe ser mayor a la de inicio. ",
+      ];
+    },
+    startDateRule() {
+      return [
+        ...this.rulesValidation.date.rules,
+        (value) =>
+          this.records.endDate
+            ? new Date(value) < new Date(this.records.endDate) ||
+              "La fecha de inicio debe ser menor a la de finalización. "
+            : true,
+      ];
+    },
   },
   methods: {
-    changeType(value){
-      this.$emit('update:type', value)
+    changeType(value) {
+      this.$emit("update:type", value);
     },
     emitRecords(item, key) {
       this.$emit("update:records", { item: item, key: key });
     },
     async setClients(name = null) {
-
       const query = name
-        ?  `&filters[0][key]=legal_credencials&filters[0][value]=${name}` : "";
+        ? `&filters[0][key]=legal_credencials&filters[0][value]=${name}`
+        : "";
       this.clients = (await clientApi.read(`format=short${query}`)).data;
-
     },
     async setSellers(name = null) {
-      const query = name ? `&filters[0][key]=third&filters[0][value]=${name}` : "";
-      this.sellers = (
-        await userApi.read(`format=short${query}`)
-      ).data;
+      const query = name
+        ? `&filters[0][key]=third&filters[0][value]=${name}`
+        : "";
+      this.sellers = (await userApi.read(`format=short${query}`)).data;
     },
     async setStages(planmentStage = true) {
-      const queryStage = planmentStage ? `planment_stage=${this.records?.stage?.id || 0}` : '';
-      this[planmentStage ? 'stages' : 'types'] = (
+      const queryStage = planmentStage
+        ? `planment_stage=${this.records?.stage?.id || 0}`
+        : "";
+      this[planmentStage ? "stages" : "types"] = (
         await petition.get("/type-invoices", queryStage)
       ).data;
     },
 
     async setTypesInvoice() {
-
-      this.typesInvoice = (
-        await petition.get("/type-invoices")
-      ).data;
+      this.typesInvoice = (await petition.get("/type-invoices")).data;
     },
   },
   async mounted() {
@@ -236,7 +242,7 @@ export default {
         this.setSellers(),
         this.setTypesInvoice(),
         this.setStages(),
-        this.setStages(false)
+        this.setStages(false),
       ]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);

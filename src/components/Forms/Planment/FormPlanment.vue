@@ -133,7 +133,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castFullDate, statusAllowed, calTotalCostItems, calTotalDiscountItems, formatNumberToColPesos } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
-import InvoiceFieldGroup from "@/components/blocks/InvoiceFieldGroup.vue";
+import InvoiceFieldGroup from "@/components/Cards/InvoiceFieldGroup.vue";
 import DynamicProductList from "./DynamicProductList.vue";
 import DynamicEmployeeList from "./DynamicEmployeeList.vue";
 import DynamicServiceList from "./DynamicServiceList.vue";
