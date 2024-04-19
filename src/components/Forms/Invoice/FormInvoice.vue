@@ -32,30 +32,51 @@
       </v-stepper-window-item>
       <v-stepper-window-item :value="1">
         <v-form ref="formProduct">
-          <dynamic-service-list
-          v-if="editItem.type && editItem.type.id == 'E'"
-            :records="products"
+          <dynamic-further-product-table
+          v-if="editItem.type && editItem.type.id == 'P'"
+              :records="products"
+              :errorMessage="errorMessage"
+              errorKey = "products"
+              :editable="false"
+              @update:records="
+                (item) => updateAttributes(item, 'products')
+              "
+            ></dynamic-further-product-table>
+          <div v-else>
+            <dynamic-product-table
+          :errorMessage="errorMessage"
+          :editable="false"
+          kindProduct="E"
+        ></dynamic-product-table>
+            <div  class="d-flex justify-center py-5">
+                <v-btn
+                variant="text"
+                :append-icon="showSubproducts ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                size="small"
+                color="success"
+                @click="hideSubproducts"
+                >
+                  Editar subproductos
+                </v-btn>
+              </div>
+              <dynamic-subproduct-table
+              v-if="showSubproducts"
             :errorMessage="errorMessage"
             :editable="false"
-            @update:records="(item) => (products = item)"
-          ></dynamic-service-list>
-          <dynamic-product-list
-            v-else
-            :records="products"
-            :errorMessage="errorMessage"
-            :editable="false"
-            @update:records="(item) => (products = item)"
-          ></dynamic-product-list>
+          ></dynamic-subproduct-table>
+          </div>
         </v-form>
       </v-stepper-window-item>
       <v-stepper-window-item :value="2">
         <v-form ref="formFurtherProduct">
-          <dynamic-product-list
-            :records="furtherProducts"
-            :errorMessage="errorMessage"
-            :editable="false"
-            @update:records="(item) => (furtherProducts = item)"
-          ></dynamic-product-list>
+          <dynamic-further-product-table
+              :records="furtherProducts"
+              :errorMessage="errorMessage"
+              :editable="false"
+              @update:records="
+                (item) => updateAttributes(item, 'furtherProducts')
+              "
+            ></dynamic-further-product-table>
         </v-form>
       </v-stepper-window-item>
     </v-stepper-window>
@@ -119,10 +140,13 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 import { calTotalCostItems, calTotalDiscountItems, castFullDate, formatNumberToColPesos, statusAllowed } from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import InvoiceFieldGroup from "@/components/Cards/InvoiceFieldGroup.vue";
-import DynamicProductList from "./DynamicProductList.vue";
-import DynamicServiceList from "../Planment/DynamicServiceList.vue";
+import DynamicProductTable from "@/components/Forms/Planment/DynamicProductTable.vue"
+import DynamicFurtherProductTable from "@/components/Forms/Planment/DynamicFurtherProductTable.vue"
+import DynamicSubproductTable from "@/components/Forms/Planment/DynamicSubproductTable.vue";
 import ProductApi from "@/services/Forms/ProductApi";
 import BtnInvoiceDownload from "@/components/blocks/BtnInvoiceDownload.vue";
+import { useProductPlanmentStore } from "@/store/productPlanment";
+
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
 
@@ -134,8 +158,9 @@ export default {
   },
   components: {
     InvoiceFieldGroup,
-    DynamicProductList,
-    DynamicServiceList,
+    DynamicProductTable,
+    DynamicFurtherProductTable,
+    DynamicSubproductTable,
     BtnInvoiceDownload
   },
   data: () => ({
@@ -164,12 +189,14 @@ export default {
     //data
     products: [],
     furtherProducts: [],
+    showSubproducts: false,
     totalCost: 0,
     totalDiscount: 0,
   }),
   async mounted() {
     this.loading = true;
     this.status = statusAllowed();
+    this.productPlanmentStore.$reset();
     try {
       await this.setEditItem();
       if (this.editItem.invoiceId) {
@@ -196,9 +223,17 @@ export default {
       }, 0) : 0;
       return formatNumberToColPesos(this.totalCost - this.totalDiscount + wholeTax);
     },
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useProductPlanmentStore),
   },
   methods: {
+    async hideSubproducts(){
+      this.loading = true;
+      const { valid } = await this.$refs.formInvoice.validate();
+      if(valid){
+       this.showSubproducts =  !this.showSubproducts;
+      }
+      this.loading = false;
+    },
     changeSteppers(value){
       this.editItem.type = value;
       this.products = [];
@@ -248,7 +283,7 @@ export default {
       if (valid) {
         formData.append("client_id", this.editItem.client.id);
         formData.append("further_discount", this.editItem.furtherDiscount);
-        if (this.note && this.note.length > 0)
+        if (this.editItem.note && this.editItem.note.length > 0)
           formData.append("note", this.editItem.note);
         formData.append("seller_id", this.editItem.seller.id);
         formData.append("date", castFullDate(this.editItem.date));
@@ -279,7 +314,7 @@ export default {
       //validate form rules 🚥
       const { valid } = await this.$refs[further ? 'formFurtherProduct' : 'formProduct'].validate();
       //validate dynamic components 🚥
-      if ((this.products.length == 0 && this.step == 1) || (this.furtherProducts.length == 0 && this.step == 2)) {
+      if ((((this.productPlanmentStore.productEvents.length == 0 && this.editItem.type.id == 'E') || (this.products.length == 0 && this.editItem.type.id == 'P')) && this.step == 1) ) {
         this.errorMessage.type = "products";
         this.errorMessage.message = "Se requiere minimo un producto";
 

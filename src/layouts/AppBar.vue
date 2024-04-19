@@ -107,6 +107,7 @@ import { useUserAuthStore } from "@/store/userAuth";
 import FilterFieldCard from "@/components/blocks/FilterFieldCard.vue";
 import { mapStores } from "pinia";
 
+
 const formApi = new FormApi();
 
 export default {
@@ -115,6 +116,7 @@ export default {
     ModalUserSettings,
     AlertMessage,
     FilterFieldCard,
+
   },
   data: () => ({
     toggleSettings: false,
@@ -126,7 +128,7 @@ export default {
     await this.getFormsAvailable();
   },
   computed: {
-    ...mapStores(useUserAuthStore, useFilterTableStore),
+    ...mapStores(useUserAuthStore, useFilterTableStore,),
   },
   methods: {
     async getFormsAvailable() {

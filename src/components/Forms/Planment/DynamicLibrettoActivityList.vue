@@ -1,5 +1,5 @@
 <template>
-  <v-row class="flex-column-reverse">
+  <v-row class="">
     <v-col cols="12" lg="7">
       <strong class="text-caption d-block mb-2"
         >* <span class="text-overline">Campo dinamico. </span> Escribe entre 3 a
@@ -19,8 +19,12 @@
       </div>
       <div class="max-h-custom px-5 w-100">
         <v-row v-if="records && records.length > 0">
-          <v-col cols="12" v-for="(record, i) in records" :key="`${record.code}-${i}`">
-            <v-card :title="record.name" variant="outlined">
+          <v-col
+            cols="12"
+            v-for="(record, i) in records"
+            :key="`${record.code}-${i}`"
+          >
+            <v-card :title="`${i+1} - ${record.name}`" variant="outlined">
               <template v-slot:prepend>
                 <v-btn
                   v-show="!editable"
@@ -33,7 +37,17 @@
               </template>
 
               <v-card-text>
-                <v-row>
+                <v-row justify="center">
+                  <v-col cols="6" class="ma-0">
+                    <file-field
+                      class="mx-0 px-0"
+                      title="Material adicional"
+                      :item="record"
+                      :loading="loading"
+                      @update:pathfile="(item) => (record.pathFile = item)"
+                      @update:file="(item) => (record.file = item)"
+                    ></file-field>
+                  </v-col>
                   <v-col cols="12">
                     <v-textarea
                       label="Observaciones"
@@ -73,21 +87,17 @@
         </v-row>
       </div>
     </v-col>
-    <v-col cols="12" lg="5">
+    <v-col cols="12" lg="5" class="pr-5 pt-4">
       <v-card
         title="Actividades preseleccionadas"
         subtitle="Actividades que han sido parametrizadas segun los servicios que has escodigo para esta planeación"
+        elevation="3"
       >
         <v-card-text>
-          <v-data-table
-            :items="serviceRelatedRecords"
-            :headers="headersPreLA"
-
-          >
-          <template v-slot:[`item.actions`]="{ item }">
-        <div>
-          <v-btn
-
+          <v-data-table :items="serviceRelatedRecords" :headers="headersPreLA">
+            <template v-slot:[`item.actions`]="{ item }">
+              <div>
+                <v-btn
                   icon="mdi-plus"
                   size="small"
                   color="primary"
@@ -95,10 +105,9 @@
                   @click="appendItem(item)"
                 >
                 </v-btn>
-        </div>
-      </template>
-
-        </v-data-table>
+              </div>
+            </template>
+          </v-data-table>
         </v-card-text>
       </v-card>
     </v-col>
@@ -122,7 +131,8 @@
 import { RulesValidation } from "@/utils/validations";
 import LibrettoActivityApi from "@/services/Forms/LibrettoActivityApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
-import { deepCopy } from '@/utils/cast';
+import { deepCopy } from "@/utils/cast";
+import FileField from "@/components/blocks/FileField.vue";
 
 const librettoActivityApi = new LibrettoActivityApi();
 
@@ -135,6 +145,7 @@ export default {
   },
   components: {
     DynamicSelectField,
+    FileField,
   },
 
   data: () => ({
@@ -153,40 +164,39 @@ export default {
     recordIds() {
       return this.records.map((item) => item.id);
     },
-
   },
   methods: {
     async loadItems(name = null) {
-      const query = (name ? `&filters[0][key]=name&filters[0][value]=${name}` : "");
+      const query = name
+        ? `&filters[0][key]=name&filters[0][value]=${name}`
+        : "";
       const response = await librettoActivityApi.read(`format=short${query}`);
       this.options = response.data;
     },
     appendItem(item) {
+      item.pathFile = item.path_file;
       let localRecords = deepCopy(this.records);
       localRecords.push(item);
       this.emitRecords(localRecords);
     },
     deleteItem(index) {
-      this.emitRecords(
-        this.records.filter((item,i) => i != index)
-      );
+      this.emitRecords(this.records.filter((item, i) => i != index));
     },
-    pushUp(index){
-
-      if(index >= this.records.length - 1){
-        let tempRecords  = deepCopy(this.records);
+    pushUp(index) {
+      if (index >= this.records.length - 1) {
+        let tempRecords = deepCopy(this.records);
         const temp = tempRecords[index];
         tempRecords[index] = tempRecords[index - 1];
-        tempRecords[index - 1] = temp
+        tempRecords[index - 1] = temp;
         this.emitRecords(tempRecords);
       }
     },
-    pullDown(index){
-      if(index < this.records.length - 1){
-        let tempRecords  = deepCopy(this.records);
+    pullDown(index) {
+      if (index < this.records.length - 1) {
+        let tempRecords = deepCopy(this.records);
         const temp = tempRecords[index];
         tempRecords[index] = tempRecords[index + 1];
-        tempRecords[index + 1] = temp
+        tempRecords[index + 1] = temp;
         this.emitRecords(tempRecords);
       }
     },

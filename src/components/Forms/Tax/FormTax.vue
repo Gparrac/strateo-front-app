@@ -8,6 +8,7 @@
 
         <!----------------------- FORM --------------------------->
         <v-card-text>
+
           <v-row>
             <v-col cols="12" sm="6" lg="4">
               <v-text-field
@@ -28,14 +29,22 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" lg="4">
-              <v-text-field
-                :maxlength="rulesValidation.percent.maxLength"
-                label="Porcentaje"
-                v-model="editItem.default_percent"
-                :rules="rulesValidation.percent.rules"
+              <v-select
+              multiple
+                return-object
+                :items="taxValues"
+                label="Porcentajes validos"
+                item-title="percent"
+                v-model="editItem.taxValues"
+                :rules="rulesValidation.select.rules"
                 :loading="loading"
-                append-inner-icon="mdi-percent"
-              ></v-text-field>
+                prepend-inner-icon="mdi-percent"
+              >
+            <template v-slot:append>
+                  <modal-new-tax-value @new-value="updateTaxValues"></modal-new-tax-value>
+            </template>
+            </v-select>
+
             </v-col>
             <v-col cols="12" sm="6" lg="4">
               <v-select
@@ -50,6 +59,7 @@
             </v-col>
             <v-col cols="12" sm="6" lg="4">
               <v-select
+
                 label="Contexto"
                 :items="contexts"
                 v-model="editItem.context"
@@ -57,6 +67,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+
               ></v-select>
             </v-col>
             <v-col cols="12" sm="6" lg="4">
@@ -103,9 +114,12 @@ import TaxApi from "@/services/Forms/TaxApi.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
+import ModalNewTaxValue from "./ModalNewTaxValue.vue";
+import TaxValueApi from "@/services/Forms/TaxValueApi";
 
 
 const taxApi = new TaxApi();
+const taxValueApi = new TaxValueApi();
 
 export default {
   name: "FormTax",
@@ -114,11 +128,13 @@ export default {
     nameTable: String,
     path: String,
   },
-  components: {},
+  components: {
+    ModalNewTaxValue
+  },
   data: () => ({
     // required data
     loading: false,
-    editItem: {},
+    editItem: {taxValues:[]},
     // optional data
     rulesValidation: RulesValidation,
     status: [
@@ -132,12 +148,13 @@ export default {
     contexts: [
       { name: "P", label: "Por producto o servicio" },
       { name: "I", label: "Por venta" },
-    ]
+    ],
+    taxValues:[]
   }),
   async mounted() {
     this.loading = true;
     try {
-      await Promise.all([this.setEditItem()]);
+      await Promise.all([this.setEditItem(), this.setTaxValues()]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -159,6 +176,11 @@ export default {
     },
   },
   methods: {
+    updateTaxValues(item){
+      console.log('updatingk!!',item);
+      (this.editItem.taxValues) ? this.editItem.taxValues.push(item) : this.editItem.taxValues = [item];
+      this.taxValues.push(item);
+    },
     async submitForm() {
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
@@ -172,6 +194,10 @@ export default {
         formData.append("status", this.editItem.status);
         formData.append("context", this.editItem.context);
         formData.append("type", this.editItem.type);
+        this.editItem.taxValues.forEach((item, i)=> {
+          formData.append(`values[${i}][tax_value_id]`, item.id);
+          formData.append(`values[${i}][percent]`, item.percent);
+        });
         if (this.idEditForm) {
           formData.append("tax_id", this.editItem.tax_id);
           response = await taxApi.update(formData);
@@ -193,6 +219,10 @@ export default {
       }
       this.loading = false;
     },
+    async setTaxValues(){
+      const response = await taxValueApi.read();
+      this.taxValues = response.data;
+    },
     async setEditItem() {
       if (!this.idEditForm) return;
       const response = await taxApi.read(`tax_id=${this.idEditForm}`);
@@ -209,7 +239,8 @@ export default {
           default_percent: response.data.default_percent,
           status: response.data.status,
           type: response.data.type,
-          context:response.data.context
+          context:response.data.context,
+          taxValues: response.data.tax_values
         }
       );
     },

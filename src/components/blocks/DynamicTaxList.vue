@@ -72,19 +72,21 @@
                       </v-chip>
                     </v-col>
                     <v-col cols="12" md="9" >
-                      <v-text-field
+                      <v-select
                         :maxlength="rulesValidation.percent.length"
                         label="Porcentaje"
                         :rules="rulesValidation.percent.rules"
                         :loading="loading"
+                        :items="record.tax_values"
                         append-inner-icon="mdi-brightness-percent"
                         v-model="record.percent"
+                        item-value="percent"
+                        item-title="percent"
                         variant="outlined"
                         :disabled="editable"
                         density="compact"
                         persistent-hint
-                        :hint="'% por defecto: ' + record.default_percent"
-                      ></v-text-field>
+                      ></v-select>
                     </v-col>
                   </v-row>
                 </v-col>
@@ -115,7 +117,9 @@ import { RulesValidation } from "@/utils/validations";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import TaxApi from "@/services/Forms/TaxApi";
 import { formatNumberToColPesos } from '@/utils/cast';
+import TaxValueApi from "@/services/Forms/TaxValueApi";
 const taxApi = new TaxApi();
+const taxValueApi = new TaxValueApi();
 export default {
   props: {
     records: Array,
@@ -132,6 +136,7 @@ export default {
   },
   data: () => ({
     options: [],
+    taxValues: [],
     searchItem: "",
     loading: false,
     rulesValidation: RulesValidation,
@@ -148,6 +153,10 @@ export default {
 
       const response = await taxApi.read(`format=short${query}`);
       this.options = response.data;
+    },
+    async setTaxValues(){
+      const response = await taxValueApi.read();
+      this.taxValues = response.data;
     },
     appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
@@ -167,7 +176,7 @@ export default {
   async mounted() {
     this.loading = true;
     try {
-      await Promise.all([this.loadItems()]);
+      await Promise.all([this.loadItems(), this.setTaxValues()]);
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }

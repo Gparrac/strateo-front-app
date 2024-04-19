@@ -75,6 +75,12 @@
           </v-chip>
         </div>
       </template>
+      <template v-slot:[`item.percent`]="{ item }">
+        <div v-for="(percent,i) in item.tax_values" :key="`p-${percent.id}-${i}`" class="text-center ">
+          <span>{{ percent.percent }}</span>
+          <v-divider v-if="i != item.tax_values.length-1"></v-divider>
+        </div>
+      </template>
     </v-data-table-server>
   </div>
 </template>
@@ -129,7 +135,7 @@ export default {
       },
       { title: "Nombre", align: "end", key: "name", sortable:true},
       { title: "Acrónimo", align: "end", key: "acronym", sortable:false},
-      { title: "Porcentaje", align: "end", key: "default_percent", sortable:false},
+      { title: "Porcentaje", align: "end", key: "percent", sortable:false},
       { title: "Contexto", align: "center", key: "context", sortable:false},
       { title: "Tipo", align: "center", key: "type", sortable:false},
       { title: "Estado", align: "end", key: "status", sortable:false},

@@ -6,11 +6,6 @@ export const useUserAuthStore = defineStore("userAuth", {
     user:JSON.parse(localStorage.getItem("user")),
     authToken: localStorage.getItem('auth-token'),
   }),
-  getters: {
-    them: (state) => {
-      return state.kind ? "info" : "warning";
-    },
-  },
   actions: {
     saveCredentials(data) {
       this.user = data.user;

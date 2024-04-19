@@ -114,7 +114,7 @@
                       <v-select
                         label="Estado"
                         v-model="editItem.status"
-                        item-title="name"
+                        item-title="label"
                         item-value="id"
                         :items="status"
                         :rules="rulesValidation.select.rules"
@@ -174,7 +174,7 @@
                       editItem.taxes
                     "
                     cols="12"
-                    md="6"
+                    :sm="editItem.typeContent && editItem.typeContent.id == 'E' ? 6 : 12"
                     class="d-flex align-center"
                   >
                     <v-card

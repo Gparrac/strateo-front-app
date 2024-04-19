@@ -1,30 +1,33 @@
 <template>
-              <div class="d-flex row-reverse justify-end">
-                <div>
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{netTotal(record) || '-'}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Precio neto
-                </h4>
-              </div>
-              <div class="pl-5">
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{totalCost(record) || '-'}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Precio total
-                </h4>
-              </div>
-              <div class="pl-5">
-                <h3 class="text-h5 font-weight-light text-center">
-                  {{totalTaxes(record) || '-'}}
-                </h3>
-                <h4 class="text-subtitle-2 text-right font-weight-light">
-                  Impuestos
-                </h4>
-              </div>
-            </div>
+          <div>
+            <h6 class="text-subtitle-1 text-end">
+              {{ totalCost(record) }}</h6>
+            <span
+              class="d-block text-end font-weight-regular text-blue-grey-lighten-3"
+            >
+              Subtotal</span
+            >
+          </div>
+          <div>
+            <h6 class="text-subtitle-1 text-end">
+              {{ totalTaxes(record) }}
+            </h6>
+            <span
+              class="d-block text-end font-weight-regular text-blue-grey-lighten-3"
+            >
+              Impuestos</span
+            >
+          </div>
+          <div>
+            <h6 class="text-subtitle-1 text-end">
+              {{ netTotal(record) }}
+            </h6>
+            <span
+              class="d-block text-end font-weight-regular text-blue-grey-lighten-3"
+            >
+              Neto</span
+            >
+          </div>
 
 </template>
 <script>

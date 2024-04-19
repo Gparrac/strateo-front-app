@@ -9,7 +9,7 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-text-field
                 :maxlength="rulesValidation.text.maxLength"
                 label="Nombre"
@@ -18,7 +18,7 @@
                 :loading="loading"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-select
                 label="Estado"
                 :items="status"
@@ -28,6 +28,14 @@
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
               ></v-select>
+            </v-col>
+            <v-col cols="12" md="4">
+              <file-field
+                :item="editItem"
+                :loading="loading"
+                @update:pathfile="(item) => (editItem.pathFile = item)"
+                @update:file="(item) => (editItem.file = item)"
+              ></file-field>
             </v-col>
             <v-col cols="12">
               <v-textarea
@@ -49,6 +57,7 @@
               >
                 <v-card-text>
                   <dynamic-product-list
+
                     :records="editItem.products ?? []"
                     @update:records="(item) => (editItem.products = item)"
                   >
@@ -94,7 +103,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import DynamicProductList from "@/components/Forms/LibrettoActivity/DynamicProductList.vue";
-
+import FileField from "@/components/blocks/FileField.vue";
 
 const librettoActivityApi = new LibrettoActivityApi();
 
@@ -107,6 +116,7 @@ export default {
   },
   components: {
     DynamicProductList,
+    FileField,
   },
   data: () => ({
     // required data
@@ -149,13 +159,21 @@ export default {
         formData.append("name", this.editItem.name);
         formData.append("description", this.editItem.description);
         formData.append("status", this.editItem.status);
-
+        if (
+          this.editItem.pathFile &&
+          typeof this.editItem.pathFile != "string"
+        ) {
+          formData.append("file", this.editItem.pathFile);
+        }
         this.editItem.products.forEach((item, index) => {
           formData.append(`product_ids[${index}]`, item.id);
         });
 
         if (this.idEditForm) {
-          formData.append("libretto_activity_id", this.editItem.libretto_activity_id);
+          formData.append(
+            "libretto_activity_id",
+            this.editItem.libretto_activity_id
+          );
           response = await librettoActivityApi.update(formData);
         } else {
           response = await librettoActivityApi.create(formData);
@@ -178,12 +196,21 @@ export default {
       }
       this.loading = false;
     },
+    handleFileCommercialChange(event) {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const selectedFile = files[0];
+        this.showFileCommercialSelected = selectedFile;
+      }
+    },
     async setEditItem() {
-      if (!this.idEditForm){
+      if (!this.idEditForm) {
         this.editItem.products = [];
         return;
       }
-      const response = await librettoActivityApi.read(`libretto_activity_id=${this.idEditForm}`);
+      const response = await librettoActivityApi.read(
+        `libretto_activity_id=${this.idEditForm}`
+      );
       if (response.statusResponse != 200) {
         this.editItem = {};
         return;
@@ -195,6 +222,7 @@ export default {
           libretto_activity_id: response.data.id,
           name: response.data.name,
           description: response.data.description,
+          pathFile: response.data.path_file,
           status: response.data.status,
 
           // products attributes

@@ -191,7 +191,7 @@ export const RulesValidation = {
     ],
   },
   percent: {
-    maxLength:3,
+    maxLength:5,
     rules: [
       (value) => {
         if (!value) return 'Por favor, ingrese un valor';
@@ -202,3 +202,6 @@ export const RulesValidation = {
     ]
   }
 };
+ export function validateEmtyObj(item){
+  return Object.keys(item).length === 0;
+ }

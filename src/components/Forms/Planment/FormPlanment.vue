@@ -1,6 +1,11 @@
 <template>
- <btn-invoice-download v-if="editItem.invoiceId" :invoiceId="editItem.invoiceId"></btn-invoice-download>
+  <modal-reload @reload-form-data="loadItems"></modal-reload>
+  <btn-invoice-download
+    v-if="editItem.invoiceId"
+    :invoiceId="editItem.invoiceId"
+  ></btn-invoice-download>
   <v-stepper
+    v-if="!mValidateEmtyObj(editItem)"
     class="mt-3"
     v-model="step"
     :key="test"
@@ -23,7 +28,7 @@
         <v-form ref="formInvoice">
           <invoice-field-group
             :records="editItem"
-            @update:records="updateAttributes"
+            @update:records="(item) => updateAttributes(item, 'invoice')"
             :showPlanment="true"
             :totalCost="totalCost"
           ></invoice-field-group>
@@ -31,23 +36,27 @@
       </v-stepper-window-item>
       <v-stepper-window-item :value="1">
         <v-form ref="formProduct">
-          <dynamic-service-list
-            :records="products"
+          <dynamic-product-table
             :errorMessage="errorMessage"
             :editable="false"
-            @update:records="(item) => (products = item)"
-            :showSubproducts="true"
-          ></dynamic-service-list>
+            kindProduct="E"
+          ></dynamic-product-table>
+          <dynamic-subproduct-table
+            :errorMessage="errorMessage"
+            :editable="false"
+          ></dynamic-subproduct-table>
         </v-form>
       </v-stepper-window-item>
       <v-stepper-window-item :value="2">
         <v-form ref="formFurtherProduct">
-          <dynamic-product-list
+          <dynamic-further-product-table
             :records="furtherProducts"
             :errorMessage="errorMessage"
             :editable="false"
-            @update:records="(item) => (furtherProducts = item)"
-          ></dynamic-product-list>
+            @update:records="
+              (item) => updateAttributes(item, 'furtherProducts')
+            "
+          ></dynamic-further-product-table>
         </v-form>
       </v-stepper-window-item>
       <v-stepper-window-item :value="3">
@@ -57,7 +66,9 @@
             :serviceRelatedRecords="sLibrettoActivities"
             :errorMessage="errorMessage"
             :editable="false"
-            @update:records="(item) => (librettoActivities = item)"
+            @update:records="
+              (item) => updateAttributes(item, 'librettoActivities')
+            "
           ></dynamic-libretto-activity-list>
         </v-form>
       </v-stepper-window-item>
@@ -67,7 +78,7 @@
             :records="employees"
             :errorMessage="errorMessage"
             :editable="false"
-            @update:records="(item) => (employees = item)"
+            @update:records="(item) => updateAttributes(item, 'employees')"
           >
             ></dynamic-employee-list
           >
@@ -83,7 +94,9 @@
           <h3 class="text-h5 font-weight text-center text-primary">
             {{ netTotal }}
           </h3>
-          <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
+          <h4
+            class="text-subtitle-2 text-md-right text-center font-weight-light"
+          >
             Precio neto
           </h4>
         </div>
@@ -91,7 +104,9 @@
           <h3 class="text-h5 font-weight text-md-right text-center text-green">
             {{ calTotalCost() }}
           </h3>
-          <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
+          <h4
+            class="text-subtitle-2 text-md-right text-center font-weight-light"
+          >
             Precio total
           </h4>
         </div>
@@ -99,7 +114,9 @@
           <h3 class="text-h5 font-weight text-center text-orange">
             {{ calTotalDiscount() }}
           </h3>
-          <h4 class="text-subtitle-2 text-md-right text-center font-weight-light">
+          <h4
+            class="text-subtitle-2 text-md-right text-center font-weight-light"
+          >
             Impuestos
           </h4>
         </div>
@@ -128,25 +145,38 @@
 
 <script>
 import InvoiceApi from "@/services/Forms/InvoiceApi";
-import { RulesValidation } from "@/utils/validations";
+import { RulesValidation, validateEmtyObj } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castFullDate, statusAllowed, calTotalCostItems, calTotalDiscountItems, formatNumberToColPesos } from "@/utils/cast";
+import {
+  castFullDate,
+  statusAllowed,
+  calTotalCostItems,
+  calTotalDiscountItems,
+  formatNumberToColPesos,
+  castStorageToObject,
+} from "@/utils/cast";
 //import dynamicFieldList from "@/components/Forms/Service/dynamicFieldList.vue";
 import InvoiceFieldGroup from "@/components/Cards/InvoiceFieldGroup.vue";
-import DynamicProductList from "./DynamicProductList.vue";
+
 import DynamicEmployeeList from "./DynamicEmployeeList.vue";
-import DynamicServiceList from "./DynamicServiceList.vue";
+
 import DynamicLibrettoActivityList from "./DynamicLibrettoActivityList.vue";
 import ProductApi from "@/services/Forms/ProductApi";
 import EmployeeApi from "@/services/Forms/EmployeeApi";
 import LibrettoActivityApi from "@/services/Forms/LibrettoActivityApi";
 import BtnInvoiceDownload from "@/components/blocks/BtnInvoiceDownload.vue";
+import ModalReload from "@/components/blocks/ModalReload.vue";
+import DynamicProductTable from "./DynamicProductTable.vue";
+
+import { useProductPlanmentStore } from "@/store/productPlanment";
+import DynamicSubproductTable from "@/components/Forms/Planment/DynamicSubproductTable.vue"
+import DynamicFurtherProductTable from "./DynamicFurtherProductTable.vue";
+
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
 const employeeApi = new EmployeeApi();
 const librettoActivityApi = new LibrettoActivityApi();
-
 export default {
   props: {
     idEditForm: Number,
@@ -155,11 +185,13 @@ export default {
   },
   components: {
     InvoiceFieldGroup,
-    DynamicProductList,
+    DynamicFurtherProductTable,
     DynamicEmployeeList,
-    DynamicServiceList,
+    DynamicSubproductTable,
     DynamicLibrettoActivityList,
-    BtnInvoiceDownload
+    BtnInvoiceDownload,
+    ModalReload,
+    DynamicProductTable,
   },
   data: () => ({
     // required data
@@ -196,26 +228,22 @@ export default {
     sLibrettoActivities: [],
     totalCost: 0,
     totalDiscount: 0,
+    draftData: localStorage.getItem("formData"),
+    keyServices: 0,
   }),
-
+  beforeRouteLeave(_to, _from, next) {
+    this.leaving();
+    next();
+  },
   async mounted() {
     this.loading = true;
     this.status = statusAllowed();
-    try {
-      await this.setEditItem();
-      if (this.editItem.invoiceId) {
-        await Promise.all([
-          this.setAttributes("E", "products"),
-          this.setAttributes("F", "furtherProducts"),
-          this.setAttributes("W", "employees"),
-          this.setAttributes("L", "librettoActivities"),
-          this.setAttributes("L", "sLibrettoActivities",'&type_service=S'),
-        ]);
-      }
-    } catch (error) {
-      console.error("Alguna de las funciones falló:", error);
-    }
+    console.log("mounted", this.draftData);
+    if (this.draftData === null) await this.loadItems();
     this.loading = false;
+    //events to create draft data ⚠️
+    window.addEventListener("beforeunload", this.leaving);
+    console.log("finshing");
   },
   computed: {
     title() {
@@ -223,27 +251,92 @@ export default {
         ? `Edición de ${this.nameTable}`
         : `Creación de ${this.nameTable}`;
     },
-    netTotal(){
-      const wholeTax = this.editItem.taxes ? this.editItem.taxes.reduce((total, item) => {
-        const totalTax = (item.type == 'D' ? -1 : 1 ) * (item.percent || 0)*this.totalCost/100 ?? 0;
-        return total + (+totalTax);
-      }, 0) : 0;
-      console.log('taxes', this.totalDiscount, this.totalCost, wholeTax, this.totalCost - this.totalDiscount + wholeTax)
-      return formatNumberToColPesos(this.totalCost + this.totalDiscount + (wholeTax));
+    netTotal() {
+      const wholeTax = this.editItem.taxes
+        ? this.editItem.taxes.reduce((total, item) => {
+            const totalTax =
+              ((item.type == "D" ? -1 : 1) *
+                (item.percent || 0) *
+                this.totalCost) /
+                100 ?? 0;
+            return total + +totalTax;
+          }, 0)
+        : 0;
+      console.log(
+        "taxes",
+        this.totalDiscount,
+        this.totalCost,
+        wholeTax,
+        this.totalCost - this.totalDiscount + wholeTax
+      );
+      return formatNumberToColPesos(
+        this.totalCost + this.totalDiscount + wholeTax
+      );
     },
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useProductPlanmentStore),
   },
   methods: {
+    async loadItems(checkLoad = false) {
+      console.log("entry to load item");
+      try {
+        if (checkLoad) {
+          await this.loadDraftItem();
+        } else {
+          await this.setEditItem();
+        }
+        if (this.editItem.invoiceId) {
+          await Promise.all([
+            this.setAttributes("E", "products"),
+            this.setAttributes("S", "subproducts"),
+            this.setAttributes("F", "furtherProducts"),
+            this.setAttributes("W", "employees"),
+            this.setAttributes("L", "librettoActivities"),
+            this.setAttributes("L", "sLibrettoActivities", "&type_service=S"),
+          ]);
+        }
+        localStorage.removeItem("formData");
+      } catch (error) {
+        console.error("Alguna de las funciones falló:", error);
+      }
+    },
+    leaving() {
+      localStorage.setItem(
+        "formData",
+        JSON.stringify({
+          editItem: this.editItem,
+          products: this.products,
+          furtherProducts: this.furtherProducts,
+          librettoActivities: this.librettoActivities,
+          employees: this.employees,
+        })
+      );
+    },
+    async loadDraftItem() {
+      return new Promise(() => {
+        let draft = this.draftData;
+        draft = castStorageToObject(draft);
+        this.editItem = draft.editItem;
+        this.employees = draft.employees;
+        this.products = draft.products;
+        this.furtherProducts = draft.furtherProducts;
+        this.librettoActivities = draft.librettoActivities;
+      });
+
+      //clean local storage from data form ?
+    },
+
     // methods to cal total amounts
     calTotalCost() {
       const totalServices = calTotalCostItems(this.products);
-      const totalFurtherProducts = calTotalCostItems(this.furtherProducts)
+      const totalFurtherProducts = calTotalCostItems(this.furtherProducts);
       this.totalCost = totalServices + totalFurtherProducts;
       return formatNumberToColPesos(this.totalCost);
     },
     calTotalDiscount() {
-      this.totalDiscount = calTotalDiscountItems(this.products) + calTotalDiscountItems(this.furtherProducts);
-      return formatNumberToColPesos( this.totalDiscount) ;
+      this.totalDiscount =
+        calTotalDiscountItems(this.products) +
+        calTotalDiscountItems(this.furtherProducts);
+      return formatNumberToColPesos(this.totalDiscount);
     },
     updateStepper(value) {
       this.stepperLabels[value].complete = false;
@@ -262,7 +355,7 @@ export default {
         case 2:
           this.saveProducts(formData, true);
           break;
-          case 3:
+        case 3:
           this.saveLibrettoActivies(formData, true);
           break;
         case 4:
@@ -273,29 +366,42 @@ export default {
       }
       this.loading = false;
     },
-    async saveLibrettoActivies(formData){
+    async saveLibrettoActivies(formData) {
       const { valid } = await this.$refs.formLibrettoActivity.validate();
       if (this.librettoActivities.length == 0) {
         this.errorMessage.type = "librettoActivities";
         this.errorMessage.message = "Se requiere minimo una actividad";
-
       } else {
         this.errorMessage = {};
         if (valid) {
-        formData.append("invoice_id", this.editItem.invoiceId);
-        this.librettoActivities.forEach((la, eindex) => {
-          formData.append(`libretto_activities[${eindex}][libretto_activity_id]`, la.id);
-          formData.append(`libretto_activities[${eindex}][description]`, la.description);
-          formData.append(`libretto_activities[${eindex}][order]`, eindex);
-        });
-        const response = await librettoActivityApi.update(
-          formData,
-          "type_connection=I"
-        );
-        this.handleAlert(response, this.setAttributes("L", "librettoActivities"));
+          formData.append("invoice_id", this.editItem.invoiceId);
+          this.librettoActivities.forEach((la, eindex) => {
+            formData.append(
+              `libretto_activities[${eindex}][libretto_activity_id]`,
+              la.id
+            );
+            formData.append(
+              `libretto_activities[${eindex}][description]`,
+              la.description
+            );
+            if (la.pathFile && typeof la.pathFile != "string") {
+              formData.append(
+                `libretto_activities[${eindex}][file]`,
+                la.pathFile
+              );
+            }
+            formData.append(`libretto_activities[${eindex}][order]`, eindex);
+          });
+          const response = await librettoActivityApi.update(
+            formData,
+            "type_connection=I"
+          );
+          this.handleAlert(
+            response,
+            this.setAttributes("L", "librettoActivities")
+          );
+        }
       }
-      }
-
     },
     async saveEmployees(formData) {
       const { valid } = await this.$refs.formEmployee.validate();
@@ -324,21 +430,23 @@ export default {
       const { valid } = await this.$refs.formInvoice.validate();
       if (valid) {
         formData.append("client_id", this.editItem.client.id);
-        if(this.note && this.note.length > 0) formData.append("note", this.editItem.note);
-        formData.append('sale_type', 'E')
+        if (this.editItem.note && this.editItem.note.length > 0)
+          formData.append("note", this.editItem.note);
+        formData.append("sale_type", "E");
         formData.append("seller_id", this.editItem.seller.id);
         formData.append("date", castFullDate(this.editItem.date));
         formData.append("start_date", castFullDate(this.editItem.startDate));
         formData.append("end_date", castFullDate(this.editItem.endDate));
-        if(this.editItem.payOff) formData.append("pay_off", this.editItem.payOff);
+        if (this.editItem.payOff)
+          formData.append("pay_off", this.editItem.payOff);
 
         formData.append("stage", this.editItem.stage.id);
-        if(this.editItem.taxes && this.editItem.taxes.length > 0){
+        if (this.editItem.taxes && this.editItem.taxes.length > 0) {
           this.editItem.taxes.forEach((tax, pindex) => {
-          formData.append(`taxes[${pindex}][tax_id]`, tax.id);
-          formData.append(`taxes[${pindex}][percent]`, tax.percent);
-        })
-      }
+            formData.append(`taxes[${pindex}][tax_id]`, tax.id);
+            formData.append(`taxes[${pindex}][percent]`, tax.percent);
+          });
+        }
         let response = {};
         if (this.editItem.invoiceId) {
           formData.append("invoice_id", this.editItem.invoiceId);
@@ -357,7 +465,7 @@ export default {
       ].validate();
       //validate dynamic components 🚥
       if (
-        (this.step == 1 && this.products.length == 0) ||
+        (this.step == 1 && this.productPlanmentStore.productEvents.length == 0) ||
         (this.step == 2 && this.furtherProducts.length == 0)
       ) {
         this.errorMessage.type = "products";
@@ -369,8 +477,11 @@ export default {
       if (valid) {
         //define array to start creating formData 🚥
         const source = further ? "furtherProducts" : "products";
+        const pushProduct = further
+          ? this.furtherProducts
+          : this.productPlanmentStore.productEvents;
         formData.append("invoice_id", this.editItem.invoiceId);
-        this[source].forEach((product, pindex) => {
+        pushProduct.forEach((product, pindex) => {
           formData.append(`products[${pindex}][product_id]`, product.id);
           formData.append(`products[${pindex}][cost]`, product.cost);
           if (product.discount)
@@ -391,7 +502,7 @@ export default {
         if (further) {
           type = "F";
           formData.append(`type_connection`, type);
-          this[source].forEach((product, pindex) => {
+          pushProduct.forEach((product, pindex) => {
             formData.append(
               `products[${pindex}][tracing]`,
               product.tracing || 0
@@ -403,27 +514,37 @@ export default {
               );
           });
         } else {
-          this.products.forEach((product, pindex) => {
-            product.subproducts.forEach((subproduct, sindex) => {
+          this.productPlanmentStore.subproducts.forEach(
+            (subproduct, sindex) => {
               formData.append(
-                `products[${pindex}][sub_products][${sindex}][product_id]`,
+                `subproducts[${sindex}][product_id]`,
                 subproduct.id
               );
               formData.append(
-                `products[${pindex}][sub_products][${sindex}][amount]`,
+                `subproducts[${sindex}][amount]`,
                 subproduct.amount
               );
               formData.append(
-                `products[${pindex}][sub_products][${sindex}][tracing]`,
+                `subproducts[${sindex}][tracing]`,
                 subproduct.tracing || 0
               );
               if (subproduct.tracing)
                 formData.append(
-                  `products[${pindex}][sub_products][${sindex}][warehouse_id]`,
+                  `subproducts[${sindex}][warehouse_id]`,
                   subproduct.warehouse.id
                 );
-            });
-          });
+              subproduct.events.forEach((event, eindex) => {
+                formData.append(
+                  `subproducts[${sindex}][events][${eindex}][product_id]`,
+                  event.id
+                );
+                formData.append(
+                  `subproducts[${sindex}][events][${eindex}][amount]`,
+                  event.amount
+                );
+              });
+            }
+          );
         }
         let response = {};
 
@@ -431,8 +552,8 @@ export default {
         this.handleAlert(response, () => {
           Promise.all([
             this.setAttributes(type, source),
-            this.setAttributes('L', 'sLibrettoActivities'),
-          ])
+            this.setAttributes("L", "sLibrettoActivities"),
+          ]);
         });
       }
     },
@@ -449,6 +570,7 @@ export default {
         }
       } else {
         this.alertMessageStore.show(true, "Proceso exitoso!");
+        localStorage.removeItem("formData");
         if (callback && typeof callback === "function") await callback();
         this.stepperLabels[this.step].complete = true;
 
@@ -458,8 +580,12 @@ export default {
       }
       this.loading = false;
     },
-    updateAttributes(data) {
-      this.editItem[data.key] = data.item;
+    updateAttributes(data, section) {
+      if (section == "invoice") {
+        this.editItem[data.key] = data.item;
+      } else {
+        this[section] = data;
+      }
     },
     setRecords(item) {
       this.editItem = { ...this.editItem, ...item };
@@ -467,14 +593,22 @@ export default {
       this.step += 1;
     },
     // ------------------------ getting data from serve ----------
-    async setAttributes(key, keyArray, furtherQuery = '') {
+    async setAttributes(key, keyArray, furtherQuery = "") {
       const response = await invoiceApi.read(
         `invoice_id=${this.editItem.invoiceId}&attribute_key=${key}${furtherQuery}`
       );
-
-      this[keyArray] = response.data ?? [];
+      switch (keyArray) {
+        case "products":
+          this.productPlanmentStore.productEvents = response.data;
+          break;
+        case "subproducts":
+          this.productPlanmentStore.subproducts = response.data;
+          break;
+        default:
+          this[keyArray] = response.data ?? [];
+      }
     },
-    async downloadPDF(){
+    async downloadPDF() {
       await invoiceApi.downloadPdf(this.editItem.invoiceId);
       // window.location.href = `http://127.0.0.1:8000/api/invoice-pdf?invoice_id=${this.editItem.invoiceId}`;
     },
@@ -505,7 +639,10 @@ export default {
       // ------------------updating keys of stepper to send reactive data ⚠️
 
       this.thirdKeyCard = this.thirdKeyCard + 1;
-      this.test = this.test + 1;
+      this.test += 1;
+    },
+    mValidateEmtyObj(item) {
+      return validateEmtyObj(item);
     },
   },
 };
