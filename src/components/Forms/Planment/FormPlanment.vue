@@ -9,7 +9,7 @@
     class="mt-3"
     v-model="step"
     :key="test"
-    @update:modelValue="updateStepper"
+
   >
     <v-stepper-header>
       <template v-for="(stepper, i) in stepperLabels" :key="`${i}-step`">
@@ -18,6 +18,8 @@
           :title="stepper.label"
           :value="i"
           :editable="i == 0 || editItem.invoiceId ? true : false"
+          :error="stepper.error"
+
         >
         </v-stepper-item>
         <v-divider v-if="i < stepperLabels.length - 1" :key="i"></v-divider>
@@ -146,7 +148,7 @@
 <script>
 import InvoiceApi from "@/services/Forms/InvoiceApi";
 import { RulesValidation, validateEmtyObj } from "@/utils/validations";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import {
   castFullDate,
@@ -172,6 +174,7 @@ import DynamicProductTable from "./DynamicProductTable.vue";
 import { useProductPlanmentStore } from "@/store/productPlanment";
 import DynamicSubproductTable from "@/components/Forms/Planment/DynamicSubproductTable.vue"
 import DynamicFurtherProductTable from "./DynamicFurtherProductTable.vue";
+import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
@@ -212,12 +215,12 @@ export default {
     stepperLabels: [
       {
         label: "Datos de la orden",
-        complete: false,
+        complete: true,
       },
-      { label: "Productos requeridos", complete: false },
-      { label: "Adicionales", complete: false },
-      { label: "Libreto de actividades", complete: false },
-      { label: "Empleados", complete: false },
+      { label: "Productos requeridos", complete: true },
+      { label: "Adicionales", complete: true },
+      { label: "Libreto de actividades", complete: true },
+      { label: "Empleados", complete: true },
     ],
 
     //data
@@ -232,18 +235,38 @@ export default {
     keyServices: 0,
   }),
   beforeRouteLeave(_to, _from, next) {
-    this.leaving();
+    console.log('reloading ??#')
+
     next();
   },
   async mounted() {
     this.loading = true;
     this.status = statusAllowed();
-    console.log("mounted", this.draftData);
     if (this.draftData === null) await this.loadItems();
     this.loading = false;
     //events to create draft data ⚠️
     window.addEventListener("beforeunload", this.leaving);
-    console.log("finshing");
+    //watcher data updated to change stepper attributes 🚥
+    this.$subscribe((mutation, state) => {
+      if(mutation.storeId == 'checkInvoiceStep'){
+          if(state.check){
+            this.stepperLabels[this.step].complete =  false;
+          }
+      }
+    });
+  },
+  beforeUnmount() {
+    window.removeEventListener('beforeunload', this.leaving);
+  },
+  watch:{
+    step(_newV, oldV){
+      // console.log('entry::',this.checkInvoiceStepStore.check,value, this.step)
+      if(this.checkInvoiceStepStore.check){
+        this.stepperLabels[oldV].complete = false;
+      }
+      this.checkInvoiceStepStore.$reset();
+      this.errorMessage = {};
+    }
   },
   computed: {
     title() {
@@ -262,22 +285,15 @@ export default {
             return total + +totalTax;
           }, 0)
         : 0;
-      console.log(
-        "taxes",
-        this.totalDiscount,
-        this.totalCost,
-        wholeTax,
-        this.totalCost - this.totalDiscount + wholeTax
-      );
       return formatNumberToColPesos(
         this.totalCost + this.totalDiscount + wholeTax
       );
     },
-    ...mapStores(useAlertMessageStore, useProductPlanmentStore),
+    ...mapStores(useAlertMessageStore, useProductPlanmentStore, useCheckInvoiceStep),
   },
   methods: {
+    ...mapActions(useCheckInvoiceStep, ['$subscribe']),
     async loadItems(checkLoad = false) {
-      console.log("entry to load item");
       try {
         if (checkLoad) {
           await this.loadDraftItem();
@@ -300,70 +316,88 @@ export default {
       }
     },
     leaving() {
-      localStorage.setItem(
+    if (this.stepperLabels.filter((item)=> item.complete == false).length > 0){
+        localStorage.setItem(
         "formData",
         JSON.stringify({
           editItem: this.editItem,
-          products: this.products,
+          products: this.productPlanmentStore.productEvents,
+          subproducts: this.productPlanmentStore.subproducts,
           furtherProducts: this.furtherProducts,
           librettoActivities: this.librettoActivities,
           employees: this.employees,
+          stepperLabels:this.stepperLabels,
+          step:this.step
         })
       );
+    }
     },
     async loadDraftItem() {
       return new Promise(() => {
         let draft = this.draftData;
-        draft = castStorageToObject(draft);
+         draft = castStorageToObject(draft);
         this.editItem = draft.editItem;
         this.employees = draft.employees;
-        this.products = draft.products;
+        this.productPlanmentStore.productEvents = draft.products;
+        this.productPlanmentStore.subproducts = draft.subproducts;
         this.furtherProducts = draft.furtherProducts;
         this.librettoActivities = draft.librettoActivities;
-      });
+        this.stepperLabels = draft.stepperLabels;
+        this.step = draft.step;
 
+      }).then(()=> localStorage.removeItem("formData"));
       //clean local storage from data form ?
     },
-
     // methods to cal total amounts
     calTotalCost() {
-      const totalServices = calTotalCostItems(this.products);
+      const totalServices = calTotalCostItems(this.productPlanmentStore.productEvents);
       const totalFurtherProducts = calTotalCostItems(this.furtherProducts);
       this.totalCost = totalServices + totalFurtherProducts;
       return formatNumberToColPesos(this.totalCost);
     },
     calTotalDiscount() {
       this.totalDiscount =
-        calTotalDiscountItems(this.products) +
+        calTotalDiscountItems(this.productPlanmentStore.productEvents) +
         calTotalDiscountItems(this.furtherProducts);
       return formatNumberToColPesos(this.totalDiscount);
     },
-    updateStepper(value) {
-      this.stepperLabels[value].complete = false;
-      this.errorMessage = {};
-    },
-    saveRecords() {
+    async saveRecords() {
       this.loading = true;
+      try{
       const formData = new FormData();
       switch (this.step) {
         case 0:
-          this.saveInvoice(formData);
+          await this.saveInvoice(formData);
           break;
         case 1:
-          this.saveProducts(formData, undefined);
+          await this.saveProducts(formData, undefined);
           break;
         case 2:
-          this.saveProducts(formData, true);
+          await this.saveProducts(formData, true);
           break;
         case 3:
-          this.saveLibrettoActivies(formData, true);
+          await this.saveLibrettoActivies(formData, true);
           break;
         case 4:
-          this.saveEmployees(formData);
+          await this.saveEmployees(formData);
           break;
         default:
           break;
       }
+      //handle stepper 🚥
+      this.stepperLabels[this.step].complete = true;
+      this.stepperLabels[this.step].error = false;
+        if (this.step + 1 < this.stepperLabels.length) {
+          this.step += 1;
+        }
+
+        this.checkInvoiceStepStore.$reset();
+        //end handle stepper 🚦
+    }catch(error){
+      console.error('Error en procedure', error);
+      this.stepperLabels[this.step].error = true;
+
+    }
       this.loading = false;
     },
     async saveLibrettoActivies(formData) {
@@ -371,6 +405,7 @@ export default {
       if (this.librettoActivities.length == 0) {
         this.errorMessage.type = "librettoActivities";
         this.errorMessage.message = "Se requiere minimo una actividad";
+        throw new Error('Error de actividades');
       } else {
         this.errorMessage = {};
         if (valid) {
@@ -400,6 +435,8 @@ export default {
             response,
             this.setAttributes("L", "librettoActivities")
           );
+        }else{
+          throw new Error('Error de campos');
         }
       }
     },
@@ -408,7 +445,7 @@ export default {
       if (this.employees.length == 0) {
         this.errorMessage.type = "employees";
         this.errorMessage.message = "Se requiere minimo un empleado";
-        return;
+        throw new Error('Employees error');
       } else {
         this.errorMessage = {};
       }
@@ -424,6 +461,8 @@ export default {
           "type_connection=W"
         );
         this.handleAlert(response, this.setAttributes("W", "employees"));
+      }else{
+        throw new Error('Employees field error');
       }
     },
     async saveInvoice(formData) {
@@ -456,6 +495,8 @@ export default {
           response = await invoiceApi.create(formData);
         }
         this.handleAlert(response, this.setEditItem(response.data));
+      }else{
+        throw new Error('Invoice fields error');
       }
     },
     async saveProducts(formData, further = false) {
@@ -470,7 +511,7 @@ export default {
       ) {
         this.errorMessage.type = "products";
         this.errorMessage.message = "Se requiere minimo un producto";
-        return;
+        throw new Error('Error in products amount');
       } else {
         this.errorMessage = {};
       }
@@ -549,15 +590,18 @@ export default {
         let response = {};
 
         response = await productApi.update(formData, `type_connection=${type}`);
-        this.handleAlert(response, () => {
+        await this.handleAlert(response, () => {
           Promise.all([
             this.setAttributes(type, source),
             this.setAttributes("L", "sLibrettoActivities"),
           ]);
         });
+      }else{
+        throw new Error('Error products fields');
       }
     },
     async handleAlert(response, callback = null) {
+
       if (response.statusResponse != 200) {
         if (response.error && typeof response.error === "object") {
           this.alertMessageStore.show(
@@ -568,15 +612,10 @@ export default {
         } else {
           this.alertMessageStore.show(false, "Error en el servidor.");
         }
+        throw new Error('Server error');
       } else {
         this.alertMessageStore.show(true, "Proceso exitoso!");
-        localStorage.removeItem("formData");
         if (callback && typeof callback === "function") await callback();
-        this.stepperLabels[this.step].complete = true;
-
-        if (this.step + 1 < this.stepperLabels.length) {
-          this.step += 1;
-        }
       }
       this.loading = false;
     },

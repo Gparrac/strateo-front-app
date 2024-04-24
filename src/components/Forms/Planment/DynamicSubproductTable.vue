@@ -15,6 +15,7 @@
           title="Subproductos"
           subtitle="Consecutivo: "
           class="pr-5"
+
         >
         </dynamic-select-field>
         <modal-new-product
@@ -61,6 +62,7 @@
               color="primary"
               label="Requiere inventario"
               :value="1"
+              @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
               hide-details
             ></v-checkbox>
             <dynamic-select-field
@@ -69,7 +71,7 @@
               :options="warehouses"
               :itemSaved="item.warehouse"
               @update:options="setWarehouses"
-              @update:itemSelected="(value) => setProductInventory(value, item)"
+              @update:itemSelected="(value) => checkInvoiceStepStore.handleUpdateInvoiceData(setProductInventory(value, item))"
               mainLabel="address"
               :secondLabel="['city', 'name']"
               title="Bodega"
@@ -110,6 +112,7 @@
                   :rules="rulesValidation.quantity.rules"
                   :loading="loading"
                   density="compact"
+                  @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                   placeholder="Digita una cantidad apropiada..."
                 >
                 </v-text-field>
@@ -151,6 +154,7 @@ import ModalNewProduct from "@/components/blocks/ModalNewProduct.vue";
 import TaxApi from "@/services/Forms/TaxApi";
 import { mapStores } from "pinia";
 import { useProductPlanmentStore } from "@/store/productPlanment";
+import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -191,7 +195,7 @@ export default {
     ],
   }),
   computed:{
-    ...mapStores(useProductPlanmentStore)
+    ...mapStores(useProductPlanmentStore, useCheckInvoiceStep)
   },
   methods: {
     async setProductInventory(item, product) {
@@ -211,7 +215,7 @@ export default {
       this.options = response.data;
     },
     async setWarehouses(name = null) {
-      console.log();
+
       const query = name
         ? `&filters[0][key]=address&filters[0][value]=${name}`
         : "";
@@ -222,7 +226,6 @@ export default {
       query += name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
-      console.log("taxes", this.taxes);
     },
     totalData(array, key){
       return (array) ? array.reduce((total, item) =>
@@ -233,7 +236,10 @@ export default {
       const index = this.productPlanmentStore.subproducts.findIndex(function (objeto) {
         return objeto.id === item.id;
       });
-      if (index === -1) this.productPlanmentStore.subproducts.push(item);
+      if (index === -1){
+        this.productPlanmentStore.subproducts.push(item);
+        this.checkInvoiceStepStore.handleUpdateInvoiceData();
+      }
 
     },
     appendItemAttribute(value, item, key) {
@@ -242,13 +248,18 @@ export default {
           return objeto.id === value.id;
         });
 
-        if (index === -1) item[key].push(value);
+        if (index === -1){
+          item[key].push(value);
+          this.checkInvoiceStepStore.handleUpdateInvoiceData();
+        }
       } else {
         item[key] = [value];
+        this.checkInvoiceStepStore.handleUpdateInvoiceData();
       }
     },
     deleteItem(itemSelected) {
-      this.productPlanmentStore.subproducts = this.productPlanmentStore.subproducts.filter((item) => item.id != itemSelected.id)
+      this.productPlanmentStore.subproducts = this.productPlanmentStore.subproducts.filter((item) => item.id != itemSelected.id);
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
     }
   },
   async mounted() {

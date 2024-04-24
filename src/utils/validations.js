@@ -138,7 +138,7 @@ export const RulesValidation = {
     rules: [
       (value) =>
         !!value ||
-        !isNaN(value) ||
+        !isNaN(parseFloat(value)) && isFinite(value) ||
         typeof value == 'number' ||
         "La cantidad debe ser de tipo númerica",
         (value) =>

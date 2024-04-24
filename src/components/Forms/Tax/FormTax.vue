@@ -177,7 +177,6 @@ export default {
   },
   methods: {
     updateTaxValues(item){
-      console.log('updatingk!!',item);
       (this.editItem.taxValues) ? this.editItem.taxValues.push(item) : this.editItem.taxValues = [item];
       this.taxValues.push(item);
     },

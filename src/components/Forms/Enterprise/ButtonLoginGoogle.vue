@@ -17,17 +17,15 @@ export default {
   methods: {
       async startConnection(){
         try{
-          console.log('entry?')
           const response = await petition.get('/google/redirect');
           window.location.href = response.data;
         }catch(error){
-          console.log('error', error);
+          console.error('error', error);
         }
 
       }
     },
     mounted(){
-      console.log('enlazar',this.googleAccount )
     }
 }
 </script>

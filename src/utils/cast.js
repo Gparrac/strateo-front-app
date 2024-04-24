@@ -118,12 +118,11 @@ export function deepCopy(item) {
 export function castStorageToObject(item){
   for (let i = 0; i < 50; i++) {
     if(typeof item == 'object' && item !== null ){
-      console.log('break',i)
+
       break;
     }else{
       item = JSON.parse(item);
     }
   }
-  // console.log(item)
   return item;
 }

@@ -50,7 +50,6 @@ export default {
       const files = event.target.files;
       if (files.length > 0) {
         const selectedFile = files[0];
-        console.log('changing', selectedFile);
         this.$emit('update:pathfile', selectedFile);
       }
     },
@@ -61,7 +60,6 @@ export default {
       return;
     },
     cleanAttributes(){
-      console.log('entry-clean?')
       this.$emit('update:pathfile', null);
       this.$emit('update:file', null);
     }

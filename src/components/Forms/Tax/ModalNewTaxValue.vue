@@ -98,7 +98,6 @@ export default {
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
           this.active = false;
-          console.log('before emit1111', response.data);
           this.$emit('new-value', response.data);
         }
 

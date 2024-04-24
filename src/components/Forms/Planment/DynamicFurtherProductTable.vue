@@ -281,7 +281,6 @@ export default {
       this.options = response.data;
     },
     async setWarehouses(name = null) {
-      console.log();
       const query = name
         ? `&filters[0][key]=address&filters[0][value]=${name}`
         : "";
@@ -292,7 +291,6 @@ export default {
       query += name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
-      console.log("taxes", this.taxes);
     },
     totalData(array, key){
       return (array) ? array.reduce((total, item) =>
@@ -308,7 +306,6 @@ export default {
       this.emitRecords(newArray);
     },
     appendItemAttribute(value, item, key) {
-      console.log("item", item);
       if (item[key]) {
         const index = item[key].findIndex(function (objeto) {
           return objeto.id === value.id;
@@ -320,7 +317,6 @@ export default {
       }
     },
     deleteItem(itemSelected) {
-      console.log('selected', itemSelected);
       this.emitRecords(
         this.records.filter((item) => item.id != itemSelected.id)
       );
@@ -348,10 +344,6 @@ export default {
     }
     this.loading = false;
   },
-  updated(){
-    console.log('updated', this.events)
-    console.log('updated', this.records)
-  }
 };
 </script>
 <style scoped>

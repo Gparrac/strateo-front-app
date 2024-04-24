@@ -9,7 +9,7 @@
         <dynamic-select-field
           :options="options"
           @update:options="loadItems"
-          @update:itemSelected="(item) =>productPlanmentStore.addEvent(item)"
+          @update:itemSelected="(item) =>checkInvoiceStepStore.handleUpdateInvoiceData(productPlanmentStore.addEvent(item))"
           mainLabel="name"
           :secondLabel="['consecutive']"
           :title="titleField"
@@ -33,7 +33,7 @@
                     size="small"
                     color="warning"
                     variant="tonal"
-                    @click="productPlanmentStore.deleteEvent(item)"
+                    @click="checkInvoiceStepStore.handleUpdateInvoiceData(productPlanmentStore.deleteEvent(item))"
                   >
                   </v-btn>
           <div class="d-flex flex-column pl-3">
@@ -47,6 +47,7 @@
             <div>
             <v-chip class=" mt-1" size="small">
               {{`${item.size} ${item.measure.symbol}`}}
+
             </v-chip>
           </div>
 
@@ -59,13 +60,14 @@
               <v-text-field
                 :maxlength="rulesValidation.quantity.maxLength"
                 label="Cantidad"
-                :rules="[...rulesValidation.quantity.rules]"
+                :rules="rulesValidation.quantity.rules"
                 :loading="loading"
                 variant="outlined"
                 v-model="item.amount"
                 :disabled="editable"
                 density="compact"
                 persistent-hint
+                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
               >
               </v-text-field>
             </v-col>
@@ -82,6 +84,7 @@
                 density="compact"
                 persistent-hint
                 :hint="'Precio fijado: ' + item.defaultCost"
+                @change=checkInvoiceStepStore.handleUpdateInvoiceData()
               ></v-text-field>
             </v-col>
             <v-col cols="12">
@@ -94,49 +97,12 @@
                 v-model="item.discount"
                 variant="outlined"
                 :disabled="editable"
+                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                 density="compact"
                 persistent-hint
               ></v-text-field>
             </v-col>
           </v-row>
-        </template>
-        <template v-if="kindProduct == 'P'" v-slot:[`item.inventory`]="{ item }">
-          <div class="d-flex flex-column justify-center align-center flex-wrap">
-            <v-checkbox
-              v-model="item.tracing"
-              color="primary"
-              label="Requiere inventario"
-              :value="1"
-              hide-details
-            ></v-checkbox>
-            <dynamic-select-field
-              class="w-100 text-start"
-              v-if="item.tracing"
-              :options="warehouses"
-              :itemSaved="item.warehouse"
-              @update:options="setWarehouses"
-              @update:itemSelected="(value) => setProductInventory(value, item)"
-              mainLabel="address"
-              :secondLabel="['city', 'name']"
-              title="Bodega"
-              subtitle="Ciudad:"
-              :key="warehouses.length"
-              density="compact"
-              :hint="
-                item.tracing && item.warehouse
-                  ? 'Stock actual: ' + item.stock
-                  : ''
-              "
-              persistent-hint
-            >
-            </dynamic-select-field>
-          </div>
-        </template>
-        <template v-slot:[`item.subproducts`]="{ item }">
-          <span class="text-h4">
-
-            {{ item.subproducts?.length }}
-          </span>
         </template>
         <template v-slot:[`item.taxes`]="{ item }">
           <div
@@ -147,7 +113,7 @@
               :options="taxes"
               @update:options="setTaxes"
               density="compact"
-              @update:itemSelected="(value) => appendItemAttribute(value, item, 'taxes')"
+              @update:itemSelected="(value) => checkInvoiceStepStore.handleUpdateInvoiceData(appendItemAttribute(value, item, 'taxes'))"
               mainLabel="acronym"
               :secondLabel="['name']"
               title="Impuestos"
@@ -163,6 +129,7 @@
                   variant="outlined"
                   v-model="tax.percent"
                   :items="tax.tax_values"
+                  @update:model-value="checkInvoiceStepStore.handleUpdateInvoiceData()"
                   item-title="percent"
                   item-value="percent"
                   prepend-inner-icon="mdi-brightness-percent"
@@ -207,6 +174,7 @@ import TaxApi from "@/services/Forms/TaxApi";
 import TotalRecords from "@/components/blocks/TotalRecords.vue";
 import { mapStores } from "pinia";
 import { useProductPlanmentStore } from "@/store/productPlanment";
+import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -241,18 +209,12 @@ export default {
         sortable: false,
         key: "attributes",
       },
-      {
-        title: "Inventario",
-        align: "center",
-        sortable: false,
-        key: "inventory",
-      },
       { title: "Impuestos", align: "center", sortable: false, key: "taxes" },
       { title: "Total", align: "center", sortable: false, key: "total" },
     ],
   }),
  computed: {
-  ...mapStores(useProductPlanmentStore)
+  ...mapStores(useProductPlanmentStore, useCheckInvoiceStep)
  },
   methods: {
     async setProductInventory(item, product) {
@@ -272,7 +234,7 @@ export default {
       this.options = response.data;
     },
     async setWarehouses(name = null) {
-      console.log();
+
       const query = name
         ? `&filters[0][key]=address&filters[0][value]=${name}`
         : "";
@@ -283,7 +245,6 @@ export default {
       query += name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
-      console.log("taxes", this.taxes);
     },
     totalData(array, key){
       return (array) ? array.reduce((total, item) =>
@@ -292,7 +253,6 @@ export default {
     },
 
     appendItemAttribute(value, item, key) {
-      console.log("item", item);
       if (item[key]) {
         const index = item[key].findIndex(function (objeto) {
           return objeto.id === value.id;
@@ -318,8 +278,7 @@ export default {
     }
 
     if(this.kindProduct == 'E'){
-      this.headersTable[2].title = 'Productos';
-      this.headersTable[2].key = 'subproducts';
+      this.headersTable[0].title = 'Eventos';
       this.titleField = 'Eventos'
     }
     this.loading = false;
