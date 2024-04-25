@@ -44,7 +44,7 @@
                       title="Material adicional"
                       :item="record"
                       :loading="loading"
-                      @update:pathfile="(item) => (record.pathFile = item)"
+                      @update:pathfile="(item) => checkInvoiceStepStore.handleUpdateInvoiceData((record.pathFile = item))"
                       @update:file="(item) => (record.file = item)"
                     ></file-field>
                   </v-col>
@@ -57,6 +57,7 @@
                       v-model="record.description"
                       :loading="loading"
                       rows="2"
+                      @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                     ></v-textarea>
                   </v-col>
                 </v-row>
@@ -133,6 +134,8 @@ import LibrettoActivityApi from "@/services/Forms/LibrettoActivityApi";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import { deepCopy } from "@/utils/cast";
 import FileField from "@/components/blocks/FileField.vue";
+import { mapStores } from "pinia";
+import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 
 const librettoActivityApi = new LibrettoActivityApi();
 
@@ -163,7 +166,7 @@ export default {
   computed: {
     recordIds() {
       return this.records.map((item) => item.id);
-    },
+    },...mapStores(useCheckInvoiceStep)
   },
   methods: {
     async loadItems(name = null) {
@@ -175,11 +178,13 @@ export default {
     },
     appendItem(item) {
       item.pathFile = item.path_file;
+      this.checkInvoiceStepStore.handleUpdateInvoiceData()
       let localRecords = deepCopy(this.records);
       localRecords.push(item);
       this.emitRecords(localRecords);
     },
     deleteItem(index) {
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
       this.emitRecords(this.records.filter((item, i) => i != index));
     },
     pushUp(index) {
@@ -189,6 +194,7 @@ export default {
         tempRecords[index] = tempRecords[index - 1];
         tempRecords[index - 1] = temp;
         this.emitRecords(tempRecords);
+        this.checkInvoiceStepStore.handleUpdateInvoiceData();
       }
     },
     pullDown(index) {
@@ -199,6 +205,7 @@ export default {
         tempRecords[index + 1] = temp;
         this.emitRecords(tempRecords);
       }
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
     },
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);

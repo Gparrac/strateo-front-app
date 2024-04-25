@@ -155,6 +155,7 @@ import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import DynamicTaxList from "@/components/blocks/DynamicTaxList.vue";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { mapStores } from "pinia";
+import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 const clientApi = new ClientApi();
 const userApi = new UserApi();
 
@@ -182,7 +183,7 @@ export default {
     rulesValidation: RulesValidation,
   }),
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useCheckInvoiceStep),
     endDateRule() {
       return [
         ...this.rulesValidation.date.rules,
@@ -207,6 +208,7 @@ export default {
       this.$emit("update:type", value);
     },
     emitRecords(item, key) {
+      this.checkInvoiceStepStore.handleUpdateInvoiceData()
       this.$emit("update:records", { item: item, key: key });
     },
     async setClients(name = null) {

@@ -327,7 +327,8 @@ export default {
           librettoActivities: this.librettoActivities,
           employees: this.employees,
           stepperLabels:this.stepperLabels,
-          step:this.step
+          step:this.step,
+          sLibrettoActivities: this.sLibrettoActivities
         })
       );
     }
@@ -344,6 +345,7 @@ export default {
         this.librettoActivities = draft.librettoActivities;
         this.stepperLabels = draft.stepperLabels;
         this.step = draft.step;
+        this.sLibrettoActivities = draft.sLibrettoActivities;
 
       }).then(()=> localStorage.removeItem("formData"));
       //clean local storage from data form ?

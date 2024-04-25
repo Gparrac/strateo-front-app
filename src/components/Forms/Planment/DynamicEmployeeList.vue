@@ -51,6 +51,7 @@
                     v-model="record.salary"
                     variant="outlined"
                     :disabled="editable"
+                    @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -79,6 +80,8 @@
 import { RulesValidation } from "@/utils/validations";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import EmployeeApi from "@/services/Forms/EmployeeApi";
+import { mapStores } from "pinia";
+import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 const employeeApi = new EmployeeApi();
 export default {
   props: {
@@ -95,7 +98,9 @@ export default {
     loading: false,
     rulesValidation: RulesValidation,
   }),
-
+  computed:{
+    ...mapStores(useCheckInvoiceStep)
+  },
   methods: {
     async loadItems(name = null) {
       const query = name ? `&filters[0][key]=third&filters[0][value]=${name}` : "";
@@ -112,8 +117,10 @@ export default {
     },
     deleteItem(dropItem) {
       this.emitRecords(this.records.filter((item) => item.id != dropItem.id));
+
     },
     emitRecords(newRecords) {
+      this.checkInvoiceStepStore.handleUpdateInvoiceData()
       this.$emit("update:records", newRecords);
     },
   },

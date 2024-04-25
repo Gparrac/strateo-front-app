@@ -34,6 +34,7 @@
                     color="warning"
                     variant="tonal"
                     @click="deleteItem(item)"
+                    @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                   >
                   </v-btn>
           <div class="d-flex flex-column pl-3">
@@ -65,6 +66,7 @@
                 v-model="item.amount"
                 :disabled="editable"
                 density="compact"
+                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                 persistent-hint
               >
               </v-text-field>
@@ -79,6 +81,7 @@
                 v-model="item.cost"
                 variant="outlined"
                 :disabled="editable"
+                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                 density="compact"
                 persistent-hint
                 :hint="'Precio fijado: ' + item.defaultCost"
@@ -95,6 +98,7 @@
                 variant="outlined"
                 :disabled="editable"
                 density="compact"
+                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                 persistent-hint
               ></v-text-field>
             </v-col>
@@ -106,6 +110,7 @@
               v-model="item.tracing"
               color="primary"
               label="Requiere inventario"
+              @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
               :value="1"
               hide-details
             ></v-checkbox>
@@ -147,7 +152,7 @@
               :options="taxes"
               @update:options="setTaxes"
               density="compact"
-              @update:itemSelected="(value) => appendItemAttribute(value, item, 'taxes')"
+              @update:itemSelected="(value) => checkInvoiceStepStore.handleUpdateInvoiceData(appendItemAttribute(value, item, 'taxes'))"
               mainLabel="acronym"
               :secondLabel="['name']"
               title="Impuestos"
@@ -166,6 +171,7 @@
                   item-title="percent"
                   item-value="percent"
                   prepend-inner-icon="mdi-brightness-percent"
+                  @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                   :rules="rulesValidation.select.rules"
                   :loading="loading"
                   density="compact"
@@ -205,6 +211,8 @@ import InventoryApi from "@/services/Forms/InventoryApi";
 import ModalNewProduct from "@/components/blocks/ModalNewProduct.vue";
 import TaxApi from "@/services/Forms/TaxApi";
 import TotalRecords from "@/components/blocks/TotalRecords.vue";
+import { mapStores } from "pinia";
+import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -262,10 +270,13 @@ export default {
       { title: "Total", align: "center", sortable: false, key: "total" },
     ],
   }),
-
+  computed:{
+    ...mapStores( useCheckInvoiceStep)
+  },
   methods: {
     async setProductInventory(item, product) {
       product.warehouse = item;
+      this.checkInvoiceStepStore.handleUpdateInvoiceData()
       product.stock = (
         await inventoryApi.read(
           `product_id=${product.id}&warehouse_id=${item.id}`
@@ -303,6 +314,7 @@ export default {
       });
       let newArray = this.records;
       if (index === -1) newArray.push(item);
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
       this.emitRecords(newArray);
     },
     appendItemAttribute(value, item, key) {
@@ -317,9 +329,11 @@ export default {
       }
     },
     deleteItem(itemSelected) {
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
       this.emitRecords(
         this.records.filter((item) => item.id != itemSelected.id)
       );
+
     },
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);
