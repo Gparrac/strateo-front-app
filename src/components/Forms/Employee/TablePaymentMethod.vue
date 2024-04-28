@@ -1,15 +1,27 @@
 <template>
   <div>
+    <modal-edit-payment-method
+      :toggle="toggleCreate"
+      :editItem="editItem"
+      @record-saved="loadItems({})"
+      @update-attribute="updateAttributes"
+      @update-toggle="(item) => (toggleCreate = item)"
+    ></modal-edit-payment-method>
     <header-table
+      :showFilter="false"
       :loading="loading"
+      :typeskeyword="typeskeyword"
       :path="path"
+      :modalHandler="true"
+      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
+      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
-      :showDelete="false"
-      :showStatusLabel="false"
       @toggle-delete="() => (toggleDelete = true)"
+      @show-modal="() => (toggleCreate = true)"
+      :sort-by="startSortBy"
+      title="Metodos de pago"
     ></header-table>
-
     <modal-delete
       v-if="toggleDelete"
       @confirm-delete="deleteItems"
@@ -20,7 +32,6 @@
       :title="nameTable"
     ></modal-delete>
     <v-data-table-server
-    :sort-by="startSortBy"
       :headers="headers"
       :items="records"
       item-selectable="selectable"
@@ -33,29 +44,37 @@
       show-select
       return-object
     >
-      <template v-slot:[`item.sale_type`]="{ item }">
-    <div >
-      <v-chip
-            variant="tonal"
-            class="ma-1 "
-            size="small"
-            :prepend-icon="item.sale_type.id == 'P' ? 'mdi-ray-start-arrow' : 'mdi-source-branch'"
-            :color="item.sale_type.id == 'P' ? 'pink' : 'purple'"
-          >
-          {{ item.sale_type.name }}
+      <template v-slot:[`item.fields_count`]="{ item }">
+        <div>
+          <v-chip variant="outlined" color="orange">
+            {{ item.fields_count }}
           </v-chip>
         </div>
-  </template>
+      </template>
+      <template v-slot:[`item.services_count`]="{ item }">
+        <div>
+          <v-chip variant="tonal" color="primary">
+            {{ item.services_count }}
+          </v-chip>
+        </div>
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <div class="pa-3">
-          <v-icon
-            size="small"
-            class="my-2"
-            @click="() => $router.push(`${path}/edit/${item.id}`)"
-          >
+        <div>
+          <v-icon size="small" class="me-2" @click="updateItem(item)">
             mdi-pencil
           </v-icon>
-          <btn-invoice-download :invoiceId="item.id" size="x-small"></btn-invoice-download>
+        </div>
+      </template>
+      <template v-slot:[`item.status`]="{ item }">
+        <div>
+          <v-chip
+            variant="tonal"
+            class="ma-1"
+            label
+            :color="item.status == 'A' ? 'orange' : 'primary'"
+          >
+            {{ item.status }}
+          </v-chip>
         </div>
       </template>
     </v-data-table-server>
@@ -64,15 +83,14 @@
 
 <script>
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
-import InvoiceApi from "@/services/Forms/InvoiceApi";
+
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapActions, mapStores } from "pinia";
+import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castDate } from "@/utils/cast";
-import { useFilterTableStore } from "@/store/filterTables";
-import { RulesValidation } from "@/utils/validations";
-import BtnInvoiceDownload from "@/components/blocks/BtnInvoiceDownload.vue";
-const invoiceApi = new InvoiceApi();
+import PaymentMethodApi from "@/services/Forms/PaymentMethodApi";
+import ModalEditPaymentMethod from "./ModalEditPaymentMethod.vue";
+const paymentMethodApi = new PaymentMethodApi();
 export default {
   props: {
     nameTable: String,
@@ -81,28 +99,32 @@ export default {
   components: {
     ModalDelete,
     HeaderTable,
-    BtnInvoiceDownload
+    ModalEditPaymentMethod,
   },
   data: () => ({
     //required data
     records: [],
     //search word
     filterCleaner: false,
+    typeskeyword: [
+      { title: "id", label: "ID" },
+      { title: "name", label: "Provedor" },
+    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "invoices_id",
-    mainKeyDelete: ["third", "names"],
-    secondKeyDelete: ["date"],
+    keyQueryDelete: "employees_id",
+    mainKeyDelete: ["third", "employee"],
+    secondKeyDelete: ["type_contract", "name"],
     selectedItems: [],
     toggleDelete: false,
-    furtherFilterKey: 0,
-
+    toggleCreate: false,
+    editItem: {},
     //optional data
-    startSortBy:[{key:'id', order:'desc'}],
+    startSortBy: [{ key: "id", order: "desc" }],
     headers: [
       {
         title: "ID",
@@ -110,54 +132,47 @@ export default {
         key: "id",
         sortable: true,
       },
+      { title: "Nombre", align: "end", key: "name", sortable: false },
       {
-        title: "Cliente",
+        title: "Descripción",
         align: "end",
-        key: "client.third.names",
+        key: "description",
         sortable: false,
       },
-      {
-        title: "Documento",
-        align: "end",
-        key: "client.third.identification",
-        sortable: false,
-      },
-      { title: "Fecha de la transacción", align: "end", key: "date", sortable: true },
-      { title: "Vendedor", align: "end", key: "seller.name", sortable: false },
-      {
-        title: "Tipo",
-        align: "center",
-        key: "sale_type",
-        sortable: false,
-      },
+      { title: "Status", align: "end", key: "status", sortable: false },
       {
         title: "Ultima actulización",
         align: "center",
         key: "updated_at",
         sortable: true,
       },
-
-      { title: "Acciones", align: "center", key: "actions", sortable: false },
+      { title: "Acciones", align: "end", key: "actions", sortable: false },
     ],
   }),
   methods: {
-    ...mapActions(useFilterTableStore, ['$subscribe']),
+    updateAttributes(data) {
+      this.editItem[data.key] = data.item;
+    },
     async loadItems(
       {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      filters
+      keyword = null,
+      typeKeyword = null
     ) {
+      this.idEditForm = null;
       this.loading = true;
       const params = new URLSearchParams();
-      if (filters && filters.length > 0) {
-        filters.forEach((item,index) => {
-          params.append(`filters[${index}][key]`, item.key);
-          params.append(`filters[${index}][value]`, item.value);
-        });
+      if (typeKeyword && keyword) {
+        this.filterCleaner = true;
+        params.append("typeKeyword", typeKeyword);
+        params.append("keyword", keyword);
+      } else {
+        this.filterCleaner = sortBy.length !== 0;
       }
+
       params.append("page", page);
       params.append("pagination", itemsPerPage);
       sortBy.forEach((item, index) => {
@@ -165,7 +180,8 @@ export default {
           params.append(`sorters[${index}][${key}]`, item[key]);
         });
       });
-      const response = await invoiceApi.read(params.toString());
+      // api call ⚠️
+      const response = await paymentMethodApi.read(params.toString());
       if (response.data && response.data.data)
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
@@ -176,6 +192,10 @@ export default {
       this.totalRecords = response.data.total;
       this.loading = false;
     },
+    updateItem(item) {
+      this.editItem = item;
+      this.toggleCreate = true;
+    },
     async deleteItems(data) {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
@@ -183,7 +203,7 @@ export default {
         this.selectedItems.forEach((item) =>
           params.append(`${this.keyQueryDelete}[]`, item.id)
         );
-        const response = await invoiceApi.delete(`?${params.toString()}`);
+        const response = await paymentMethodApi.delete(`?${params.toString()}`);
         // logic to show alert 🚨
         if (response.statusResponse != 200) {
           if (response.error && typeof response.error === "object") {
@@ -207,22 +227,7 @@ export default {
     },
   },
   computed: {
-    ...mapStores(useAlertMessageStore, useFilterTableStore),
-  },
-  mounted() {
-    this.filterTableStore.setFilterList([
-      { name: "Nombre del cliente", key:'client', select: false, validation: RulesValidation.shortTextNull },
-      { name: "Identificación del cliente", key:'client_id', select: false, validation: RulesValidation.shortTextNull },
-      { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
-      { name: "Vendedor", key:'seller', select: false, validation: RulesValidation.shortTextNull},
-    ]);
-    this.$subscribe((mutation, state) => {
-      if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
-        this.furtherFilterKey = state.furtherFilterKey;
-          this.loadItems({}, state.filterCleanList)
-      }
-    });
-
+    ...mapStores(useAlertMessageStore),
   },
 };
 </script>

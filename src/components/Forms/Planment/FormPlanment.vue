@@ -1,8 +1,9 @@
 <template>
   <modal-reload @reload-form-data="loadItems"></modal-reload>
   <btn-invoice-download
-    v-if="editItem.invoiceId"
+    v-if="editItem.invoiceId "
     :invoiceId="editItem.invoiceId"
+    :exportProductPlanment="true"
   ></btn-invoice-download>
   <v-stepper
     v-if="!mValidateEmtyObj(editItem)"

@@ -24,8 +24,14 @@
                       <v-row>
                         <!-- ----- start commercial registry --------------------->
                         <v-col cols="12">
-                          <v-select label="Tipo de Contrato" v-model="editItem.typeContract" item-title="name" item-value="id"
-                        :items="typesContract" :rules="rulesValidation.select.rules" :loading="loading"
+                          <v-select
+                            label="Tipo de Contrato"
+                            v-model="editItem.typeContract"
+                            item-title="name"
+                            item-value="id"
+                            :items="typesContract"
+                            :rules="rulesValidation.select.rules"
+                            :loading="loading"
                           ></v-select>
                         </v-col>
                         <v-col cols="8">
@@ -36,9 +42,7 @@
                             prepend-icon="mdi-file-account"
                             :rules="rulesValidation.file.rules"
                             :loading="loading"
-                            @change="
-                              handleFileFields($event, 'pathResumeFile')
-                            "
+                            @change="handleFileFields($event, 'pathResumeFile')"
                           ></v-file-input>
                         </v-col>
                         <v-col
@@ -47,8 +51,7 @@
                         >
                           <div
                             v-if="
-                              !editItem.resumeFile &&
-                              !editItem.pathResumeFile
+                              !editItem.resumeFile && !editItem.pathResumeFile
                             "
                           >
                             <h3>No hay archivo seleccionado</h3>
@@ -119,21 +122,21 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                        type="datetime-local"
-                        v-model="editItem.endDateContract"
-                        label="Inicio del contrato"
-                        :rules="rulesValidation.date.rules"
-                      ></v-text-field>
+                            type="datetime-local"
+                            v-model="editItem.endDateContract"
+                            label="Inicio del contrato"
+                            :rules="rulesValidation.date.rules"
+                          ></v-text-field>
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                        type="datetime-local"
-                        v-model="editItem.hireDate"
-                        label="Finalización del contrato"
-                        :rules="rulesValidation.date.rules"
-                      ></v-text-field>
+                            type="datetime-local"
+                            v-model="editItem.hireDate"
+                            label="Finalización del contrato"
+                            :rules="rulesValidation.date.rules"
+                            variant="outlined"
+                          ></v-text-field>
                         </v-col>
-
                       </v-row>
                     </v-col>
                   </v-row>
@@ -142,6 +145,27 @@
             </v-col>
             <v-col cols="12" class="d-flex align-center">
               <v-card
+              v-if="editItem.paymentMethods"
+                title="Metodos de pago"
+                variant="outlined"
+                padding="2"
+                class="w-100"
+              >
+                <v-card-text>
+                  <!------------------------------- DYNAMIC ITEM --------------------------->
+                  <dynamic-payment-method-items
+                    :records="editItem.paymentMethods"
+                    :errorMessage="customAlertError"
+                    :editable="loading"
+                    @update:records="(item) => editItem.paymentMethods = item"
+                  ></dynamic-payment-method-items>
+                  <!------------------------------- END DYNAMIC ITEM --------------------------->
+                </v-card-text>
+              </v-card>
+            </v-col>
+            <v-col cols="12" class="d-flex align-center">
+              <v-card
+              v-if="editItem.services"
                 title="Servicios relacionados"
                 variant="outlined"
                 padding="2"
@@ -150,11 +174,10 @@
                 <v-card-text>
                   <!------------------------------- DYNAMIC ITEM --------------------------->
                   <dynamic-field-list
-                    v-if="editItem.services"
+
                     :records="editItem.services"
                     @update:records="(item) => (editItem.services = item)"
                     :errorMessage="customAlertError"
-
                   >
                     <template #dynamic-item-icon="{ raw }">
                       <v-avatar color="grey-lighten-1">
@@ -179,7 +202,6 @@
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col cols="12"> </v-col>
           </v-row>
         </v-card-text>
         <!----------------------- FORM --------------------------->
@@ -216,6 +238,7 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 import { castFullDate, statusAllowed } from "@/utils/cast";
 import dynamicFieldList from "@/components/blocks/DynamicFieldList.vue";
 import thirdFieldCard from "@/components/Cards/ThirdFieldCard.vue";
+import DynamicPaymentMethodItems from "@/components/Forms/Employee/DynamicPaymentMethodItems.vue";
 import Petition from "@/services/PetitionStructure/Petition.js";
 const employeeApi = new EmployeeApi();
 const petition = new Petition();
@@ -228,6 +251,7 @@ export default {
   components: {
     dynamicFieldList,
     thirdFieldCard,
+    DynamicPaymentMethodItems,
   },
   data: () => ({
     // required data
@@ -236,13 +260,13 @@ export default {
 
     // optional data
     formRef: null,
-    typesContract:[],
+    typesContract: [],
     status: [],
     showFileCommercialSelected: null,
     showFileRutSelected: null,
     rulesValidation: RulesValidation,
     customAlertError: {},
-    thirdKeyCard:0
+    thirdKeyCard: 0,
   }),
   async mounted() {
     this.loading = true;
@@ -274,7 +298,6 @@ export default {
       }
     },
     async submitForm() {
-
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
       if (valid) {
@@ -293,23 +316,24 @@ export default {
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city.id);
-
+        console.log('sending', this.editItem);
+        if (this.editItem.paymentMethods && this.editItem.paymentMethods.length > 0) {
+          console.log('entry?')
+          this.editItem.paymentMethods.forEach((item, i) => {
+            formData.append(`payment_methods[${i}][payment_method_id]`, item.id);
+            formData.append(`payment_methods[${i}][reference]`, item.reference);
+          });
+        }
         // employee fields 🚥
-        formData.append(
-          "type_contract",
-          this.editItem.typeContract
-        );
+        formData.append("type_contract", this.editItem.typeContract);
         formData.append("hire_date", castFullDate(this.editItem.hireDate));
-        formData.append("end_date_contract", castFullDate(this.editItem.endDateContract));
+        formData.append(
+          "end_date_contract",
+          castFullDate(this.editItem.endDateContract)
+        );
         formData.append("status", this.editItem.status);
-        if (
-          this.editItem.resumeFile &&
-          typeof this.resumeFile != "string"
-        ) {
-          formData.append(
-            "resume_file",
-            this.editItem.pathResumeFile
-          );
+        if (this.editItem.resumeFile && typeof this.resumeFile != "string") {
+          formData.append("resume_file", this.editItem.pathResumeFile);
         }
         if (this.editItem.rutFile && typeof this.rutFile != "string") {
           formData.append("rut_file", this.editItem.pathRutFile);
@@ -323,14 +347,14 @@ export default {
               `services[${index}][fields][${findex}][field_id]`,
               field.id
             );
-            if(field.type.id == 'F'){
-              if(field.data) {
+            if (field.type.id == "F") {
+              if (field.data) {
                 formData.append(
-                `services[${index}][fields][${findex}][content]`,
-                field.pathFile
-              );
+                  `services[${index}][fields][${findex}][content]`,
+                  field.pathFile
+                );
               }
-            }else{
+            } else {
               formData.append(
                 `services[${index}][fields][${findex}][content]`,
                 field.data
@@ -369,19 +393,17 @@ export default {
       if (typeof file === "object") return URL.createObjectURL(file);
       return;
     },
-    async setTypesContract(){
-            this.typesContract = (await petition.get("/type-contract-employee")).data;
-
+    async setTypesContract() {
+      this.typesContract = (await petition.get("/type-contract-employee")).data;
     },
     async setEditItem() {
       if (!this.idEditForm) {
         this.editItem.services = [];
+        this.editItem.paymentMethods = [];
 
         return;
       }
-      const response = await employeeApi.read(
-        `employee_id=${this.idEditForm}`
-      );
+      const response = await employeeApi.read(`employee_id=${this.idEditForm}`);
       this.editItem = Object.assign(
         {},
         {
@@ -404,12 +426,12 @@ export default {
           email2: response.data.third.email2,
           postal_code: response.data.third.postal_code,
           city: response.data.third.city,
-          services: response.data.dynamic_services
+          services: response.data.dynamic_services,
+          paymentMethods: response.data.payment_methods || [],
         }
       );
 
-      this.thirdKeyCard = this.thirdKeyCard + 1 ;
-
+      this.thirdKeyCard = this.thirdKeyCard + 1;
     },
   },
 };

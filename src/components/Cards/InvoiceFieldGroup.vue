@@ -196,10 +196,14 @@ export default {
       return [
         ...this.rulesValidation.date.rules,
         (value) =>
+           new Date(value) >= new Date() ||
+              "La fecha de incio debe ser mayor o igual a la actual",
+        (value) =>
           this.records.endDate
             ? new Date(value) < new Date(this.records.endDate) ||
               "La fecha de inicio debe ser menor a la de finalización. "
             : true,
+
       ];
     },
   },
@@ -251,5 +255,8 @@ export default {
     }
     this.loading = false;
   },
+  updated(){
+    console.log('chaing',this.records.startDate);
+  }
 };
 </script>

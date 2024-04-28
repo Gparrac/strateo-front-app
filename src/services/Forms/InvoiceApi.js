@@ -4,7 +4,15 @@ export default class InvoiceApi extends FormsFactory {
     constructor(){
         super('/invoice-parameterization');
     }
-    downloadPdf(invoiceId) {
-      return this.petition.getFile('/invoice-pdf', `invoice_id=${invoiceId}`,true, 'invoice.pdf');
+    async downloadPdf(invoiceId) {
+      await this.petition.getFile('/invoice-pdf', `invoice_id=${invoiceId}`,true, 'invoice.pdf');
+    }
+    async downloadCompanyPdf(invoiceId){
+      try {
+        await this.petition.getFile('/invoice-company-pdf', `invoice_id=${invoiceId}`, true, 'invoice.pdf');
+        console.log('pasing service?')
+      } catch (error) {
+        console.error('Error downloading PDF:', error);
+      }
     }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex pb-5 flex-wrap">
     <div class="flex-grow-1 d-flex flex-column my-2 my-md-0">
-      Registros actuales
+      {{ title }}
       <slot name="listMenuChips">
       <div v-if="showStatusLabel">
           <!-- Contenido predeterminado si no se proporciona ningún contenido al slot -->
@@ -19,10 +19,12 @@
     <div class="d-flex align-center justify-center flex-wrap">
 
       <v-btn
+        v-if="showFilter"
         :icon="'mdi-filter'"
         color="success"
         variant="tonal"
         class="mr-3"
+
         @click="filterTableStore.show"
       >
       </v-btn>
@@ -41,7 +43,7 @@
         class="mr-3"
         color="primary"
         variant="tonal"
-        @click="() => $router.push(`${path}/create`)"
+        @click="pushRoute"
       >
       </v-btn>
       <v-btn
@@ -71,6 +73,16 @@ import { mapStores } from 'pinia';
 const petition = new Petition();
 export default {
   props: {
+    title: {
+      type: String,
+      required: false,
+      default: 'Registros actuales:'
+    },
+    modalHandler:{
+      type: Boolean,
+      required: false,
+      dafault: false
+    },
     loading: Boolean,
     path: String,
     disableDelete: Boolean,
@@ -81,6 +93,11 @@ export default {
     showExport: {
       type: Boolean,
       default: false,
+    },
+    showFilter: {
+      type: Boolean,
+      default: true,
+      required: false
     },
     showStatusLabel: {
       type: Boolean,
@@ -96,6 +113,9 @@ export default {
     async exportExcelFile() {
       await petition.getFile(`/export-data/${this.path}`, undefined, true);
     },
+    pushRoute(){
+      (this.modalHandler) ? this.$emit('show-modal',true) : this.$router.push(`${this.path}/create`);
+    }
 
 
   },

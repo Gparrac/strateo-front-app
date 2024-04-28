@@ -8,14 +8,17 @@
         :nameTable="nameTable"
         :path="path"
       />
-      <TableEmployee v-else :nameTable="nameTable" :path="path" />
+      <div v-else>
+      <TableEmployee  :nameTable="nameTable" :path="path" />
+      <TablePaymentMethod  :nameTable="nameTable" :path="path" />
+    </div>
     </div>
     <div></div>
   </div>
 </template>
 
 <script>
-import { FormEmployee, TableEmployee } from "@/components/Forms/Employee/";
+import { FormEmployee, TableEmployee, TablePaymentMethod } from "@/components/Forms/Employee/";
 import { getFormRoute } from "@/utils/routes.js";
 
 export default {
@@ -45,6 +48,7 @@ export default {
   components: {
     FormEmployee,
     TableEmployee,
+    TablePaymentMethod
   },
 };
 </script>

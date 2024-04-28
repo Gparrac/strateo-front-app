@@ -34,7 +34,7 @@ export default class Petition {
     }
     getFile(url, query = '', token = false, fileName = 'datos.xlsx'){
       if(query.length != 0) query = `?${query}`
-        return new Promise((resolve, reject) => {
+
             fetch(`${this.routeEndpoint}${url}${query}`, {
                 method: 'GET',
                 headers: this.headers(token),
@@ -53,11 +53,11 @@ export default class Petition {
               // Libera los recursos del enlace temporal
               window.URL.revokeObjectURL(url);
               document.body.removeChild(link);
+              console.log('finishing promises')
+
             })
-            .catch(error => {
-                reject(error);
-            });
-        })
+
+
     }
 
     /**
