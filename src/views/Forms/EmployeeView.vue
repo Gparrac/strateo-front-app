@@ -11,6 +11,7 @@
       <div v-else>
       <TableEmployee  :nameTable="nameTable" :path="path" />
       <TablePaymentMethod  :nameTable="nameTable" :path="path" />
+      <TableCharge  :nameTable="nameTable" :path="path" />
     </div>
     </div>
     <div></div>
@@ -19,6 +20,7 @@
 
 <script>
 import { FormEmployee, TableEmployee, TablePaymentMethod } from "@/components/Forms/Employee/";
+import TableCharge from "@/components/Forms/Employee/TableCharge.vue";
 import { getFormRoute } from "@/utils/routes.js";
 
 export default {
@@ -48,7 +50,8 @@ export default {
   components: {
     FormEmployee,
     TableEmployee,
-    TablePaymentMethod
+    TablePaymentMethod,
+    TableCharge
   },
 };
 </script>

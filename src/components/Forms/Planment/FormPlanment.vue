@@ -458,12 +458,22 @@ export default {
         this.employees.forEach((employee, eindex) => {
           formData.append(`employees[${eindex}][employee_id]`, employee.id);
           formData.append(`employees[${eindex}][salary]`, employee.salary);
+          console.log('employee',employee);
+          if(employee.payment_method_id){
+            formData.append(`employees[${eindex}][payment_method_id]`, employee.payment_method_id);
+            formData.append(`employees[${eindex}][reference]`, employee.reference);
+          }
+          if(employee.charges && employee.charges.length > 0)
+            employee.charges.map((charge, i) => {
+
+          formData.append(`employees[${eindex}][charges][${i}]`, charge.id);
+            })
         });
         const response = await employeeApi.update(
           formData,
           "type_connection=W"
         );
-        this.handleAlert(response, this.setAttributes("W", "employees"));
+        await this.handleAlert(response, () => this.setAttributes("W", "employees"));
       }else{
         throw new Error('Employees field error');
       }
@@ -617,6 +627,7 @@ export default {
         }
         throw new Error('Server error');
       } else {
+        console.log('else handl¿', response.statusResponse)
         this.alertMessageStore.show(true, "Proceso exitoso!");
         if (callback && typeof callback === "function") await callback();
       }
@@ -636,6 +647,7 @@ export default {
     },
     // ------------------------ getting data from serve ----------
     async setAttributes(key, keyArray, furtherQuery = "") {
+      console.log('entry');
       const response = await invoiceApi.read(
         `invoice_id=${this.editItem.invoiceId}&attribute_key=${key}${furtherQuery}`
       );
