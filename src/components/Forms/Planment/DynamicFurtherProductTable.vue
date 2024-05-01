@@ -55,7 +55,7 @@
         </div>
         </template>
         <template  v-slot:[`item.attributes`]="{ item }">
-          <v-row class="text-start pt-3 my-0">
+          <v-row class="text-start pt-3 my-0" style="min-width: 180px">
             <v-col cols="12" lg="4">
               <v-text-field
                 :maxlength="rulesValidation.quantity.maxLength"
@@ -109,12 +109,14 @@
             <v-checkbox
               v-model="item.tracing"
               color="primary"
-              label="Requiere inventario"
+
               @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
               :value="1"
               hide-details
             ></v-checkbox>
+            <div style="min-width: 140px;">
             <dynamic-select-field
+
               class="w-100 text-start"
               v-if="item.tracing"
               :options="warehouses"
@@ -135,6 +137,7 @@
               persistent-hint
             >
             </dynamic-select-field>
+            </div>
           </div>
         </template>
         <template v-slot:[`item.subproducts`]="{ item }">
@@ -146,7 +149,7 @@
         <template v-slot:[`item.taxes`]="{ item }">
           <div
             class="d-flex flex-column mt-4 text-start"
-            style="min-width: 140px"
+            style="min-width: 180px"
           >
             <dynamic-select-field
               :options="taxes"
@@ -162,7 +165,8 @@
             </dynamic-select-field>
             <template v-if="item.taxes && item.taxes.length">
               <v-divider thickness="3" class="mb-4"></v-divider>
-              <div v-for="(tax, i) in item.taxes" :key="item.id + '-i-t-' + i">
+              <div v-for="(tax, i) in item.taxes" :key="item.id + '-i-t-' + i" class="d-flex flex-nowrap w-full">
+                <div class="flex-grow-1 mr-2">
                 <v-select
                   :label="tax.acronym"
                   variant="outlined"
@@ -176,6 +180,16 @@
                   :loading="loading"
                   density="compact"
                 ></v-select>
+              </div>
+                <v-btn
+                  v-show="!editable"
+                  icon="mdi-minus-circle-outline"
+                  size="small"
+                  color="warning"
+                  variant="plain"
+                  @click="deleteTax(item.taxes, i)"
+                >
+                </v-btn>
               </div>
             </template>
           </div>
@@ -302,6 +316,10 @@ export default {
       query += name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
+    },
+    deleteTax(taxs, index) {
+      taxs.splice(index, 1);
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
     },
     totalData(array, key){
       return (array) ? array.reduce((total, item) =>

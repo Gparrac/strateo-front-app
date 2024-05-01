@@ -15,7 +15,6 @@
           title="Subproductos"
           subtitle="Consecutivo: "
           class="pr-5"
-
         >
         </dynamic-select-field>
         <modal-new-product
@@ -25,34 +24,40 @@
       </div>
     </v-col>
     <v-col class="px-5">
-      <v-data-table :items="productPlanmentStore.subproducts" :headers="headersTable">
+      <v-data-table
+        :items="productPlanmentStore.subproducts"
+        :headers="headersTable"
+      >
         <template v-slot:[`item.id`]="{ item }">
           <div class="d-flex py-2 align-center">
-          <v-btn
-                    v-show="!editable"
-                    icon="mdi-delete"
-                    size="small"
-                    color="warning"
-                    variant="tonal"
-                    @click="deleteItem(item)"
-                  >
-                  </v-btn>
-          <div class="d-flex flex-column pl-3">
-            <h6 class="text-subtitle-1">{{ item.id + ' - ' + item.name }}</h6>
-            <span class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3">
-              COD: {{ item.product_code }}</span
+            <v-btn
+              v-show="!editable"
+              icon="mdi-delete"
+              size="small"
+              color="warning"
+              variant="tonal"
+              @click="deleteItem(item)"
             >
-            <span class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3">
-              CON: {{ item.consecutive }}</span
-            >
-            <div>
-            <v-chip class=" mt-1" size="small">
-              {{`${item.size} ${item.measure.symbol}`}}
-            </v-chip>
+            </v-btn>
+            <div class="d-flex flex-column pl-3">
+              <h6 class="text-subtitle-1">{{ item.id + " - " + item.name }}</h6>
+              <span
+                class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3"
+              >
+                COD: {{ item.product_code }}</span
+              >
+              <span
+                class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3"
+              >
+                CON: {{ item.consecutive }}</span
+              >
+              <div>
+                <v-chip class="mt-1" size="small">
+                  {{ `${item.size} ${item.measure.symbol}` }}
+                </v-chip>
+              </div>
+            </div>
           </div>
-
-          </div>
-        </div>
         </template>
 
         <template v-slot:[`item.inventory`]="{ item }">
@@ -60,7 +65,6 @@
             <v-checkbox
               v-model="item.tracing"
               color="primary"
-              label="Requiere inventario"
               :value="1"
               @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
               hide-details
@@ -71,7 +75,12 @@
               :options="warehouses"
               :itemSaved="item.warehouse"
               @update:options="setWarehouses"
-              @update:itemSelected="(value) => checkInvoiceStepStore.handleUpdateInvoiceData(setProductInventory(value, item))"
+              @update:itemSelected="
+                (value) =>
+                  checkInvoiceStepStore.handleUpdateInvoiceData(
+                    setProductInventory(value, item)
+                  )
+              "
               mainLabel="address"
               :secondLabel="['city', 'name']"
               title="Bodega"
@@ -91,12 +100,14 @@
         <template v-slot:[`item.events`]="{ item }">
           <div
             class="d-flex flex-column mt-4 text-start"
-            style="min-width: 140px"
+            style="min-width: 200px"
           >
-          <dynamic-select-field
+            <dynamic-select-field
               :options="productPlanmentStore.productEventsAllowed"
               density="compact"
-              @update:itemSelected="(value) => appendItemAttribute(value, item, 'events')"
+              @update:itemSelected="
+                (value) => appendItemAttribute(value, item, 'events')
+              "
               mainLabel="name"
               title="Eventos"
               class="w-100"
@@ -104,26 +115,42 @@
             </dynamic-select-field>
             <template v-if="item.events && item.events.length">
               <v-divider thickness="3" class="mb-4"></v-divider>
-              <div v-for="(event, i) in item.events" :key="item.id + '-i-t-' + i">
-                <v-text-field
-                  :label="event.name"
-                  variant="outlined"
-                  v-model="event.amount"
-                  :rules="rulesValidation.quantity.rules"
-                  :loading="loading"
-                  density="compact"
-                  @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
-                  placeholder="Digita una cantidad apropiada..."
+
+              <div
+                v-for="(event, i) in item.events"
+                :key="item.id + '-i-t-' + i"
+                class="d-flex flex-nowrap w-full"
+              >
+                <div class="flex-grow-1 mr-2">
+                  <v-text-field
+                    :label="event.name"
+                    variant="outlined"
+                    v-model="event.amount"
+                    :rules="rulesValidation.quantity.rules"
+                    :loading="loading"
+                    density="compact"
+                    @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
+                    placeholder="Digita una cantidad apropiada..."
+                  >
+                  </v-text-field>
+                </div>
+
+                <v-btn
+                  v-show="!editable"
+                  icon="mdi-minus-circle-outline"
+                  size="small"
+                  color="warning"
+                  variant="plain"
+                  @click="deleteEventAmount(item.events, i)"
                 >
-                </v-text-field>
+                </v-btn>
               </div>
             </template>
           </div>
         </template>
         <template v-slot:[`item.total`]="{ item }">
-
-          <span  class="text-h4">
-          {{ totalData(item.events, 'amount') }}
+          <span class="text-h4">
+            {{ totalData(item.events, "amount") }}
           </span>
         </template>
       </v-data-table>
@@ -160,7 +187,7 @@ const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
 const taxApi = new TaxApi();
 export default {
-  name: 'DynamicSubproductTable',
+  name: "DynamicSubproductTable",
   props: {
     errorMessage: Object,
     editable: Boolean,
@@ -170,7 +197,7 @@ export default {
     ModalNewProduct,
   },
   data: () => ({
-    titleField: 'Productos',
+    titleField: "Productos",
     options: [],
     loading: false,
     rulesValidation: RulesValidation,
@@ -194,10 +221,14 @@ export default {
       { title: "Total", align: "center", sortable: false, key: "total" },
     ],
   }),
-  computed:{
-    ...mapStores(useProductPlanmentStore, useCheckInvoiceStep)
+  computed: {
+    ...mapStores(useProductPlanmentStore, useCheckInvoiceStep),
   },
   methods: {
+    deleteEventAmount(events, index) {
+      events.splice(index, 1);
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
+    },
     async setProductInventory(item, product) {
       product.warehouse = item;
       product.stock = (
@@ -207,7 +238,7 @@ export default {
       ).data;
     },
     async loadItems(name = null) {
-      let query =  `&types[0]=T&`;
+      let query = `&types[0]=T&`;
       query =
         query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
 
@@ -215,7 +246,6 @@ export default {
       this.options = response.data;
     },
     async setWarehouses(name = null) {
-
       const query = name
         ? `&filters[0][key]=address&filters[0][value]=${name}`
         : "";
@@ -227,20 +257,25 @@ export default {
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
     },
-    totalData(array, key){
-      return (array) ? array.reduce((total, item) =>
-        ( (!isNaN(item[key])) ? total + (+item[key]) : total + 0)
-      , 0) : 0;
+    totalData(array, key) {
+      return array
+        ? array.reduce(
+            (total, item) =>
+              !isNaN(item[key]) ? total + +item[key] : total + 0,
+            0
+          )
+        : 0;
     },
     appendItem(item) {
-      const index = this.productPlanmentStore.subproducts.findIndex(function (objeto) {
+      const index = this.productPlanmentStore.subproducts.findIndex(function (
+        objeto
+      ) {
         return objeto.id === item.id;
       });
-      if (index === -1){
+      if (index === -1) {
         this.productPlanmentStore.subproducts.push(item);
         this.checkInvoiceStepStore.handleUpdateInvoiceData();
       }
-
     },
     appendItemAttribute(value, item, key) {
       if (item[key]) {
@@ -248,7 +283,7 @@ export default {
           return objeto.id === value.id;
         });
 
-        if (index === -1){
+        if (index === -1) {
           item[key].push(value);
           this.checkInvoiceStepStore.handleUpdateInvoiceData();
         }
@@ -258,9 +293,12 @@ export default {
       }
     },
     deleteItem(itemSelected) {
-      this.productPlanmentStore.subproducts = this.productPlanmentStore.subproducts.filter((item) => item.id != itemSelected.id);
+      this.productPlanmentStore.subproducts =
+        this.productPlanmentStore.subproducts.filter(
+          (item) => item.id != itemSelected.id
+        );
       this.checkInvoiceStepStore.handleUpdateInvoiceData();
-    }
+    },
   },
   async mounted() {
     this.loading = true;
@@ -275,7 +313,7 @@ export default {
     }
 
     this.loading = false;
-  }
+  },
 };
 </script>
 <style scoped>

@@ -8,6 +8,7 @@
       :showDelete="false"
       :showStatusLabel="false"
       @toggle-delete="() => (toggleDelete = true)"
+
     ></header-table>
 
     <modal-delete

@@ -38,7 +38,7 @@
             :errorMessage="errorMessage"
             errorKey="products"
             :editable="false"
-            @update:records="(item) => updateAttributes(item, 'products')"
+            @update:records="(item) =>  productPlanmentStore.productEvents = item"
           ></dynamic-further-product-table>
           <div v-else>
             <dynamic-product-table
@@ -74,7 +74,7 @@
             :errorMessage="errorMessage"
             :editable="false"
             @update:records="
-              (item) => updateAttributes(item, 'furtherProducts')
+              (item) => furtherProducts = item
             "
           ></dynamic-further-product-table>
         </v-form>
@@ -248,14 +248,16 @@ export default {
     netTotal() {
       const wholeTax = this.editItem.taxes
         ? this.editItem.taxes.reduce((total, item) => {
+          console.log('tax',item,total);
             const totalTax =
               ((item.type == "D" ? -1 : 1) *
                 (item.percent || 0) *
                 this.totalCost) /
                 100 ?? 0;
-            return total + +totalTax;
+            return total  + (+totalTax);
           }, 0)
         : 0;
+        console.log('taxEnd', wholeTax);
       return formatNumberToColPesos(
         this.totalCost - this.totalDiscount + wholeTax
       );
@@ -357,7 +359,9 @@ export default {
       const totalServices = calTotalCostItems(
         this.productPlanmentStore.productEvents
       );
+      console.log('totalFurtherProduct0', totalServices);
       const totalFurtherProducts = calTotalCostItems(this.furtherProducts);
+      console.log('totalFurtherProduct', totalFurtherProducts)
       this.totalCost = totalServices + totalFurtherProducts;
       return formatNumberToColPesos(this.totalCost);
     },
@@ -367,29 +371,31 @@ export default {
         calTotalDiscountItems(this.furtherProducts);
       return formatNumberToColPesos(this.totalDiscount);
     },
-    saveRecords() {
+    async saveRecords() {
       this.loading = true;
       try {
         const formData = new FormData();
         switch (this.step) {
           case 0:
-            this.saveInvoice(formData);
+            await this.saveInvoice(formData);
             break;
           case 1:
-            this.saveProducts(formData);
+            await this.saveProducts(formData);
             break;
           case 2:
-            this.saveProducts(formData, true);
+            await this.saveProducts(formData, true);
             break;
           default:
             break;
         }
+        console.log('passing switch', this.step)
         //handle stepper 🚥
         this.stepperLabels[this.step].complete = true;
         this.stepperLabels[this.step].error = false;
         if (this.step + 1 < this.stepperLabels.length) {
           this.step += 1;
         }
+        console.log('passing switch2', this.step)
 
         this.checkInvoiceStepStore.$reset();
       } catch (error) {
@@ -400,7 +406,9 @@ export default {
     },
     async saveInvoice(formData) {
       const { valid } = await this.$refs.formInvoice.validate();
+      console.log('entrySAveInvoice');
       if (valid) {
+        console.log('in valid');
         formData.append("client_id", this.editItem.client.id);
         formData.append("further_discount", this.editItem.furtherDiscount);
         if (this.editItem.note && this.editItem.note.length > 0)
@@ -439,11 +447,11 @@ export default {
         further ? "formFurtherProduct" : "formProduct"
       ].validate();
       //validate dynamic components 🚥
+      console.log('entry', this.productPlanmentStore.productEvents.length, this.step, this.editItem.type.id);
       if (
-        ((this.productPlanmentStore.productEvents.length == 0 &&
-          this.editItem.type.id == "E") ||
-          (this.products.length == 0 && this.editItem.type.id == "P")) &&
-        this.step == 1
+        (this.productPlanmentStore.productEvents.length == 0 &&
+          (this.editItem.type.id == "E" || this.editItem.type.id == "P") && this.step == 1)
+
       ) {
         this.errorMessage.type = "products";
         this.errorMessage.message = "Se requiere minimo un producto";

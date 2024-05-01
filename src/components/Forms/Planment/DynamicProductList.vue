@@ -51,13 +51,15 @@
                       <v-checkbox
                         v-model="record.tracing"
                         color="primary"
-                        label="Requiere inventario"
+
                         :value="1"
                         hide-details
                       ></v-checkbox>
                     </v-col>
-                    <v-col cols="12">
+                    <v-col cols="12" >
+
                       <dynamic-select-field
+
                         v-if="record.tracing"
                         :options="warehouses"
                         :itemSaved="record.warehouse"
@@ -72,6 +74,7 @@
                         :key="warehouses.length"
                       >
                       </dynamic-select-field>
+
                     </v-col>
                     <v-col cols="12" sm="6 ">
                       <v-text-field

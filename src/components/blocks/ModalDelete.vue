@@ -38,7 +38,7 @@ export default {
     title: String,
     toggleDelete: Boolean,
     deleteItems: Array,
-    mainKey: String,
+    mainKey: Array,
     secondKey: Array,
   },
   data() {

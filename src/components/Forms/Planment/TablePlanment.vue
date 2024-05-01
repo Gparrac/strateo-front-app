@@ -6,7 +6,9 @@
       :disableDelete="selectedItems.length == 0 ? true : false"
       @clean-filter="loadItems({})"
       :showDelete="false"
+      :showStatusLabel="false"
       @toggle-delete="() => (toggleDelete = true)"
+
     ></header-table>
     <modal-delete
       v-if="toggleDelete"
@@ -193,7 +195,7 @@ export default {
       this.loading = false;
     },
     async setStages() {
-      const rta = (await petition.get("/type-invoices", `planment_stage=COM`))
+      const rta = (await petition.get("/type-invoices", `planment_stage=FIN`))
         .data;
       return rta || [];
     },

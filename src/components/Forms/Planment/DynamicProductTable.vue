@@ -107,7 +107,7 @@
         <template v-slot:[`item.taxes`]="{ item }">
           <div
             class="d-flex flex-column mt-4 text-start"
-            style="min-width: 140px"
+            style="min-width: 200px"
           >
             <dynamic-select-field
               :options="taxes"
@@ -121,9 +121,11 @@
               class="w-100"
             >
             </dynamic-select-field>
+
             <template v-if="item.taxes && item.taxes.length">
               <v-divider thickness="3" class="mb-4"></v-divider>
-              <div v-for="(tax, i) in item.taxes" :key="item.id + '-i-t-' + i">
+              <div v-for="(tax, i) in item.taxes" :key="item.id + '-i-t-' + i" class="d-flex  flex-nowrap w-full">
+                <div class="flex-grow-1 mr-2">
                 <v-select
                   :label="tax.acronym"
                   variant="outlined"
@@ -136,7 +138,20 @@
                   :rules="rulesValidation.select.rules"
                   :loading="loading"
                   density="compact"
+
                 ></v-select>
+              </div>
+
+                <v-btn
+                    v-show="!editable"
+                    icon="mdi-minus-circle-outline"
+                    size="small"
+                    color="warning"
+                    variant="plain"
+                    @click="deleteTax(item.taxes,i)"
+                  >
+                  </v-btn>
+
               </div>
             </template>
           </div>
@@ -217,6 +232,11 @@ export default {
   ...mapStores(useProductPlanmentStore, useCheckInvoiceStep)
  },
   methods: {
+    deleteTax(taxes, index){
+      console.log('taxesss',taxes)
+      taxes.splice(index, 1);
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
+    },
     async setProductInventory(item, product) {
       product.warehouse = item;
       product.stock = (

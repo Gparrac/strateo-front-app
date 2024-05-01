@@ -39,6 +39,7 @@
       >
       </v-btn>
       <v-btn
+      v-if="showCreate"
         icon="mdi-plus"
         class="mr-3"
         color="primary"
@@ -63,6 +64,7 @@
         @click="exportExcelFile"
       >
       </v-btn>
+      <slot name="custom-button"></slot>
     </div>
   </div>
 </template>
@@ -103,6 +105,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    showCreate: {
+      type: Boolean,
+      default: true,
+    }
   },
   data: () => ({
   }),

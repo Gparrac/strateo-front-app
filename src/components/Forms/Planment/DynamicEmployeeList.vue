@@ -24,7 +24,7 @@
           <v-card>
             <v-card-text>
               <v-row justify="end" justify-md="space-between">
-                <v-col cols="12" sm="12" md="5" class="d-flex">
+                <v-col cols="12" sm="12" md="5" xl="9" class="d-flex">
                   <v-btn
                     v-show="!editable"
                     icon="mdi-delete"
@@ -56,7 +56,7 @@
                     density="compact"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" sm="12" md="4" xl="3">
+                <v-col cols="12" sm="12" md="4" xl="4">
                   <v-select
                     multiple
                     label="Cargo"
@@ -74,7 +74,7 @@
                   >
                   </v-select>
                 </v-col>
-                <v-col cols="12" sm="12" md="4" xl="3">
+                <v-col cols="12" sm="12" md="4" xl="4">
                   <v-select
                     label="Metodo de pago"
                     :rules="rulesValidation.select.rules"
@@ -102,13 +102,12 @@
                     </template>
                   </v-select>
                 </v-col>
-                <v-col cols="12" sm="12" md="4" xl="3">
+                <v-col cols="12" sm="12" md="4" xl="4">
                   <v-text-field
                     :maxlength="rulesValidation.text.maxLength"
                     label="Referencia"
                     :rules="rulesValidation.text.rules"
                     :loading="loading"
-                    append-inner-icon="mdi-cash"
                     v-model="record.reference"
                     variant="outlined"
                     :disabled="editable"
