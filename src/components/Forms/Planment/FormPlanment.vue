@@ -236,7 +236,7 @@ export default {
     keyServices: 0,
   }),
   beforeRouteLeave(_to, _from, next) {
-    console.log('reloading ??#')
+
 
     next();
   },
@@ -261,7 +261,7 @@ export default {
   },
   watch:{
     step(_newV, oldV){
-      // console.log('entry::',this.checkInvoiceStepStore.check,value, this.step)
+
       if(this.checkInvoiceStepStore.check){
         this.stepperLabels[oldV].complete = false;
       }
@@ -458,7 +458,7 @@ export default {
         this.employees.forEach((employee, eindex) => {
           formData.append(`employees[${eindex}][employee_id]`, employee.id);
           formData.append(`employees[${eindex}][salary]`, employee.salary);
-          console.log('employee',employee);
+
           if(employee.payment_method_id){
             formData.append(`employees[${eindex}][payment_method_id]`, employee.payment_method_id);
             formData.append(`employees[${eindex}][reference]`, employee.reference);
@@ -627,7 +627,7 @@ export default {
         }
         throw new Error('Server error');
       } else {
-        console.log('else handl¿', response.statusResponse)
+
         this.alertMessageStore.show(true, "Proceso exitoso!");
         if (callback && typeof callback === "function") await callback();
       }
@@ -647,7 +647,7 @@ export default {
     },
     // ------------------------ getting data from serve ----------
     async setAttributes(key, keyArray, furtherQuery = "") {
-      console.log('entry');
+
       const response = await invoiceApi.read(
         `invoice_id=${this.editItem.invoiceId}&attribute_key=${key}${furtherQuery}`
       );

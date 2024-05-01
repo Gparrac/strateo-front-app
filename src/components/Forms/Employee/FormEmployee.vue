@@ -316,9 +316,9 @@ export default {
           formData.append("email2", this.editItem.email2);
         formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city.id);
-        console.log('sending', this.editItem);
+
         if (this.editItem.paymentMethods && this.editItem.paymentMethods.length > 0) {
-          console.log('entry?')
+
           this.editItem.paymentMethods.forEach((item, i) => {
             formData.append(`payment_methods[${i}][payment_method_id]`, item.id);
             formData.append(`payment_methods[${i}][reference]`, item.reference);

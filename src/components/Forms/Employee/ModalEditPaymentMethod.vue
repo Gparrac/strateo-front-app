@@ -94,7 +94,7 @@ export default {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
-        console.log('saving', this.editItem);
+
         // third fields 🚥
         formData.append("name", this.editItem.name);
         formData.append("description", this.editItem.description);

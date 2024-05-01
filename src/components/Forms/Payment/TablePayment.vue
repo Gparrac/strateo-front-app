@@ -248,7 +248,7 @@ export default {
   methods: {
     ...mapActions(useFilterTableStore, ["$subscribe"]),
     handleButtonClick() {
-      console.log("holi");
+
     },
 
     async loadItems(
@@ -301,7 +301,7 @@ export default {
       let response = null;
       if (this.kindModal) {
         const formData = new FormData();
-        console.log("selecterd", this.selectedItems);
+
         this.selectedItems.map((element, index) => {
           formData.append(
             `employee_planments[${index}][employee_planment_id]`,

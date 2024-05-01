@@ -231,7 +231,7 @@ export default {
   },
   watch: {
     step(_newV, oldV) {
-      // console.log('entry::',this.checkInvoiceStepStore.check,value, this.step)
+
       if (this.checkInvoiceStepStore.check) {
         this.stepperLabels[oldV].complete = false;
       }
@@ -248,7 +248,7 @@ export default {
     netTotal() {
       const wholeTax = this.editItem.taxes
         ? this.editItem.taxes.reduce((total, item) => {
-          console.log('tax',item,total);
+
             const totalTax =
               ((item.type == "D" ? -1 : 1) *
                 (item.percent || 0) *
@@ -257,7 +257,7 @@ export default {
             return total  + (+totalTax);
           }, 0)
         : 0;
-        console.log('taxEnd', wholeTax);
+
       return formatNumberToColPesos(
         this.totalCost - this.totalDiscount + wholeTax
       );
@@ -274,7 +274,7 @@ export default {
       if (
         this.stepperLabels.filter((item) => item.complete == false).length > 0
       ) {
-        console.log('sdf', this.productPlanmentStore.productEvents);
+
         localStorage.setItem(
           "formData",
           JSON.stringify({
@@ -292,7 +292,7 @@ export default {
       return new Promise(() => {
         let draft = this.draftData;
         draft = castStorageToObject(draft);
-        console.log('borrador Load', draft)
+
         this.editItem = draft.editItem;
         this.productPlanmentStore.productEvents = draft.products;
         if (this.editItem.type.id == "E") {
@@ -306,7 +306,7 @@ export default {
     },
     async loadItems(checkLoad = false) {
       try {
-        console.log('entry...');
+
         if (checkLoad) {
           await this.loadDraftItem();
         } else {
@@ -345,11 +345,11 @@ export default {
             label: "Productos adicionales",
             complete: false,
           });
-          console.log('changeStepper',this.editItem)
+
           this.editItem.startDate = new Date().toISOString().slice(0, 16);
 
           this.productPlanmentStore.productEvents = [];
-          console.log('changeStepper',this.editItem)
+
       } else {
         this.stepperLabels[1].label = "Productos requeridos";
         if (this.stepperLabels.length == 3) this.stepperLabels.splice(-1);
@@ -359,9 +359,9 @@ export default {
       const totalServices = calTotalCostItems(
         this.productPlanmentStore.productEvents
       );
-      console.log('totalFurtherProduct0', totalServices);
+
       const totalFurtherProducts = calTotalCostItems(this.furtherProducts);
-      console.log('totalFurtherProduct', totalFurtherProducts)
+
       this.totalCost = totalServices + totalFurtherProducts;
       return formatNumberToColPesos(this.totalCost);
     },
@@ -388,14 +388,14 @@ export default {
           default:
             break;
         }
-        console.log('passing switch', this.step)
+
         //handle stepper 🚥
         this.stepperLabels[this.step].complete = true;
         this.stepperLabels[this.step].error = false;
         if (this.step + 1 < this.stepperLabels.length) {
           this.step += 1;
         }
-        console.log('passing switch2', this.step)
+
 
         this.checkInvoiceStepStore.$reset();
       } catch (error) {
@@ -406,9 +406,9 @@ export default {
     },
     async saveInvoice(formData) {
       const { valid } = await this.$refs.formInvoice.validate();
-      console.log('entrySAveInvoice');
+
       if (valid) {
-        console.log('in valid');
+
         formData.append("client_id", this.editItem.client.id);
         formData.append("further_discount", this.editItem.furtherDiscount);
         if (this.editItem.note && this.editItem.note.length > 0)
@@ -447,7 +447,7 @@ export default {
         further ? "formFurtherProduct" : "formProduct"
       ].validate();
       //validate dynamic components 🚥
-      console.log('entry', this.productPlanmentStore.productEvents.length, this.step, this.editItem.type.id);
+
       if (
         (this.productPlanmentStore.productEvents.length == 0 &&
           (this.editItem.type.id == "E" || this.editItem.type.id == "P") && this.step == 1)
@@ -583,7 +583,7 @@ export default {
 
     async setEditItem(invoiceId = null) {
       if (!this.idEditForm && !invoiceId) {
-        console.log("entry1?");
+
         this.editItem.services = [];
         this.editItem.taxes = [];
         this.editItem.date = new Date().toISOString().substr(0, 10);
@@ -595,7 +595,7 @@ export default {
         this.stepperLabels.forEach((item) => (item.complete = false));
         return;
       }
-      console.log("entry??");
+
       const id = this.idEditForm ?? invoiceId;
       const response = await invoiceApi.read(`invoice_id=${id}`);
 

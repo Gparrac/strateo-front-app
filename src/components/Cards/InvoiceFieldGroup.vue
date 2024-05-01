@@ -256,7 +256,7 @@ export default {
     this.loading = false;
   },
   updated(){
-    console.log('chaing',this.records.startDate);
+
   }
 };
 </script>

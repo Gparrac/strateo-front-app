@@ -233,7 +233,7 @@ export default {
  },
   methods: {
     deleteTax(taxes, index){
-      console.log('taxesss',taxes)
+
       taxes.splice(index, 1);
       this.checkInvoiceStepStore.handleUpdateInvoiceData();
     },
@@ -286,7 +286,7 @@ export default {
 
   },
   async mounted() {
-    console.log('loadingProducts', this.productPlanmentStore.productEvents)
+
     this.loading = true;
     try {
       await Promise.all([
