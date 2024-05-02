@@ -25,3 +25,12 @@ Mini CRM Vue3 es una aplicación web diseñada para simplificar la gestión de d
    ```bash
    git clone https://tu-repositorio.git
    cd mini-crm-vue3
+2. **Instalar Dependencias::**
+   ```bash
+   npm install
+3. **Compilación del proyecto**
+   ```bash
+   npm run build
+4. **Iniciar servidor**
+   ```bash
+   npm run start
