@@ -1,69 +1,36 @@
-# essentials
+# Mini CRM Vue3
 
-## Project setup
+## Descripción del Proyecto 🚀
 
-```
-# yarn
-yarn
+Mini CRM Vue3 es una aplicación web diseñada para simplificar la gestión de documentaciones, inventario y eventos. Con un enfoque en la facilidad de uso y la eficiencia, esta aplicación ofrece un conjunto de características clave:
 
-# npm
-npm install
+### Funcionalidades principales:
+- **Autenticación Segura**: Inicia sesión de manera segura para acceder a las funcionalidades.
+- **Gestión de Documentaciones**: Organiza y gestiona tus documentos de manera eficiente.
+- **Gestión de Inventario**: Realiza un seguimiento de tus productos y existencias de manera intuitiva.
+- **Planeador de Eventos**: Planifica y coordina eventos con facilidad.
 
-# pnpm
-pnpm install
+### Integración con API de Google:
+- Sincroniza tus datos con la API de Google para una mayor accesibilidad y colaboración.
 
-# bun
-bun install
-```
+## Procedimiento de Despliegue 🛠️
 
-### Compiles and hot-reloads for development
+### Requisitos Previos:
+- Tener Node.js instalado en tu sistema.
+- Acceso a un servidor o plataforma de hosting para desplegar la aplicación.
 
-```
-# yarn
-yarn dev
+### Pasos a seguir:
 
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# bun
-bun run dev
-```
-
-### Compiles and minifies for production
-
-```
-# yarn
-yarn build
-
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# bun
-bun run build
-```
-
-### Lints and fixes files
-
-```
-# yarn
-yarn lint
-
-# npm
-npm run lint
-
-# pnpm
-pnpm lint
-
-# bun
-bun run lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://vitejs.dev/config/).
+1. **Clonar el Repositorio:**
+   ```bash
+   git clone https://tu-repositorio.git
+   cd mini-crm-vue3
+2. **Instalar Dependencias::**
+   ```bash
+   npm install
+3. **Compilación del proyecto**
+   ```bash
+   npm run build
+4. **Iniciar servidor**
+   ```bash
+   npm run start
