@@ -122,7 +122,7 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            type="datetime-local"
+                            type="date"
                             v-model="editItem.endDateContract"
                             label="Inicio del contrato"
                             :rules="rulesValidation.date.rules"
@@ -130,7 +130,7 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            type="datetime-local"
+                            type="date"
                             v-model="editItem.hireDate"
                             label="Finalización del contrato"
                             :rules="rulesValidation.date.rules"
@@ -314,7 +314,7 @@ export default {
         formData.append("email", this.editItem.email);
         if (this.editItem.email2 && this.editItem.email2.length > 0)
           formData.append("email2", this.editItem.email2);
-        formData.append("postal_code", this.editItem.postal_code);
+        if(this.editItem.postal_code && this.editItem.postal_code.length > 0) formData.append("postal_code", this.editItem.postal_code);
         formData.append("city_id", this.editItem.city.id);
 
         if (this.editItem.paymentMethods && this.editItem.paymentMethods.length > 0) {
@@ -410,8 +410,8 @@ export default {
           //supplier attributes
           employeeId: response.data.id,
           typeContract: response.data.type_contract.id,
-          hireDate: response.data.hire_date,
-          endDateContract: response.data.end_date_contract,
+          hireDate: response.data.hire_date.split(" ")[0],
+          endDateContract: response.data.end_date_contract.split(" ")[0],
           pathRutFile: response.data.rut_file,
           pathResumeFile: response.data.resume_file,
           status: response.data.status,

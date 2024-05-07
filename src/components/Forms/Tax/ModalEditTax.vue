@@ -1,9 +1,8 @@
 <template>
   <div>
-    <v-btn @click="active = true"   icon="mdi-plus"  variant="tonal" color="primary">
-    </v-btn>
 
-    <v-dialog  v-model="active" :close-on-back="true" style="width: 450px;">
+
+    <v-dialog  :model-value="active" v-on:update:model-value="$emit('update:active', false)"  :close-on-back="true" style="width: 450px;">
       <v-card class="px-7 pt-4">
         <v-form ref="formTaxValue">
         <v-row justify="center">
@@ -15,7 +14,6 @@
                 v-model="percent"
                 :rules="rulesValidation.percent.rules"
                 :loading="loading"
-
               ></v-text-field>
 
           </v-col>
@@ -37,7 +35,7 @@
           <v-btn
             color="blue-darken-1"
             variant="text"
-            @click="() => active = false"
+            @click="() => $emit('update:active',false)"
             :loading="loading"
           >
             Cerrar
@@ -63,18 +61,31 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from 'pinia';
 const taxValueApi = new TaxValueApi();
 export default {
-
+  props:{
+    active: Boolean,
+    savedRecord: Object
+  },
   data: () => ({
-    active:false,
     percent:null,
     rulesValidation: RulesValidation,
-    loading: false
+    loading: false,
   }),
+  watch: {
+    savedRecord(newItem){
 
-  created() {
+      this.percent = newItem?.percent || null;
+    }
+  },
+  mounted(){
+    console.log('entry', this.savedRecord)
+    if(this.savedRecord){
+      this.percent = this.savedRecord.percent;
+    }
   },
   computed: {
     ...mapStores(useAlertMessageStore),
+
+
   },
   methods:{
     async submitForm(){
@@ -86,8 +97,12 @@ export default {
         let response = {};
         formData.append("percent", this.percent);
 
+        if(this.savedRecord.id ){
+          formData.append("tax_value_id", this.savedRecord.id);
+          response = await taxValueApi.update(formData);
+        }else{
           response = await taxValueApi.create(formData);
-
+        }
         // logic to show alert 🚨
         if (response.statusResponse != 200) {
           if(response.error && typeof response.error === 'object'){
@@ -97,7 +112,7 @@ export default {
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
-          this.active = false;
+          this.$emit('update:active', false)
           this.$emit('new-value', response.data);
         }
 

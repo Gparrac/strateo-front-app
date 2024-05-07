@@ -1,4 +1,11 @@
 <template>
+      <modal-edit-tax
+      :active="toggleCreate"
+      :savedRecord="editItem"
+      @record-saved="loadItems({})"
+      @update:active="(item) => {toggleCreate = item;}"
+      @new-value ="updateTaxValues"
+    ></modal-edit-tax>
   <v-form ref="form">
     <v-row justify="center">
       <v-card rounded="3" class="w-100" :loading="loading">
@@ -41,7 +48,15 @@
                 prepend-inner-icon="mdi-percent"
               >
             <template v-slot:append>
-                  <modal-new-tax-value @new-value="updateTaxValues"></modal-new-tax-value>
+              <v-btn
+
+        icon="mdi-plus"
+        class="mr-3"
+        color="primary"
+        variant="tonal"
+        @click="toggleCreate = true"
+      >
+      </v-btn>
             </template>
             </v-select>
 
@@ -114,8 +129,9 @@ import TaxApi from "@/services/Forms/TaxApi.js";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import ModalNewTaxValue from "./ModalNewTaxValue.vue";
+
 import TaxValueApi from "@/services/Forms/TaxValueApi";
+import ModalEditTax from "./ModalEditTax.vue";
 
 
 const taxApi = new TaxApi();
@@ -129,12 +145,13 @@ export default {
     path: String,
   },
   components: {
-    ModalNewTaxValue
+    ModalEditTax
   },
   data: () => ({
     // required data
     loading: false,
     editItem: {taxValues:[]},
+    toggleCreate: false,
     // optional data
     rulesValidation: RulesValidation,
     status: [
@@ -219,7 +236,7 @@ export default {
       this.loading = false;
     },
     async setTaxValues(){
-      const response = await taxValueApi.read();
+      const response = await taxValueApi.read('format=short');
       this.taxValues = response.data;
     },
     async setEditItem() {

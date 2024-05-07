@@ -15,6 +15,7 @@
                 @update:records="
                   updateAttributes
                 "
+                :third-person="true"
               ></thirdFieldCard>
             </v-col>
             <v-col cols="12">

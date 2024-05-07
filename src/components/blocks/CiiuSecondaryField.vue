@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     async setCiiuCodes(name = null) {
-      const query = name ? `name=${name}` : "";
+      const query = name ? `code=${name}` : "";
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
     },
     appendCiiu(item) {

@@ -13,7 +13,12 @@
         :nameTable="nameTable"
         :path="path"
       />
-      <TableTax v-else :nameTable="nameTable" :path="path" />
+      <template v-else>
+        <TableTax  :nameTable="nameTable" :path="path" />
+        <TableTaxValue nameTable="Porcenta de impuestos" ></TableTaxValue>
+
+
+      </template>
     <div>
 
     </div>
@@ -22,7 +27,7 @@
 </template>
 
 <script>
-import { FormTax, TableTax } from "@/components/Forms/Tax/index.vue";
+import { FormTax, TableTax, TableTaxValue } from "@/components/Forms/Tax/index.vue";
 
 import { getFormRoute } from "@/utils/routes.js";
 
@@ -53,7 +58,8 @@ export default {
 
   components: {
     FormTax,
-    TableTax
+    TableTax,
+    TableTaxValue
   },
 };
 </script>

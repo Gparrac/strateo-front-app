@@ -21,13 +21,14 @@
               <v-textarea
                 label="Descripción"
                 v-model="editItem.description"
-                :rules="rulesValidation.text.rules"
+                :maxLength="rulesValidation.longText.maxLength"
+                :rules="rulesValidation.longText.rules"
                 :loading="loading"
               ></v-textarea>
             </v-col>
           </v-row>
           <v-card  >
-          <v-table>
+          <v-table >
             <thead>
               <tr class="text-left">
                 <th>SECCIONES</th>
@@ -42,8 +43,8 @@
                 <th class="text-center">TODOS</th>
               </tr>
             </thead>
-            <tbody>
-              <tr v-for="(item, findex) in forms" :key="'r' + item.id">
+            <tbody >
+              <tr  v-for="(item, findex) in forms" :key="'r' + item.id">
                 <td>{{ item.section_name }}</td>
                 <td>{{ item.name }}</td>
                 <td
@@ -124,20 +125,24 @@ export default {
     permissions: [],
     editItem: {},
     rulesValidation: RulesValidation,
+    checkLoad: false
   }),
   async mounted() {
     this.loading = true;
+
     try {
       await Promise.all([
         await this.setEditItem(),
         await this.setPermissions(),
         await this.setForms(),
       ]);
-      this.createSelectsAll();
+      await this.createSelectsAll();
+      console.log('ending all')
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
     this.loading = false;
+    this.checkLoad = true;
   },
   computed: {
     title() {
@@ -196,8 +201,8 @@ export default {
       this.loading = false;
     },
     async createSelectsAll() {
-
-      if (!this.idEditForm) {
+      return new Promise((resolve) => {
+        if (!this.idEditForm) {
         // this.editItem.forms = Array(this.forms.length).fill({
         //   permissions_id: [],
         // });
@@ -214,6 +219,10 @@ export default {
               : false;
         });
       }
+      console.log('ending promise')
+      resolve();
+      })
+
     },
     async setForms() {
       this.forms = (await formApi.read()).data;
@@ -226,6 +235,7 @@ export default {
       this.editItem = (await roleApi.read(`?role_id=${this.idEditForm}`)).data;
     },
     validatePermissions(formIndex) {
+      console.log('entry?')
       this.forms[formIndex].selectAll =
         this.editItem.forms[formIndex].permissions_id.length ==
         this.permissions.length

@@ -193,11 +193,9 @@ export default {
       ];
     },
     startDateRule() {
-      return [
+      let rules = [
         ...this.rulesValidation.date.rules,
-        (value) =>
-           new Date(value) >= new Date() ||
-              "La fecha de incio debe ser mayor o igual a la actual",
+
         (value) =>
           this.records.endDate
             ? new Date(value) < new Date(this.records.endDate) ||
@@ -205,6 +203,11 @@ export default {
             : true,
 
       ];
+      console.log('entryp', this.records);
+      if(!this.records.invoiceId ) rules .push((value) =>
+           new Date(value) >= new Date() ||
+              "La fecha de incio debe ser mayor o igual a la actual")
+      return rules;
     },
   },
   methods: {

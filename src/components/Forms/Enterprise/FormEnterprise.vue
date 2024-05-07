@@ -461,11 +461,11 @@ export default {
       this.showImageSelected = response.data.path_logo;
     },
     async setCities(name = null) {
-      const query = name ? `?name=${name}` : "";
+      const query = name ? `name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
     },
     async setCiiuCodes(name = null) {
-      const query = name ? `?name=${name}` : "";
+      const query = name ? `name=${name}` : "";
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
     },
     async setTypesDocument() {

@@ -11,8 +11,8 @@
           <v-list-item
             v-for="(item) in deleteItems"
             :key="item[mainKey]"
-            :title="searchKey(item,mainKey)"
-            :subtitle="searchKey(item,secondKey)"
+            :title="titleKey + searchKey(item,mainKey)"
+            :subtitle="subtitleKey + searchKey(item,secondKey)"
           ></v-list-item>
         </v-list>
       </v-card-text>
@@ -40,6 +40,14 @@ export default {
     deleteItems: Array,
     mainKey: Array,
     secondKey: Array,
+    titleKey: {
+      type: String,
+      default:''
+    },
+    subtitleKey: {
+      type: String,
+      default: ''
+    }
   },
   data() {
     return {

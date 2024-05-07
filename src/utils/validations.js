@@ -80,7 +80,7 @@ export const RulesValidation = {
     ],
   },
   email: {
-    maxLength: 25,
+    maxLength: 50,
     rules: [
       (value) => !!value || "Email es requirido",
       (value) =>
