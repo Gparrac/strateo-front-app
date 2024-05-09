@@ -430,13 +430,18 @@ export default {
             formData.append(`taxes[${pindex}][percent]`, tax.percent);
           });
         }
+        let callback = null;
         if (this.editItem.invoiceId) {
           formData.append("invoice_id", this.editItem.invoiceId);
           response = await invoiceApi.update(formData);
+          callback = this.setEditItem(response.data);
         } else {
           response = await invoiceApi.create(formData);
+          callback = this.$router.push(`/invoices/edit/${response.data}`)
+
         }
-        this.handleAlert(response, this.setEditItem(response.data));
+        this.handleAlert(response, callback);
+
       } else {
         throw new Error("Error de campos");
       }
@@ -537,7 +542,7 @@ export default {
         let response = {};
 
         response = await productApi.update(formData, `type_connection=${type}`);
-        this.handleAlert(response, this.setAttributes(type, source));
+        await this.handleAlert(response, this.setAttributes(type, source));
       } else {
         throw new Error("Error de campos");
       }
@@ -550,9 +555,11 @@ export default {
             "Error en la solicitud.",
             response.error
           );
+          console.log('passing?');
         } else {
           this.alertMessageStore.show(false, "Error en el servidor.");
         }
+        console.log('arriving throw');
         throw new Error("Error de campos");
       } else {
         this.alertMessageStore.show(true, "Proceso exitoso!");
@@ -582,6 +589,7 @@ export default {
     },
 
     async setEditItem(invoiceId = null) {
+      console.log('entry ?')
       if (!this.idEditForm && !invoiceId) {
 
         this.editItem.services = [];

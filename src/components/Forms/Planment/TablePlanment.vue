@@ -8,7 +8,7 @@
       :showDelete="false"
       :showStatusLabel="false"
       @toggle-delete="() => (toggleDelete = true)"
-
+      :showCreate="false"
     ></header-table>
     <modal-delete
       v-if="toggleDelete"
