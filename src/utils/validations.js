@@ -50,6 +50,7 @@ export const RulesValidation = {
   longTextNull: {
     maxLength: 300,
     rules: [
+
       (value) =>
         !value || value.length >= 3 ||
         "Este campo debe de ser de almenos 3 caracteres",
@@ -57,6 +58,7 @@ export const RulesValidation = {
         !value || value.length < 300 ||
         "Este campo debe de ser menor de 300 caracteres",
     ],
+
   },
   identification: {
     maxLength: 12,

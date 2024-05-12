@@ -180,7 +180,7 @@ export default {
     },
     async setEditItem() {
       if (!this.idEditForm) return;
-      const response = await officeApi.read(`?office_id=${this.idEditForm}`);
+      const response = await officeApi.read(`office_id=${this.idEditForm}`);
       if (response.statusResponse != 200) {
         this.editItem = {};
         return;
@@ -198,7 +198,7 @@ export default {
       );
     },
     async setCities(name = null) {
-      const query = name ? `?name=${name}` : "";
+      const query = name ? `name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
     },
   },

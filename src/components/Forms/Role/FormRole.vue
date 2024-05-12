@@ -232,7 +232,7 @@ export default {
     },
     async setEditItem() {
       if (!this.idEditForm) return;
-      this.editItem = (await roleApi.read(`?role_id=${this.idEditForm}`)).data;
+      this.editItem = (await roleApi.read(`role_id=${this.idEditForm}`)).data;
     },
     validatePermissions(formIndex) {
       console.log('entry?')

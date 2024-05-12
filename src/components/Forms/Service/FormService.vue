@@ -191,7 +191,7 @@ export default {
         this.editItem.fields = [];
         return;
       }
-      const response = await serviceApi.read(`?service_id=${this.idEditForm}`);
+      const response = await serviceApi.read(`service_id=${this.idEditForm}`);
       this.editItem = Object.assign(
         {},
         {

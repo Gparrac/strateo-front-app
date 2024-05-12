@@ -329,7 +329,7 @@ export default {
     },
     async setEditItem() {
       if (!this.idEditForm) return;
-      const response = await clientApi.read(`?client_id=${this.idEditForm}`);
+      const response = await clientApi.read(`client_id=${this.idEditForm}`);
       if (response.statusResponse != 200) {
         this.editItem = {};
         return;
@@ -366,7 +366,7 @@ export default {
       this.cities = (await petition.get("/cities", query)).data;
     },
     async setCiiuCodes(name = null) {
-      const query = name ? `?name=${name}` : "";
+      const query = name ? `name=${name}` : "";
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
     },
     async setTypesDocument() {
