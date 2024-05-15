@@ -5,7 +5,10 @@
         <v-card-title class="d-flex">
           <span class="text-h5"> Información General </span>
           <v-spacer></v-spacer>
-          <button-login-google :userAuth="editItem.enterpriseId ? true : false" :googleAccount="editItem.googleUser "></button-login-google>
+          <button-login-google
+            :userAuth="editItem.enterpriseId ? true : false"
+            :googleAccount="editItem.googleUser"
+          ></button-login-google>
         </v-card-title>
         <!----------------------- FORM --------------------------->
         <v-card-text>
@@ -234,16 +237,22 @@
                         Escribe entre 3 a 5 letras para completar la
                         busqueda...</strong
                       >
-                      <v-autocomplete
-                        label="Codigo principal CIIU"
-                        v-model="editItem.ciiu"
-                        :items="ciiuCodes"
-                        v-model:search="searchCiiu"
-                        item-title="description"
-                        :return-object="true"
-                        :rules="rulesValidation.select.rules"
-                        :loading="loading"
-                      ></v-autocomplete>
+                      <dynamic-select-field
+                        :options="ciiuCodes"
+                        :itemSaved="editItem.ciiu"
+                        @update:options="setCiiuCodes"
+                        @update:itemSelected="
+                          (item) => editItem.ciiu = item
+                        "
+                        mainLabel="description"
+                        title="Codigo principal CIIU"
+                        subtitle="codigo:"
+                        :secondLabel="['code']"
+                        :customFilter="filterCiiuItems"
+                        :customFilterAble="true"
+                      >
+
+                      </dynamic-select-field>
                     </v-col>
                   </v-row>
                   <ciiu-secondary-field
@@ -290,7 +299,8 @@ import CiiuSecondaryField from "@/components/blocks/CiiuSecondaryField.vue";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import { castNit } from "@/utils/cast";
-import ButtonLoginGoogle from './ButtonLoginGoogle.vue';
+import ButtonLoginGoogle from "./ButtonLoginGoogle.vue";
+import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const enterpriseApi = new EnterpriseApi();
 const petition = new Petition();
 
@@ -302,7 +312,8 @@ export default {
   },
   components: {
     CiiuSecondaryField,
-    ButtonLoginGoogle
+    ButtonLoginGoogle,
+    DynamicSelectField
   },
   data: () => ({
     // required data
@@ -312,7 +323,7 @@ export default {
     cities: [],
     searchCity: "",
     ciiuCodes: [],
-    searchCiiu: "",
+
     rulesValidation: RulesValidation,
     showImageSelected: null,
     typesDocument: [],
@@ -360,13 +371,16 @@ export default {
         this.setCities(to);
       }
     },
-    async searchCiiu(to) {
-      if (to.length > 3 && to.length < 5) {
-        this.setCiiuCodes(to);
-      }
-    },
+
   },
   methods: {
+    filterCiiuItems(queryText, item){
+      const searchText = queryText.toLowerCase();
+        const textOne = item.raw['description'].toLowerCase();
+        let keyTwo = item.raw.code.toString().toLowerCase();
+          return textOne.indexOf(searchText) > -1 ||
+          keyTwo.indexOf(searchText) > -1
+    },
     async submitForm() {
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
@@ -455,7 +469,7 @@ export default {
           header: response.data.header,
           footer: response.data.footer,
           secondaryCiius: response.data.secondary_ciius,
-          googleUser: response.data.google_user
+          googleUser: response.data.google_user,
         }
       );
       this.showImageSelected = response.data.path_logo;
@@ -465,8 +479,11 @@ export default {
       this.cities = (await petition.get("/cities", query)).data;
     },
     async setCiiuCodes(name = null) {
-      const query = name ? `name=${name}` : "";
+      const query = name ? `code=${name}` : "";
+      console.log('passing')
+
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
+      console.log('passing',this.ciiuCodes)
     },
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;
