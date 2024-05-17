@@ -10,7 +10,6 @@ export const useCheckInvoiceStep = defineStore("checkInvoiceStep", {
   actions: {
     handleUpdateInvoiceData(callback){
       this.check = true;
-      console.log('passing!' , this.check)
       if (callback && typeof callback === "function")
       callback();
     }

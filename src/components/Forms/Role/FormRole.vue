@@ -137,7 +137,6 @@ export default {
         await this.setForms(),
       ]);
       await this.createSelectsAll();
-      console.log('ending all')
     } catch (error) {
       console.error("Alguna de las funciones falló:", error);
     }
@@ -219,7 +218,6 @@ export default {
               : false;
         });
       }
-      console.log('ending promise')
       resolve();
       })
 
@@ -235,7 +233,6 @@ export default {
       this.editItem = (await roleApi.read(`role_id=${this.idEditForm}`)).data;
     },
     validatePermissions(formIndex) {
-      console.log('entry?')
       this.forms[formIndex].selectAll =
         this.editItem.forms[formIndex].permissions_id.length ==
         this.permissions.length

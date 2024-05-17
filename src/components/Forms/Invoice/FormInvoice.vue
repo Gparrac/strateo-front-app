@@ -555,11 +555,9 @@ export default {
             "Error en la solicitud.",
             response.error
           );
-          console.log('passing?');
         } else {
           this.alertMessageStore.show(false, "Error en el servidor.");
         }
-        console.log('arriving throw');
         throw new Error("Error de campos");
       } else {
         this.alertMessageStore.show(true, "Proceso exitoso!");
@@ -589,7 +587,6 @@ export default {
     },
 
     async setEditItem(invoiceId = null) {
-      console.log('entry ?')
       if (!this.idEditForm && !invoiceId) {
 
         this.editItem.services = [];

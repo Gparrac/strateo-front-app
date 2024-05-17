@@ -5,7 +5,7 @@
       :editItem="editItem"
       @record-saved="loadItems({})"
       @update-attribute="updateAttributes"
-      @update-toggle="(item) => (toggleCreate = item)"
+      @update-toggle="closeModal"
     ></modal-edit-payment-method>
     <header-table
       :showFilter="false"
@@ -43,6 +43,7 @@
       items-per-page-text="Items por Página"
       show-select
       return-object
+      :items-per-page-options="[5, 10, 20, 50]"
     >
       <template v-slot:[`item.fields_count`]="{ item }">
         <div>
@@ -116,9 +117,9 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "employees_id",
-    mainKeyDelete: ["third", "employee"],
-    secondKeyDelete: ["type_contract", "name"],
+    keyQueryDelete: "payment_method_ids",
+    mainKeyDelete: ["name"],
+    secondKeyDelete: ["description"],
     selectedItems: [],
     toggleDelete: false,
     toggleCreate: false,
@@ -150,6 +151,10 @@ export default {
     ],
   }),
   methods: {
+    closeModal(item){
+      this.toggleCreate = item;
+      this.editItem = {};
+    },
     updateAttributes(data) {
       this.editItem[data.key] = data.item;
     },

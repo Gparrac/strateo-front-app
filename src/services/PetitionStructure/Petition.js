@@ -53,7 +53,6 @@ export default class Petition {
               // Libera los recursos del enlace temporal
               window.URL.revokeObjectURL(url);
               document.body.removeChild(link);
-              console.log('finishing promises')
 
             })
 

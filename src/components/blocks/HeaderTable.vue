@@ -19,7 +19,7 @@
     <div class="d-flex align-center justify-center flex-wrap">
 
       <v-btn
-        v-if="showFilter"
+        v-if="showFilter && filterTableStore.filtersList && filterTableStore.filtersList.length > 0"
         :icon="'mdi-filter'"
         color="success"
         variant="tonal"

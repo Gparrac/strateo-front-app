@@ -48,6 +48,7 @@
       show-select
       return-object
       items-per-page-text="Items por Página"
+      :items-per-page-options="[5, 10, 20, 50]"
     >
       <template v-slot:[`item.employee`]="{ item }">
         <div>
@@ -148,7 +149,7 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "payment_planment_id",
+    keyQueryDelete: "payment_planment_ids",
     mainKeyDelete: ["employee", "third", "fullname"],
     secondKeyDelete: ["employee", "third", "fullid"],
     selectedItems: [],

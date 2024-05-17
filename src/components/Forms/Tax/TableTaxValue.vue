@@ -47,6 +47,7 @@
       show-select
       return-object
       :sort-by="startSortBy"
+      :items-per-page-options="[5, 10, 20, 50]"
     >
       <template v-slot:[`item.fields_count`]="{ item }">
         <div>
@@ -171,7 +172,6 @@ export default {
       } else {
         this.filterCleaner = sortBy.length !== 0;
       }
-      console.log('passing', sortBy);
       params.append("page", page);
       params.append("pagination", itemsPerPage);
       sortBy.forEach((item, index) => {
@@ -183,7 +183,6 @@ export default {
       const response = await taxValueApi.read(params.toString());
       if (response.data && response.data.data)
         this.records = response.data.data;
-      console.log('response',this.records)
       this.currentlyPage = page;
       this.recordsPerPage = response.data.per_page;
       this.totalRecords = response.data.total;

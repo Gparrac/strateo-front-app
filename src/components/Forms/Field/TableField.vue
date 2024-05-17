@@ -32,6 +32,7 @@
       items-per-page-text="Items por Página"
       show-select
       return-object
+      :items-per-page-options="[5, 10, 20, 50]"
     >
     <template v-slot:[`item.type`]="{ item }">
         <div>

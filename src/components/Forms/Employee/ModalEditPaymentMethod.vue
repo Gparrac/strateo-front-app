@@ -1,6 +1,6 @@
 <template>
   <div class="pa-4 text-center">
-    <v-dialog :model-value="toggle" max-width="600">
+    <v-dialog :model-value="toggle" max-width="600" persistent>
       <v-card prepend-icon="mdi-cash-refund" :title="idEditForm ? `Actualización del metodo de pago ${idEditForm}`: `Creación metodo de pago`">
         <v-card-text>
           <v-form ref="formPaymentMethod">
@@ -37,14 +37,14 @@
           <v-spacer></v-spacer>
 
           <v-btn
-            text="Close"
+            text="Cerrar"
             variant="plain"
             @click="$emit('update-toggle', false)"
           ></v-btn>
 
           <v-btn
             color="primary"
-            text="Save"
+            text="Guardar"
             variant="tonal"
             @click="saveRecord"
           ></v-btn>

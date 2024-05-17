@@ -42,6 +42,7 @@
       v-model:items-per-page="recordsPerPage"
       :loading="loading"
       items-per-page-text="Items por Página"
+      :items-per-page-options="[5, 10, 20, 50]"
 
     >
       <template v-slot:[`item.actions`]="{ item }">

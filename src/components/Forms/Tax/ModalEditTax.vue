@@ -77,7 +77,6 @@ export default {
     }
   },
   mounted(){
-    console.log('entry', this.savedRecord)
     if(this.savedRecord){
       this.percent = this.savedRecord.percent;
     }

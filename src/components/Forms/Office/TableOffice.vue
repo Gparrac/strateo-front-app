@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <header-table
+      <div>
+<header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
+      :typeskeyword="typeskeyword"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
+
+
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete
@@ -32,6 +32,7 @@
       show-select
       return-object
       items-per-page-text="Items por Página"
+      :items-per-page-options="[5, 10, 20, 50]"
     >
       <template v-slot:[`item.actions`]="{ item }">
         <div>
@@ -58,6 +59,7 @@
       </template>
     </v-data-table-server>
   </div>
+  hola
 </template>
 
 <script>
@@ -100,6 +102,7 @@ export default {
     secondKeyDelete: ["address"],
     selectedItems: [],
     toggleDelete: false,
+    furtherFilterKey: 0,
     //optional data
     startSortBy:[{key:'id', order:'desc'}],
     headers: [
@@ -189,18 +192,23 @@ export default {
     },
   },
   mounted() {
-    this.filterTableStore.setFilterList([
-      { name: "Nombre", key:'client', select: false, validation: RulesValidation.shortTextNull },
-      { name: "Dirección", key:'client_id', select: false, validation: RulesValidation.shortTextNull },
-      { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
-      { name: "Estado", key:'status', options:statusAllowed, label:'label', itemValue: 'name', select: true, multiple:true, validation: RulesValidation.shortTextNull},
-    ]);
-    this.$subscribe((mutation, state) => {
-      if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
-        this.furtherFilterKey = state.furtherFilterKey;
-          this.loadItems({}, state.filterCleanList)
-      }
-    });
+    try {
+
+      this.filterTableStore.setFilterList([
+        { name: "Nombre", key:'client', select: false, validation: RulesValidation.shortTextNull },
+        { name: "Dirección", key:'client_id', select: false, validation: RulesValidation.shortTextNull },
+        { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
+        { name: "Estado", key:'status', options:statusAllowed(), label:'label', itemValue: 'name', select: true, multiple:true, validation: RulesValidation.shortTextNull},
+      ]);
+      this.$subscribe((mutation, state) => {
+        if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
+          this.furtherFilterKey = state.furtherFilterKey;
+            this.loadItems({}, state.filterCleanList)
+        }
+      });
+    } catch (error) {
+      console.error(error)
+    }
 
   },
   computed: {

@@ -480,10 +480,8 @@ export default {
     },
     async setCiiuCodes(name = null) {
       const query = name ? `code=${name}` : "";
-      console.log('passing')
 
       this.ciiuCodes = (await petition.get("/ciiu-codes", query)).data;
-      console.log('passing',this.ciiuCodes)
     },
     async setTypesDocument() {
       this.typesDocument = (await petition.get("/type-document-user")).data;
