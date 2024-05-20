@@ -5,7 +5,7 @@
         <v-card-text>
           <v-form ref="formPaymentMethod">
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" md="8">
                 <v-text-field
                   :maxlength="rulesValidation.text.maxLength"
                   label="Nombre"
@@ -16,6 +16,19 @@
                   variant="outlined"
                 ></v-text-field>
               </v-col>
+              <v-col cols="12" md="4">
+                          <v-select
+                            label="Estado"
+                            :items="status"
+                            :model-value="editItem.status"
+                            v-on:update:model-value="(item) => $emit('update-attribute', {key: 'status', item: item})"
+                            item-title="label"
+                            item-value="name"
+                            :rules="rulesValidation.select.rules"
+                            :loading="loading"
+                            variant="outlined"
+                          ></v-select>
+                        </v-col>
               <v-col cols="12">
                 <v-textarea
                   label="Descripción"
@@ -58,6 +71,7 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import ChargeApi from "@/services/Forms/ChargeApi";
+import { statusAllowed } from "@/utils/cast";
 const chargeApi = new ChargeApi();
 
 export default {
@@ -72,11 +86,11 @@ export default {
     loading: false,
     // optional data
     rulesValidation: RulesValidation,
-    status: [
-      { name: "A", label: "Activo" },
-      { name: "I", label: "Inactivo" },
-    ],
+    status: [],
   }),
+  mounted(){
+    this.status = statusAllowed();
+  },
   computed: {
     title() {
       return this.idEditForm
@@ -98,6 +112,7 @@ export default {
         // third fields 🚥
         formData.append("name", this.editItem.name);
         formData.append("description", this.editItem.description);
+        formData.append("status", this.editItem.status);
         if (this.editItem.id) {
           formData.append("charge_id", this.editItem.id);
           response = await chargeApi.update(formData);

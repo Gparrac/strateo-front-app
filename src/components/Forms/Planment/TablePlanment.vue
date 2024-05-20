@@ -4,7 +4,6 @@
       :loading="loading"
       :path="path"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @clean-filter="loadItems({})"
       :showDelete="false"
       :showStatusLabel="false"
       @toggle-delete="() => (toggleDelete = true)"
@@ -98,11 +97,12 @@ export default {
     totalRecords: 0,
     recordsPerPage: 5,
     currentlyPage: 1,
+    filters:[],
     loading: false,
     //delete items
     keyQueryDelete: "invoices_id",
     mainKeyDelete: ["client", "third", "identification"],
-    secondKeyDelete: ["date"],
+    secondKeyDelete: ["date", "description"],
     selectedItems: [],
     toggleDelete: false,
     furtherFilterKey: 0,
@@ -159,8 +159,8 @@ export default {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
-      },
-      filters
+      } = {},
+      filters = this.filters
     ) {
       this.loading = true;
       const params = new URLSearchParams();
@@ -193,6 +193,7 @@ export default {
       this.currentlyPage = page;
       this.recordsPerPage = response.data.per_page;
       this.totalRecords = response.data.total;
+      this.filters = filters;
       this.loading = false;
     },
     async setStages() {
@@ -276,7 +277,7 @@ export default {
     this.$subscribe((mutation, state) => {
       if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
         this.furtherFilterKey = state.furtherFilterKey;
-          this.loadItems({}, state.filterCleanList)
+          this.loadItems({page:1, sortBy: this.startSortBy}, state.filterCleanList)
       }
     });
   } catch (error) {

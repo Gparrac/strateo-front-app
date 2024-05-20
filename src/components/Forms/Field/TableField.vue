@@ -109,7 +109,7 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "fields_id",
+    keyQueryDelete: "field_ids",
     mainKeyDelete: ["name"],
     secondKeyDelete: ["type","name"],
     selectedItems: [],
@@ -180,8 +180,8 @@ export default {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
         const params = new URLSearchParams({});
-        this.selectedItems.forEach((item) =>
-          params.append(`${this.keyQueryDelete}[]`, item.id)
+        this.selectedItems.forEach((item,i) =>
+          params.append(`${this.keyQueryDelete}[${i}]`, item.id)
         );
         const response = await fieldApi.delete(`?${params.toString()}`);
         // logic to show alert 🚨
@@ -200,7 +200,7 @@ export default {
             true,
             `${this.nameTable} desactivados exitosamente`
           );
-          await this.loadItems({});
+          await this.loadItems({sortBy:this.startSortBy});
           this.selectedItems = [];
         }
       }

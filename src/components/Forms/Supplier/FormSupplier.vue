@@ -251,10 +251,6 @@ export default {
     async submitForm() {
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
-      if (!this.editItem.services || this.editItem.services.length == 0) {
-        this.customAlertError.type = "services";
-        this.customAlertError.message = "Debes seleccionar almenos un servicio";
-      } else {
         this.customAlertError = {};
         if (valid) {
         //passing validations 🚥
@@ -352,7 +348,7 @@ export default {
         }
       }
 
-      }
+
       this.loading = false;
     },
     getFileUrl(file) {

@@ -1,5 +1,5 @@
 <template>
-  <modal-reload @reload-form-data="loadItems"></modal-reload>
+  <modal-reload :loading="loading" :toggle="toggleModalReload" @update:toggles="loadItems"></modal-reload>
   <btn-invoice-download
     v-if="editItem.invoiceId"
     :invoiceId="editItem.invoiceId"
@@ -162,6 +162,7 @@ import { useProductPlanmentStore } from "@/store/productPlanment";
 import ModalReload from "@/components/blocks/ModalReload.vue";
 import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
 
+
 const invoiceApi = new InvoiceApi();
 const productApi = new ProductApi();
 
@@ -209,12 +210,21 @@ export default {
     totalCost: 0,
     totalDiscount: 0,
     draftData: localStorage.getItem("formData"),
-
+    draftFormId: localStorage.getItem("formId"),
+    draftFormName: localStorage.getItem('formName'),
+      toggleModalReload: false,
   }),
+
+
   async mounted() {
+
     this.loading = true;
     this.status = statusAllowed();
-    if (this.draftData === null) await this.loadItems();
+    if (this.draftFormName == 'invoice' && this.draftFormId == this.idEditForm && this.draftData !== null){
+      this.toggleModalReload = true;
+    }else{
+      await this.loadItems();
+    }
     this.checkInvoiceStepStore.$reset();
     this.loading = false;
     window.addEventListener("beforeunload", this.leaving);
@@ -274,7 +284,8 @@ export default {
       if (
         this.stepperLabels.filter((item) => item.complete == false).length > 0
       ) {
-
+        localStorage.setItem('formName','invoice');
+        localStorage.setItem('formId', this.idEditForm);
         localStorage.setItem(
           "formData",
           JSON.stringify({
@@ -289,7 +300,8 @@ export default {
       }
     },
     async loadDraftItem() {
-      return new Promise(() => {
+      console.log('entry draft')
+      return new Promise((resolve) => {
         let draft = this.draftData;
         draft = castStorageToObject(draft);
 
@@ -301,14 +313,17 @@ export default {
         }
         this.stepperLabels = draft.stepperLabels;
         this.step = draft.step;
-      }).then(() => localStorage.removeItem("formData"));
+        resolve('nice');
+      });
       //clean local storage from data form ?
     },
     async loadItems(checkLoad = false) {
+      this.loading = true;
       try {
-
         if (checkLoad) {
-          await this.loadDraftItem();
+
+          await this.loadDraftItem()
+
         } else {
           await this.setEditItem();
         }
@@ -321,7 +336,11 @@ export default {
               ])
             : await this.setAttributes("I", "products");
         }
-        localStorage.removeItem("formData");
+        this.toggleModalReload=false;
+        localStorage.removeItem("formData")
+        localStorage.removeItem("formId")
+        localStorage.removeItem("formName")
+        this.loading = false;
       } catch (error) {
         console.error("Alguna de las funciones falló:", error);
       }
@@ -471,7 +490,7 @@ export default {
         const pushProduct = further
           ? this.furtherProducts
           : this.productPlanmentStore.productEvents;
-        formData.append("invoice_id", this.editItem.invoiceId);
+        formData.append("invoice_id", this.idEditForm);
         pushProduct.forEach((product, pindex) => {
           formData.append(`products[${pindex}][product_id]`, product.id);
           formData.append(`products[${pindex}][cost]`, product.cost);

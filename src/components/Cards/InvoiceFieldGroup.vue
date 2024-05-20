@@ -201,11 +201,13 @@ export default {
             ? new Date(value) < new Date(this.records.endDate) ||
               "La fecha de inicio debe ser menor a la de finalización. "
             : true,
-
       ];
-      if(!this.records.invoiceId ) rules .push((value) =>
-           new Date(value) >= new Date() ||
-              "La fecha de incio debe ser mayor o igual a la actual")
+      if (!this.records.invoiceId)
+        rules.push(
+          (value) =>
+            new Date(value) >= new Date() ||
+            "La fecha de incio debe ser mayor o igual a la actual"
+        );
       return rules;
     },
   },
@@ -214,7 +216,7 @@ export default {
       this.$emit("update:type", value);
     },
     emitRecords(item, key) {
-      this.checkInvoiceStepStore.handleUpdateInvoiceData()
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
       this.$emit("update:records", { item: item, key: key });
     },
     async setClients(name = null) {
@@ -257,8 +259,6 @@ export default {
     }
     this.loading = false;
   },
-  updated(){
-
-  }
+  updated() {},
 };
 </script>

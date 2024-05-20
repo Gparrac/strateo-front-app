@@ -9,13 +9,25 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12">
+            <v-col cols="12" md="8">
               <v-text-field
+                :maxlength="rulesValidation.text.maxLength"
                 label="Nombre"
                 v-model="editItem.name"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
               ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="4">
+              <v-select
+                label="Estado"
+                :items="status"
+                v-model="editItem.status"
+                item-title="label"
+                item-value="name"
+                :rules="rulesValidation.select.rules"
+                :loading="loading"
+              ></v-select>
             </v-col>
             <v-col cols="12">
               <v-textarea
@@ -125,7 +137,11 @@ export default {
     permissions: [],
     editItem: {},
     rulesValidation: RulesValidation,
-    checkLoad: false
+    checkLoad: false,
+    status: [
+      { name: "A", label: "Activo" },
+      { name: "I", label: "Inactivo" },
+    ],
   }),
   async mounted() {
     this.loading = true;
@@ -162,6 +178,7 @@ export default {
 
         formData.append("name", this.editItem.name);
         formData.append("description", this.editItem.description);
+        formData.append("status", this.editItem.status);
         this.editItem.forms.forEach((form, index) => {
           // Agregar form_id
           formData.append(`forms[${index}][form_id]`, form.form_id);

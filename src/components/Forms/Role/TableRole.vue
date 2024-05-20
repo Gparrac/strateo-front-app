@@ -6,7 +6,6 @@
       :path="path"
       :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
@@ -37,6 +36,18 @@
         <div>
           <v-chip variant="outlined" color="orange">
             {{ item.users_count }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.status`]="{ item }">
+        <div>
+          <v-chip
+            variant="tonal"
+            class="ma-1"
+            label
+            :color="item.status == 'A' ? 'orange' : 'primary'"
+          >
+            {{ item.status }}
           </v-chip>
         </div>
       </template>
@@ -112,6 +123,7 @@ export default {
       },
       { title: "Role", align: "start", key: "name" },
       { title: "Descripción", align: "start", key: "description" },
+      { title: "Estado", align: "center", key: "status" },
       { title: "Número de usuarios", align: "center", key: "users_count" },
       {
         title: "Número de permisos",
@@ -176,7 +188,7 @@ export default {
         );
         const response = await roleApi.delete(`?${params.toString()}`);
         if (response.statusResponse == 200) {
-          await this.loadItems();
+          await this.loadItems({sortBy: this.startSortBy});
           this.alertMessageStore.show(
             true,
             `${this.nameTable} desactivados exitosamente`

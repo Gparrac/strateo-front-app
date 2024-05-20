@@ -157,7 +157,7 @@ export default {
     },
     async deleteItems(data) {
       this.toggleDelete = false;
-      if (!data.confirm && this.selectedItems.length == 0) return;
+      if (data.confirm && this.selectedItems.length !== 0) {
       const response =
         this.selectedItems.length == 1
           ? await warehouseApi.delete(`?warehouse_id=${this.selectedItems[0].id}`)
@@ -166,7 +166,7 @@ export default {
             );
 
       if (response.statusResponse == 200) {
-        await this.loadItems({});
+        await this.loadItems({sortBy: this.startSortBy});
         this.alertMessageStore.show(
           true,
           `${this.nameTable} desactivados exitosamente`
@@ -174,6 +174,7 @@ export default {
       } else {
         this.alertMessageStore.show(false, "Error en el servidor");
       }
+    }
     },
   },
   computed: {

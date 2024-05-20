@@ -6,10 +6,9 @@
       :path="path"
       :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
       @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
-      :sort-by="startSortBy"
+
     ></header-table>
     <modal-delete
       v-if="toggleDelete"
@@ -21,6 +20,7 @@
       :title="nameTable"
     ></modal-delete>
     <v-data-table-server
+    :sort-by="startSortBy"
       :headers="headers"
       :items="records"
       item-selectable="selectable"
@@ -34,6 +34,17 @@
       show-select
       return-object
     >
+    <template v-slot:[`item.employee`]="{ item }">
+        <div>
+          <span class="block text-subtitle-2">{{
+            item?.third?.fullname
+          }}</span
+          ><br />
+          <span class="block text-body-2 text-blue-grey-lighten-3">
+            {{ item?.third?.fullid }}
+          </span>
+        </div>
+      </template>
     <template v-slot:[`item.fields_count`]="{ item }">
         <div>
           <v-chip variant="outlined" color="orange">
@@ -108,7 +119,7 @@ export default {
     loading: false,
     //delete items
     keyQueryDelete: "employees_id",
-    mainKeyDelete: ["third","employee"],
+    mainKeyDelete: ["third","fullname"],
     secondKeyDelete: ["type_contract", "name"],
     selectedItems: [],
     toggleDelete: false,
@@ -122,10 +133,9 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Contrato", align: "end", key: "type_contract.name", sortable: false },
-      { title: "Tipo de documento", align: "end", key: "third.type_document", sortable: false },
-      { title: "Empleado", align: "end", key: "third.names", sortable: false },
-      { title: "Contrato", align: "end", key: "type_contract.name", sortable: false },
+
+      { title: "Empleado", align: "start", key: "employee", sortable: false },
+      { title: "Contrato", align: "center", key: "type_contract.name", sortable: false },
       { title: "Inicio de contrato", align: "end", key: "hire_date", sortable: false },
       { title: "Fin de contrato", align: "end", key: "end_date_contract", sortable: false },
       { title: "Status", align: "end", key: "status", sortable: false },
@@ -145,17 +155,21 @@ export default {
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      keyword = null,
-      typeKeyword = null
+      filters
     ) {
       this.loading = true;
       const params = new URLSearchParams();
-      if (typeKeyword && keyword) {
-        this.filterCleaner = true;
-        params.append("typeKeyword", typeKeyword);
-        params.append("keyword", keyword);
-      } else {
-        this.filterCleaner = sortBy.length !== 0;
+      if (filters && filters.length > 0) {
+        filters.forEach((item, index) => {
+          params.append(`filters[${index}][key]`, item.key);
+          if(item.key == 'status'){
+            item.value.forEach((item,iindex) => {
+              params.append(`filters[${index}][value][${iindex}]`, item);
+            });
+          }else{
+            params.append(`filters[${index}][value]`, item.value);
+          }
+        });
       }
 
       params.append("page", page);
@@ -169,6 +183,8 @@ export default {
       if (response.data && response.data.data)
         this.records = response.data.data.map((item) => {
           item.updated_at = castDate(item.updated_at);
+          item.hire_date = castDate(item.hire_date);
+          item.end_date_contract = item.end_date_contract ? castDate(item.end_date_contract) : '-';
           return item;
         });
       this.currentlyPage = page;
@@ -201,7 +217,7 @@ export default {
             true,
             `${this.nameTable} desactivados exitosamente`
           );
-          await this.loadItems({});
+          await this.loadItems({sortBy:this.startSortBy});
           this.selectedItems = [];
         }
       }

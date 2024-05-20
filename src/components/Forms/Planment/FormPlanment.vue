@@ -1,5 +1,5 @@
 <template>
-  <modal-reload @reload-form-data="loadItems"></modal-reload>
+  <modal-reload :loading="loading" :toggle="toggleModalReload" @update:toggles="loadItems"></modal-reload>
   <btn-invoice-download
     v-if="editItem.invoiceId "
     :invoiceId="editItem.invoiceId"
@@ -233,7 +233,10 @@ export default {
     totalCost: 0,
     totalDiscount: 0,
     draftData: localStorage.getItem("formData"),
+    draftFormId: localStorage.getItem("formId"),
+    draftFormName: localStorage.getItem('formName'),
     keyServices: 0,
+    toggleModalReload: false,
   }),
   beforeRouteLeave(_to, _from, next) {
 
@@ -243,7 +246,11 @@ export default {
   async mounted() {
     this.loading = true;
     this.status = statusAllowed();
-    if (this.draftData === null) await this.loadItems();
+    if (this.draftFormName == 'invoice' && this.draftFormId == this.idEditForm && this.draftData !== null){
+      this.toggleModalReload = true;
+    }else{
+      await this.loadItems();
+    }
     this.loading = false;
     //events to create draft data ⚠️
     window.addEventListener("beforeunload", this.leaving);
@@ -295,6 +302,7 @@ export default {
   methods: {
     ...mapActions(useCheckInvoiceStep, ['$subscribe']),
     async loadItems(checkLoad = false) {
+      this.loading = true;
       try {
         if (checkLoad) {
           await this.loadDraftItem();
@@ -312,13 +320,19 @@ export default {
           ]);
         }
         localStorage.removeItem("formData");
+        localStorage.removeItem("formId");
+        localStorage.removeItem("formName");
+        this.toggleModalReload=false;
+        this.loading = false;
       } catch (error) {
         console.error("Alguna de las funciones falló:", error);
       }
     },
     leaving() {
     if (this.stepperLabels.filter((item)=> item.complete == false).length > 0){
-        localStorage.setItem(
+      localStorage.setItem('formName','invoice');
+        localStorage.setItem('formId', this.idEditForm);
+      localStorage.setItem(
         "formData",
         JSON.stringify({
           editItem: this.editItem,
@@ -335,7 +349,7 @@ export default {
     }
     },
     async loadDraftItem() {
-      return new Promise(() => {
+      return new Promise((resolve) => {
         let draft = this.draftData;
          draft = castStorageToObject(draft);
         this.editItem = draft.editItem;
@@ -347,9 +361,9 @@ export default {
         this.stepperLabels = draft.stepperLabels;
         this.step = draft.step;
         this.sLibrettoActivities = draft.sLibrettoActivities;
+        resolve('woking!')
+      });
 
-      }).then(()=> localStorage.removeItem("formData"));
-      //clean local storage from data form ?
     },
     // methods to cal total amounts
     calTotalCost() {
@@ -534,7 +548,7 @@ export default {
         const pushProduct = further
           ? this.furtherProducts
           : this.productPlanmentStore.productEvents;
-        formData.append("invoice_id", this.editItem.invoiceId);
+        formData.append("invoice_id", this.idEditForm);
         pushProduct.forEach((product, pindex) => {
           formData.append(`products[${pindex}][product_id]`, product.id);
           formData.append(`products[${pindex}][cost]`, product.cost);

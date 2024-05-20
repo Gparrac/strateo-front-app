@@ -194,8 +194,8 @@ export default {
   mounted() {
     try {
       const stagesOptions = [
-        { id: 0, name: "Liquidado" },
-        { id: 1, name: "Pendiente" },
+        { id: 0, name: "Pendiente" },
+        { id: 1, name: "Liquidado" },
       ];
       this.filterTableStore.setFilterList([
       {

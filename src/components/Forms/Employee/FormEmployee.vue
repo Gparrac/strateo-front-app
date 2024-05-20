@@ -120,21 +120,23 @@
                             :loading="loading"
                           ></v-select>
                         </v-col>
+
                         <v-col cols="12">
                           <v-text-field
                             type="date"
-                            v-model="editItem.endDateContract"
+                            v-model="editItem.hireDate"
                             label="Inicio del contrato"
-                            :rules="rulesValidation.date.rules"
+                            :rules="startDateRule"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
                             type="date"
-                            v-model="editItem.hireDate"
+                            v-model="editItem.endDateContract"
                             label="Finalización del contrato"
-                            :rules="rulesValidation.date.rules"
+                            :rules="rulesValidation.nulldate.rules"
                             variant="outlined"
+                            hint="Si no se ha establecido, dejar vacio este campo."
                           ></v-text-field>
                         </v-col>
                       </v-row>
@@ -279,6 +281,18 @@ export default {
     this.loading = false;
   },
   computed: {
+    startDateRule() {
+      return [
+        ...this.rulesValidation.date.rules,
+        (value) =>
+        {
+          if (this.editItem.endDateContract !== null && this.editItem.endDateContract !== undefined && this.editItem.endDateContract.length != 0)
+          return new Date(this.editItem.endDateContract) > new Date(value) ||
+          "La fecha de finalización debe ser mayor a la de inicio. ";
+          return true;
+        }
+      ];
+    },
     title() {
       return this.idEditForm
         ? `Edición de ${this.nameTable}`
@@ -287,6 +301,7 @@ export default {
     ...mapStores(useAlertMessageStore),
   },
   methods: {
+
     updateAttributes(data) {
       this.editItem[data.key] = data.item;
     },
@@ -327,6 +342,7 @@ export default {
         // employee fields 🚥
         formData.append("type_contract", this.editItem.typeContract);
         formData.append("hire_date", castFullDate(this.editItem.hireDate));
+        if(this.editItem.endDateContract && this.editItem.endDateContract.length > 0)
         formData.append(
           "end_date_contract",
           castFullDate(this.editItem.endDateContract)
@@ -411,7 +427,7 @@ export default {
           employeeId: response.data.id,
           typeContract: response.data.type_contract.id,
           hireDate: response.data.hire_date.split(" ")[0],
-          endDateContract: response.data.end_date_contract.split(" ")[0],
+          endDateContract:response.data.end_date_contract ? response.data.end_date_contract.split(" ")[0] : response.data.end_date_contract,
           pathRutFile: response.data.rut_file,
           pathResumeFile: response.data.resume_file,
           status: response.data.status,

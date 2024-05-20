@@ -12,7 +12,7 @@
             :rules="rulesValidation.select.rules"
             :loading="loading"
             :model-value="records.typeDocument"
-            @update:model-value="(value) => emitRecords(value, 'typeDocument')"
+            @update:model-value="(value) => changeTypeDoc(value)"
           ></v-select>
         </v-col>
         <v-col cols="12" sm="4">
@@ -20,7 +20,7 @@
             :maxlength="rulesValidation.identification.maxLength"
             label="Número de documento"
             :model-value="records.identification"
-            :rules="rulesValidation.identification.rules"
+            :rules="dynamicIdRule"
             :loading="loading"
             :suffix="verificationNitNumber"
             @update:model-value="
@@ -28,23 +28,28 @@
             "
           ></v-text-field>
         </v-col>
-        <template v-if="records.typeDocument && records.typeDocument != 'NIT'">
+        <template
+          v-if="
+            (records.typeDocument && records.typeDocument != 'NIT') ||
+            this.thirdPerson
+          "
+        >
           <v-col cols="12" sm="4">
             <v-text-field
-              :maxlength="rulesValidation.text.maxLength"
+              :maxlength="rulesValidation.justText.maxLength"
               label="Nombres"
               :model-value="records.names"
-              :rules="rulesValidation.text.rules"
+              :rules="rulesValidation.justText.rules"
               :loading="loading"
               @update:model-value="(value) => emitRecords(value, 'names')"
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="4">
             <v-text-field
-              :maxlength="rulesValidation.text.maxLength"
+              :maxlength="rulesValidation.justText.maxLength"
               label="Apellidos"
               :model-value="records.surnames"
-              :rules="rulesValidation.text.rules"
+              :rules="rulesValidation.justText.rules"
               :loading="loading"
               @update:model-value="(value) => emitRecords(value, 'surnames')"
             ></v-text-field>
@@ -84,7 +89,10 @@
         <v-col
           cols="12"
           :sm="
-            records.typeDocument && records.typeDocument != 'NIT' ? '6' : '4'
+            this.thirdPerson ||
+            (records.typeDocument && records.typeDocument != 'NIT')
+              ? '6'
+              : '4'
           "
         >
           <v-text-field
@@ -100,7 +108,10 @@
         <v-col
           cols="12"
           :sm="
-            records.typeDocument && records.typeDocument != 'NIT' ? '6' : '4'
+            (records.typeDocument && records.typeDocument != 'NIT') ||
+            this.thirdPerson
+              ? '6'
+              : '4'
           "
         >
           <v-text-field
@@ -115,7 +126,12 @@
         </v-col>
         <v-col
           cols="12"
-          :sm="records.typeDocument && records.typeDocument != 'NIT' ? 6 : 4"
+          :sm="
+            (records.typeDocument && records.typeDocument != 'NIT') ||
+            this.thirdPerson
+              ? 6
+              : 4
+          "
         >
           <v-text-field
             :maxlength="rulesValidation.optionalPrice.maxLength"
@@ -124,12 +140,16 @@
             :model-value="records.postal_code"
             :rules="rulesValidation.optionalPrice.rules"
             :loading="loading"
-
           ></v-text-field>
         </v-col>
         <v-col
           cols="12"
-          :sm="records.typeDocument && records.typeDocument != 'NIT' ? 6 : 4"
+          :sm="
+            (records.typeDocument && records.typeDocument != 'NIT') ||
+            this.thirdPerson
+              ? 6
+              : 4
+          "
         >
           <dynamic-select-field
             :options="cities"
@@ -159,8 +179,8 @@
             :secondLabel="['code']"
             :customFilter="filterCiiuItems"
             :customFilterAble="true"
-            >
           >
+            >
           </dynamic-select-field>
         </v-col>
       </v-row>
@@ -202,15 +222,29 @@ export default {
     loading: false,
 
     rulesValidation: RulesValidation,
+    dynamicIdRule: [],
   }),
 
   methods: {
-    filterCiiuItems(queryText, item){
+    changeTypeDoc(item) {
+      const tempDR = this.rulesValidation.identification.rules;
+      if (item == "PASAPORTE") {
+        this.dynamicIdRule = tempDR;
+      } else {
+        this.dynamicIdRule = [
+          ...tempDR,
+          (value) => /^[0-9]+$/.test(value) || "Formato de campo no valido.",
+        ];
+      }
+      this.emitRecords(item, "typeDocument");
+    },
+    filterCiiuItems(queryText, item) {
       const searchText = queryText.toLowerCase();
-        const textOne = item.raw['description'].toLowerCase();
-        let keyTwo = item.raw.code.toString().toLowerCase();
-          return textOne.indexOf(searchText) > -1 ||
-          keyTwo.indexOf(searchText) > -1
+      const textOne = item.raw["description"].toLowerCase();
+      let keyTwo = item.raw.code.toString().toLowerCase();
+      return (
+        textOne.indexOf(searchText) > -1 || keyTwo.indexOf(searchText) > -1
+      );
     },
     emitRecords(item, key) {
       this.$emit("update:records", { item: item, key: key });

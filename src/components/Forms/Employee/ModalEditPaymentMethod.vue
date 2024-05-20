@@ -1,26 +1,58 @@
 <template>
   <div class="pa-4 text-center">
     <v-dialog :model-value="toggle" max-width="600" persistent>
-      <v-card prepend-icon="mdi-cash-refund" :title="idEditForm ? `Actualización del metodo de pago ${idEditForm}`: `Creación metodo de pago`">
+      <v-card
+        prepend-icon="mdi-cash-refund"
+        :title="
+          idEditForm
+            ? `Actualización del metodo de pago ${idEditForm}`
+            : `Creación metodo de pago`
+        "
+      >
         <v-card-text>
           <v-form ref="formPaymentMethod">
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" md="8">
                 <v-text-field
                   :maxlength="rulesValidation.text.maxLength"
                   label="Nombre"
-                 :model-value="editItem.name"
-                 v-on:update:model-value="(item) => $emit('update-attribute', {key: 'name', item: item})"
+                  :model-value="editItem.name"
+                  v-on:update:model-value="
+                    (item) =>
+                      $emit('update-attribute', { key: 'name', item: item })
+                  "
                   :rules="rulesValidation.text.rules"
                   :loading="loading"
                   variant="outlined"
                 ></v-text-field>
               </v-col>
+              <v-col cols="12" md="4">
+                <v-select
+                  label="Estado"
+                  :items="status"
+                  :model-value="editItem.status"
+                  v-on:update:model-value="
+                    (item) =>
+                      $emit('update-attribute', { key: 'status', item: item })
+                  "
+                  item-title="label"
+                  item-value="name"
+                  :rules="rulesValidation.select.rules"
+                  :loading="loading"
+                  variant="outlined"
+                ></v-select>
+              </v-col>
               <v-col cols="12">
                 <v-textarea
                   label="Descripción"
                   :model-value="editItem.description"
-                  v-on:update:model-value="(item) => $emit('update-attribute', {key: 'description', item: item})"
+                  v-on:update:model-value="
+                    (item) =>
+                      $emit('update-attribute', {
+                        key: 'description',
+                        item: item,
+                      })
+                  "
                   :maxLength="rulesValidation.longTextNull.maxLength"
                   :rules="rulesValidation.longTextNull.rules"
                   :loading="loading"
@@ -58,13 +90,14 @@ import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import PaymentMethodApi from "@/services/Forms/PaymentMethodApi";
+import { statusAllowed } from "@/utils/cast";
 const paymentMethodApi = new PaymentMethodApi();
 
 export default {
   props: {
     toggle: Boolean,
     idEditForm: Number,
-    editItem: Object
+    editItem: Object,
   },
   components: {},
   data: () => ({
@@ -72,11 +105,11 @@ export default {
     loading: false,
     // optional data
     rulesValidation: RulesValidation,
-    status: [
-      { name: "A", label: "Activo" },
-      { name: "I", label: "Inactivo" },
-    ],
+    status: [],
   }),
+  mounted() {
+    this.status = statusAllowed();
+  },
   computed: {
     title() {
       return this.idEditForm
@@ -98,6 +131,7 @@ export default {
         // third fields 🚥
         formData.append("name", this.editItem.name);
         formData.append("description", this.editItem.description);
+        formData.append("status", this.editItem.status);
         if (this.editItem.id) {
           formData.append("payment_method_id", this.editItem.id);
           response = await paymentMethodApi.update(formData);
@@ -117,8 +151,8 @@ export default {
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
-          this.$emit('update-toggle', false)
-          this.$emit('record-saved');
+          this.$emit("update-toggle", false);
+          this.$emit("record-saved");
         }
       }
       this.loading = false;

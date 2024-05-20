@@ -190,7 +190,7 @@ export default {
             true,
             `${this.nameTable} desactivados exitosamente`
           );
-          await this.loadItems({});
+          await this.loadItems({sortBy:this.startSortBy});
           this.selectedItems = [];
         }
       }

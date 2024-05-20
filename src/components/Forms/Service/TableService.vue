@@ -41,6 +41,13 @@
           </v-chip>
         </div>
       </template>
+      <template v-slot:[`item.suppliers_count`]="{ item }">
+        <div>
+          <v-chip variant="outlined" color="primary">
+            {{ item.suppliers_count }}
+          </v-chip>
+        </div>
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon
@@ -100,7 +107,7 @@ export default {
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "users_id",
+    keyQueryDelete: "service_ids",
     mainKeyDelete: ["name"],
     secondKeyDelete: ["description"],
     selectedItems: [],
@@ -114,10 +121,10 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Servicio", align: "end", key: "name", sortable: true },
+      { title: "Servicio", align: "start", key: "name", sortable: true },
       { title: "Descripción", align: "left", key: "description", sortable: false },
       { title: "Estado", align: "end", key: "status", sortable: false },
-      { title: "Provedores", align: "end", key: "suppliers_count", sortable: false },
+      { title: "Provedores", align: "center", key: "suppliers_count", sortable: false },
       { title: "Campos", align: "end", key: "fields_count", sortable: false },
       {
         title: "Ultima actulización",
@@ -171,8 +178,8 @@ export default {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
         const params = new URLSearchParams({});
-        this.selectedItems.forEach((item) =>
-          params.append(`${this.keyQueryDelete}[]`, item.id)
+        this.selectedItems.forEach((item,i) =>
+          params.append(`${this.keyQueryDelete}[${i}]`, item.id)
         );
         const response = await serviceApi.delete(`?${params.toString()}`);
         // logic to show alert 🚨
@@ -191,7 +198,7 @@ export default {
             true,
             `${this.nameTable} desactivados exitosamente`
           );
-          await this.loadItems({});
+          await this.loadItems({sortBy:this.startSortBy});
           this.selectedItems = [];
         }
       }

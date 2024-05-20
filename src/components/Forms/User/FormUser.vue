@@ -37,19 +37,19 @@
                     <template v-if="editItem.typeDocument != 'NIT'">
                       <v-col cols="12">
                         <v-text-field
-                          :maxlength="rulesValidation.text.maxLength"
+                          :maxlength="rulesValidation.justText.maxLength"
                           label="Nombres"
                           v-model="editItem.names"
-                          :rules="rulesValidation.text.rules"
+                          :rules="rulesValidation.justText.rules"
                           :loading="loading"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6">
                         <v-text-field
-                          :maxlength="rulesValidation.text.maxLength"
+                          :maxlength="rulesValidation.justText.maxLength"
                           label="Apellidos"
                           v-model="editItem.surnames"
-                          :rules="rulesValidation.text.rules"
+                          :rules="rulesValidation.justText.rules"
                           :loading="loading"
                         ></v-text-field>
                       </v-col>

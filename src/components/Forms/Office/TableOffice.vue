@@ -59,7 +59,6 @@
       </template>
     </v-data-table-server>
   </div>
-  hola
 </template>
 
 <script>
@@ -181,7 +180,7 @@ export default {
             );
 
       if (response.statusResponse == 200) {
-        await this.loadItems({});
+        await this.loadItems({sortBy: this.startSortBy});
         this.alertMessageStore.show(
           true,
           `${this.nameTable} desactivados exitosamente`
@@ -195,15 +194,15 @@ export default {
     try {
 
       this.filterTableStore.setFilterList([
-        { name: "Nombre", key:'client', select: false, validation: RulesValidation.shortTextNull },
-        { name: "Dirección", key:'client_id', select: false, validation: RulesValidation.shortTextNull },
+        { name: "Nombre", key:'name', select: false, validation: RulesValidation.shortTextNull },
+        { name: "Dirección", key:'address', select: false, validation: RulesValidation.shortTextNull },
         { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
         { name: "Estado", key:'status', options:statusAllowed(), label:'label', itemValue: 'name', select: true, multiple:true, validation: RulesValidation.shortTextNull},
       ]);
       this.$subscribe((mutation, state) => {
         if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
           this.furtherFilterKey = state.furtherFilterKey;
-            this.loadItems({}, state.filterCleanList)
+            this.loadItems({sortBy: this.startSortBy}, state.filterCleanList)
         }
       });
     } catch (error) {

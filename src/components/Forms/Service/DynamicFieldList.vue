@@ -12,7 +12,7 @@
           @update:itemSelected="appendItem"
           mainLabel="name"
           :secondLabel="['type', 'name']"
-          title="Servicios"
+          title="Campos"
           :thirdkey="{id:'length', label:'Tamaño maximo: '}"
           subtitle="Tipo:"
           class="pr-5"

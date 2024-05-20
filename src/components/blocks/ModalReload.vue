@@ -1,7 +1,7 @@
 <template>
-  <v-dialog v-model="toggle"  width="auto" scrollable>
+  <v-dialog :model-value="toggle"  width="auto" scrollable persistent>
     <v-card>
-      <v-card-title>Copia de seguridad</v-card-title>
+      <v-card-title>Copia de seguridad {{ toggle }}</v-card-title>
       <v-card-subtitle
         class="pb-5">¿ Olvidaste guardar los cambios?
         </v-card-subtitle
@@ -13,11 +13,12 @@
         <v-btn
           color="blue-darken-1"
           variant="text"
-          @click="sendResponse(false)"
+          @click="$emit('update:toggles', false)"
+          :loading="loading"
         >
           Cancelar
         </v-btn>
-        <v-btn color="blue-darken-1" variant="text" @click="sendResponse(true)">
+        <v-btn color="blue-darken-1" variant="text" @click="$emit('update:toggles', true)" :loading="loading">
           Confirmar
         </v-btn>
       </v-card-actions>
@@ -27,20 +28,16 @@
 
 <script>
 export default {
-  data: () => ({
-    toggle:false
-  }),
+  props:{
+    toggle: Boolean,
+    loading: Boolean
+
+  },
+
 
   methods: {
-    sendResponse(kind) {
-      this.$emit('reload-form-data', kind);
-      this.toggle = false;
-    }
   },
-  mounted(){
-    if(localStorage.getItem("formData") !== null)
-      this.toggle= true;
-  }
+
 };
 </script>
 
