@@ -1,13 +1,9 @@
 <template>
-      <div>
-<header-table
+  <div>
+    <header-table
       :loading="loading"
       :path="path"
-      :typeskeyword="typeskeyword"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @clean-filter="loadItems({})"
-
-
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete
@@ -20,7 +16,7 @@
       :title="nameTable"
     ></modal-delete>
     <v-data-table-server
-    :sort-by="startSortBy"
+      :sort-by="startSortBy"
       :headers="headers"
       :items="records"
       item-selectable="selectable"
@@ -85,11 +81,6 @@ export default {
     //required data
     records: [],
     //search word
-    filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
@@ -103,31 +94,31 @@ export default {
     toggleDelete: false,
     furtherFilterKey: 0,
     //optional data
-    startSortBy:[{key:'id', order:'desc'}],
+    startSortBy: [{ key: "id", order: "desc" }],
     headers: [
       {
         title: "ID",
         align: "start",
         key: "id",
-        sortable:true
+        sortable: true,
       },
-      { title: "Nombre", align: "end", key: "name", sortable:true},
-      { title: "Dirección", align: "end", key: "address", sortable:false},
-      { title: "Teléfono", align: "end", key: "phone", sortable:false},
-      { title: "Ciudad", align: "end", key: "city.name", sortable:false},
-      { title: "Estado", align: "end", key: "status", sortable:false},
+      { title: "Nombre", align: "end", key: "name", sortable: true },
+      { title: "Dirección", align: "end", key: "address", sortable: false },
+      { title: "Teléfono", align: "end", key: "phone", sortable: false },
+      { title: "Ciudad", align: "end", key: "city.name", sortable: false },
+      { title: "Estado", align: "end", key: "status", sortable: false },
       {
         title: "Ultima actulización",
         align: "center",
         key: "updated_at",
         sortable: true,
       },
-      { title: "Acciones", align: "end", key: "actions", sortable:false},
+      { title: "Acciones", align: "end", key: "actions", sortable: false },
     ],
   }),
 
   methods: {
-    ...mapActions(useFilterTableStore, ['$subscribe']),
+    ...mapActions(useFilterTableStore, ["$subscribe"]),
     async loadItems(
       {
         page = this.currentlyPage,
@@ -138,14 +129,15 @@ export default {
     ) {
       this.loading = true;
       const params = new URLSearchParams();
+      //filtering information 🚥
       if (filters && filters.length > 0) {
         filters.forEach((item, index) => {
           params.append(`filters[${index}][key]`, item.key);
-          if(item.key == 'status'){
-            item.value.forEach((item,iindex) => {
+          if (item.key == "status") {
+            item.value.forEach((item, iindex) => {
               params.append(`filters[${index}][value][${iindex}]`, item);
             });
-          }else{
+          } else {
             params.append(`filters[${index}][value]`, item.value);
           }
         });
@@ -180,7 +172,7 @@ export default {
             );
 
       if (response.statusResponse == 200) {
-        await this.loadItems({sortBy: this.startSortBy});
+        await this.loadItems({ sortBy: this.startSortBy });
         this.alertMessageStore.show(
           true,
           `${this.nameTable} desactivados exitosamente`
@@ -192,23 +184,51 @@ export default {
   },
   mounted() {
     try {
-
       this.filterTableStore.setFilterList([
-        { name: "Nombre", key:'name', select: false, validation: RulesValidation.shortTextNull },
-        { name: "Dirección", key:'address', select: false, validation: RulesValidation.shortTextNull },
-        { name: "ID", key:'id', select: false, validation: RulesValidation.optionalPrice },
-        { name: "Estado", key:'status', options:statusAllowed(), label:'label', itemValue: 'name', select: true, multiple:true, validation: RulesValidation.shortTextNull},
+        {
+          name: "Nombre",
+          key: "name",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "Dirección",
+          key: "address",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "ID",
+          key: "id",
+          select: false,
+          validation: RulesValidation.optionalPrice,
+        },
+        {
+          name: "Estado",
+          key: "status",
+          options: statusAllowed(),
+          label: "label",
+          itemValue: "name",
+          select: true,
+          multiple: true,
+          validation: RulesValidation.shortTextNull,
+        },
       ]);
       this.$subscribe((mutation, state) => {
-        if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
+        if (
+          mutation.storeId == "filterTable" &&
+          state.furtherFilterKey != this.furtherFilterKey
+        ) {
           this.furtherFilterKey = state.furtherFilterKey;
-            this.loadItems({sortBy: this.startSortBy}, state.filterCleanList)
+          this.loadItems(
+            { page: 1, sortBy: this.startSortBy },
+            state.filterCleanList
+          );
         }
       });
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-
   },
   computed: {
     ...mapStores(useAlertMessageStore, useFilterTableStore),

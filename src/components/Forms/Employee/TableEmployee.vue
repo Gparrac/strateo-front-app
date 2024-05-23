@@ -2,11 +2,8 @@
   <div>
     <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
 
     ></header-table>
@@ -90,9 +87,11 @@
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import EmployeeApi from "@/services/Forms/EmployeeApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castDate } from "@/utils/cast";
+import { castDate, statusAllowed } from "@/utils/cast";
+import { useFilterTableStore } from "@/store/filterTables";
+import { RulesValidation } from "@/utils/validations";
 const employeeApi = new EmployeeApi();
 export default {
   props: {
@@ -107,11 +106,6 @@ export default {
     //required data
     records: [],
     //search word
-    filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Provedor" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
@@ -149,6 +143,7 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(useFilterTableStore, ["$subscribe"]),
     async loadItems(
       {
         page = this.currentlyPage,
@@ -223,8 +218,50 @@ export default {
       }
     },
   },
+  mounted() {
+    try {
+      this.filterTableStore.setFilterList([
+        {
+          name: "Nombre",
+          key: "name",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "ID",
+          key: "id",
+          select: false,
+          validation: RulesValidation.optionalPrice,
+        },
+        {
+          name: "Estado",
+          key: "status",
+          options: statusAllowed(),
+          label: "label",
+          itemValue: "name",
+          select: true,
+          multiple: true,
+          validation: RulesValidation.shortTextNull,
+        },
+      ]);
+      this.$subscribe((mutation, state) => {
+        if (
+          mutation.storeId == "filterTable" &&
+          state.furtherFilterKey != this.furtherFilterKey
+        ) {
+          this.furtherFilterKey = state.furtherFilterKey;
+          this.loadItems(
+            { page: 1, sortBy: this.startSortBy },
+            state.filterCleanList
+          );
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useFilterTableStore),
   },
 };
 </script>

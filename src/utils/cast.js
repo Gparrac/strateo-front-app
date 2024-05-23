@@ -126,3 +126,8 @@ export function castStorageToObject(item){
   }
   return item;
 }
+export function currentlyTime(showHourse=false){
+  const time = new Date(new Date().getTime() - (5 * 60 * 60 * 1000));
+  console.log('time',time)
+  return  time.toISOString().substr(0, showHourse ? 16 : 10);
+}

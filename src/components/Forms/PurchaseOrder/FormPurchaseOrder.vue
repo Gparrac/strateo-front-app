@@ -105,7 +105,7 @@ import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 import DynamicProductList from "./DynamicProductList.vue";
 import SupplierApi from '@/services/Forms/SupplierApi';
 import ProductApi from '@/services/Forms/ProductApi';
-import { castFullDate } from '@/utils/cast';
+import { castFullDate, currentlyTime } from '@/utils/cast';
 
 
 const purchaseOrderApi = new PurchaseOrderApi();
@@ -220,7 +220,7 @@ export default {
     },
     async setEditItem() {
       if (!this.idEditForm){
-
+        this.editItem.date = currentlyTime(true);
         return;
       }
       const response = await purchaseOrderApi.read(

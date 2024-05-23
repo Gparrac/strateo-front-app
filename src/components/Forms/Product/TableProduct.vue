@@ -2,12 +2,8 @@
   <div>
     <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
-      @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete
@@ -20,7 +16,7 @@
       :title="nameTable"
     ></modal-delete>
     <v-data-table-server
-    :sort-by="startSortBy"
+      :sort-by="startSortBy"
       :headers="headers"
       :items="records"
       item-selectable="selectable"
@@ -34,7 +30,54 @@
       return-object
       :items-per-page-options="[5, 10, 20, 50]"
     >
-    <template v-slot:[`item.children_products_count`]="{ item }">
+      <template v-slot:[`item.children_products_count`]="{ item }">
+        <div>
+          <v-chip variant="outlined" color="orange">
+            {{ item.children_products_count }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.type.name`]="{ item }">
+        <div>
+          <v-chip
+            variant="tonal"
+            class="ma-1"
+            label
+            :prepend-icon="item.type.icon"
+            size="x-small"
+            :color="item.type.id == 'I' ? 'blue' : 'pink'"
+          >
+            {{ item.type.name }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.measure.symbol`]="{ item }">
+        <div>
+          <v-chip
+            variant="outlined"
+            class="ma-1"
+            label
+            :prepend-icon="item.type.icon"
+            size="x-small"
+            color="grey"
+          >
+            {{ item.measure.symbol }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.subproducts_count`]="{ item }">
+        <div>
+          <v-chip
+            variant="outlined"
+            class="ma-1"
+            :prepend-icon="item.type.icon"
+            color="primary"
+          >
+            {{ item.subproducts_count }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.type`]="{ item }">
         <div>
           <v-chip variant="outlined" color="orange">
             {{ item.children_products_count }}
@@ -46,6 +89,11 @@
           <v-chip variant="tonal" color="primary">
             {{ item.categories_count }}
           </v-chip>
+        </div>
+      </template>
+      <template v-slot:[`item.cost`]="{ item }">
+        <div>
+          {{ moneyFormat(item.cost) }}
         </div>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
@@ -79,9 +127,11 @@
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import ProductApi from "@/services/Forms/ProductApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castDate } from "@/utils/cast";
+import { castDate, formatNumberToColPesos, statusAllowed } from "@/utils/cast";
+import { useFilterTableStore } from "@/store/filterTables";
+import { RulesValidation } from "@/utils/validations";
 const productApi = new ProductApi();
 export default {
   props: {
@@ -96,23 +146,18 @@ export default {
     //required data
     records: [],
     //search word
-    filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Nombre de producto" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
     currentlyPage: 1,
     loading: false,
     //delete items
-    keyQueryDelete: "products_id",
+    keyQueryDelete: "product_ids",
     mainKeyDelete: ["name"],
     secondKeyDelete: ["consecutive"],
     selectedItems: [],
     toggleDelete: false,
-    startSortBy:[{key:'id', order:'desc'}],
+    startSortBy: [{ key: "id", order: "desc" }],
     //optional data
     headers: [
       {
@@ -121,15 +166,35 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Producto", align: "end", key: "name", sortable: true },
-      { title: "Tipo", align: "end", key: "type.name", sortable: false },
-      { title: "Clasificación", align: "end", key: "type_content.name", sortable: false },
+      { title: "Producto", align: "left", key: "name", sortable: true },
+      { title: "Tipo", align: "center", key: "type.name", sortable: false },
+      {
+        title: "Clasificación",
+        align: "center",
+        key: "type_content.name",
+        sortable: false,
+      },
       { title: "Estado", align: "end", key: "status", sortable: false },
-      { title: "Costo", align: "end", key: "cost", sortable: false },
-      { title: "Medida", align: "end", key: "measure.symbol", sortable: false },
-      { title: "Marca", align: "end", key: "brand.name", sortable: false },
-      { title: "Categorias", align: "end", key: "categories_count", sortable: false },
-      { title: "Productos", align: "end", key: "subproducts_count", sortable: false },
+      { title: "Costo", align: "start", key: "cost", sortable: false },
+      {
+        title: "Medida",
+        align: "center",
+        key: "measure.symbol",
+        sortable: false,
+      },
+      { title: "Marca", align: "left", key: "brand.name", sortable: false },
+      {
+        title: "Categorias",
+        align: "center",
+        key: "categories_count",
+        sortable: false,
+      },
+      {
+        title: "Productos",
+        align: "center",
+        key: "subproducts_count",
+        sortable: false,
+      },
       {
         title: "Ultima actulización",
         align: "center",
@@ -140,23 +205,33 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(useFilterTableStore, ["$subscribe"]),
+    moneyFormat(item) {
+      return formatNumberToColPesos(item);
+    },
     async loadItems(
       {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      keyword = null,
-      typeKeyword = null
+      filters
     ) {
       this.loading = true;
       const params = new URLSearchParams();
-      if (typeKeyword && keyword) {
-        this.filterCleaner = true;
-        params.append("typeKeyword", typeKeyword);
-        params.append("keyword", keyword);
-      } else {
-        this.filterCleaner = sortBy.length !== 0;
+
+      //filtering information 🚥
+      if (filters && filters.length > 0) {
+        filters.forEach((item, index) => {
+          params.append(`filters[${index}][key]`, item.key);
+          if (item.key == "status") {
+            item.value.forEach((item, iindex) => {
+              params.append(`filters[${index}][value][${iindex}]`, item);
+            });
+          } else {
+            params.append(`filters[${index}][value]`, item.value);
+          }
+        });
       }
 
       params.append("page", page);
@@ -182,8 +257,8 @@ export default {
       this.toggleDelete = false;
       if (data.confirm && this.selectedItems.length !== 0) {
         const params = new URLSearchParams({});
-        this.selectedItems.forEach((item) =>
-          params.append(`${this.keyQueryDelete}[]`, item.id)
+        this.selectedItems.forEach((item, i) =>
+          params.append(`${this.keyQueryDelete}[${i}]`, item.id)
         );
         const response = await productApi.delete(`?${params.toString()}`);
         // logic to show alert 🚨
@@ -202,14 +277,56 @@ export default {
             true,
             `${this.nameTable} desactivados exitosamente`
           );
-          await this.loadItems({});
+          await this.loadItems({ sortBy: this.startSortBy });
           this.selectedItems = [];
         }
       }
     },
   },
+  mounted() {
+    try {
+      this.filterTableStore.setFilterList([
+        {
+          name: "Nombre",
+          key: "name",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "ID",
+          key: "id",
+          select: false,
+          validation: RulesValidation.optionalPrice,
+        },
+        {
+          name: "Estado",
+          key: "status",
+          options: statusAllowed(),
+          label: "label",
+          itemValue: "name",
+          select: true,
+          multiple: true,
+          validation: RulesValidation.shortTextNull,
+        },
+      ]);
+      this.$subscribe((mutation, state) => {
+        if (
+          mutation.storeId == "filterTable" &&
+          state.furtherFilterKey != this.furtherFilterKey
+        ) {
+          this.furtherFilterKey = state.furtherFilterKey;
+          this.loadItems(
+            { page: 1, sortBy: this.startSortBy },
+            state.filterCleanList
+          );
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useFilterTableStore),
   },
 };
 </script>

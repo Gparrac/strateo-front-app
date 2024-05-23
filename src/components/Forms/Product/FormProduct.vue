@@ -115,7 +115,7 @@
                         label="Estado"
                         v-model="editItem.status"
                         item-title="label"
-                        item-value="id"
+                        item-value="name"
                         :items="status"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"

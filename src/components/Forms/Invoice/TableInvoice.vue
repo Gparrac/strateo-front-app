@@ -88,8 +88,6 @@ export default {
   data: () => ({
     //required data
     records: [],
-    //search word
-    filterCleaner: false,
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,

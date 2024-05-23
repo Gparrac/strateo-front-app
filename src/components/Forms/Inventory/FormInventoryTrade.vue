@@ -20,12 +20,12 @@
                         label="Tipo"
                         v-model="editItem.type"
                         item-title="name"
-                        item-value="id"
                         :items="types"
                         :rules="rulesValidation.select.rules"
                         @update:modelValue="setPurposes"
                         :loading="loading"
                         :disabled="!this.editDisable"
+                        return-object
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -33,18 +33,21 @@
                         label="Proposito"
                         v-model="editItem.purpose"
                         item-title="name"
-                        item-value="id"
                         :items="purposes"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
                         :disabled="!this.editDisable"
+                        return-object
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
                       <dynamic-select-field
                         :options="suppliers"
+                        :itemSaved="editItem.supplier"
                         @update:options="setSuppliers"
-                        @update:itemSelected="(item) => editItem.supplier = item"
+                        @update:itemSelected="
+                          (item) => (editItem.supplier = item)
+                        "
                         mainLabel="supplier"
                         :secondLabel="['commercial_registry']"
                         subtitle="Registro comercial"
@@ -97,7 +100,7 @@
                     <v-col cols="12" sm="4">
                       <h4 class="text-subtitle-2">Valor total</h4>
                       <h3 class="text-h3 font-weight-light text-right">
-                        {{ totalCost }}
+                        {{ moneyFormat(totalCost) }}
                       </h3>
                     </v-col>
                   </v-row>
@@ -160,7 +163,7 @@ import { mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
 import DynamicProductList from "./DynamicProductList.vue";
 import Petition from "@/services/PetitionStructure/Petition";
-import { castFullDate } from "@/utils/cast";
+import { castFullDate, currentlyTime, formatNumberToColPesos } from "@/utils/cast";
 import DynamicSelectField from "@/components/blocks/DynamicSelectField.vue";
 const inventoryApi = new InventoryApi();
 const warehouseApi = new WarehouseApi();
@@ -175,7 +178,7 @@ export default {
   },
   components: {
     DynamicProductList,
-    DynamicSelectField
+    DynamicSelectField,
   },
   data: () => ({
     // required data
@@ -237,6 +240,9 @@ export default {
     },
   },
   methods: {
+    moneyFormat(item){
+      return formatNumberToColPesos(item);
+    },
     async submitForm() {
       this.loading = true;
       if (
@@ -263,9 +269,10 @@ export default {
         } else {
           //validate selected products
 
-          formData.append("transaction_type", this.editItem.type);
-          formData.append("purpose", this.editItem.purpose);
+          formData.append("transaction_type", this.editItem.type.id);
+          formData.append("purpose", this.editItem.purpose.id);
           formData.append("warehouse_id", this.editItem.warehouse.id);
+
           this.editItem.products.forEach((item, pindex) => {
             formData.append(`products[${pindex}][product_id]`, item.id);
             formData.append(`products[${pindex}][cost]`, item.cost);
@@ -294,6 +301,7 @@ export default {
     async setEditItem() {
       if (!this.idEditForm) {
         this.editItem.products = [];
+        this.editItem.date = currentlyTime(true);
         return;
       }
       const response = await inventoryApi.read(
@@ -301,6 +309,7 @@ export default {
       );
       if (response.statusResponse != 200) {
         this.editItem = {};
+
         return;
       }
       const data = response.data;
@@ -309,8 +318,8 @@ export default {
         {},
         {
           inventoryTradeId: data.id,
-          purpose: data.purpose.id,
-          type: data.transaction_type.id,
+          purpose: data.purpose,
+          type: data.transaction_type,
           supplier: data.supplier,
           warehouse: data.warehouse,
           date: data.transaction_date,
@@ -325,10 +334,11 @@ export default {
       ).data;
     },
     async setPurposes() {
+      this.editItem.purpose = null;
       this.purposes = (
         await petition.get(
           "/type-inventory-trades",
-          `attribute=purpose&type=${this.editItem.type}`
+          `attribute=purpose&type=${this.editItem?.type?.id}`
         )
       ).data;
     },

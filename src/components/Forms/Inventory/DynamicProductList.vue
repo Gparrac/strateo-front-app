@@ -91,12 +91,12 @@
                     v-model="record.amount"
                     :disabled="editable"
                     persistent-hint
-                    :hint="'Stock actual: ' + record.stock"
+                    :hint="'Stock actual: ' + (record.stock || '-')"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="4" lg="4">
                   <h3 class="text-h4 font-weight-light text-right">
-                    {{ (record.amount ?? 0) * record.cost }}
+                    {{ moneyFormat((record.amount ?? 0) * record.cost) }}
                   </h3>
                   <h4 class="text-subtitle-2 text-right font-weight-light">
                     Costo total
@@ -127,6 +127,7 @@
 <script>
 import { RulesValidation } from "@/utils/validations";
 import ProductApi from "@/services/Forms/ProductApi";
+import { formatNumberToColPesos } from "@/utils/cast";
 const productApi = new ProductApi();
 export default {
   props: {
@@ -158,6 +159,9 @@ export default {
     },
   },
   methods: {
+    moneyFormat(item){
+      return formatNumberToColPesos(item);
+    },
     resetItems() {
       this.itemSelected = null;
       this.emitRecords([]);

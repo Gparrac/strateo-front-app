@@ -2,12 +2,9 @@
   <div>
     <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
       @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
-      @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete
@@ -33,7 +30,17 @@
       show-select
       return-object
       :items-per-page-options="[5, 10, 20, 50]"
-    >
+    >    <template v-slot:[`item.supplier`]="{ item }">
+        <div>
+          <span class="block text-subtitle-2">{{
+            item?.third?.fullname
+          }}</span
+          ><br />
+          <span class="block text-body-2 text-blue-grey-lighten-3">
+            {{ item?.third?.fullid }}
+          </span>
+        </div>
+      </template>
       <template v-slot:[`item.dynamic_services_count`]="{ item }">
         <div>
           <v-chip variant="tonal" color="primary">
@@ -72,9 +79,11 @@
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import SupplierApi from "@/services/Forms/SupplierApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castDate } from "@/utils/cast";
+import { castDate, statusAllowed } from "@/utils/cast";
+import { useFilterTableStore } from "@/store/filterTables";
+import { RulesValidation } from "@/utils/validations";
 const supplierApi = new SupplierApi();
 export default {
   props: {
@@ -90,10 +99,6 @@ export default {
     records: [],
     //search word
     filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Provedor" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
@@ -114,7 +119,7 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Provedor", align: "end", key: "third.supplier", sortable: false },
+      { title: "Provedor", align: "start", key: "supplier", sortable: false },
       { title: "Registro comercial", align: "end", key: "commercial_registry", sortable: false },
       { title: "Estado", align: "end", key: "status", sortable: false },
       { title: "Servicios", align: "end", key: "dynamic_services_count", sortable: false },
@@ -128,23 +133,28 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(useFilterTableStore, ["$subscribe"]),
     async loadItems(
       {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      keyword = null,
-      typeKeyword = null
+      filters
     ) {
       this.loading = true;
       const params = new URLSearchParams();
-      if (typeKeyword && keyword) {
-        this.filterCleaner = true;
-        params.append("typeKeyword", typeKeyword);
-        params.append("keyword", keyword);
-      } else {
-        this.filterCleaner = sortBy.length !== 0;
+      if (filters && filters.length > 0) {
+        filters.forEach((item, index) => {
+          params.append(`filters[${index}][key]`, item.key);
+          if (item.key == "status") {
+            item.value.forEach((item, iindex) => {
+              params.append(`filters[${index}][value][${iindex}]`, item);
+            });
+          } else {
+            params.append(`filters[${index}][value]`, item.value);
+          }
+        });
       }
 
       params.append("page", page);
@@ -196,8 +206,50 @@ export default {
       }
     },
   },
+  mounted() {
+    try {
+      this.filterTableStore.setFilterList([
+        {
+          name: "Nombre",
+          key: "third",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "ID",
+          key: "id",
+          select: false,
+          validation: RulesValidation.optionalPrice,
+        },
+        {
+          name: "Estado",
+          key: "status",
+          options: statusAllowed(),
+          label: "label",
+          itemValue: "name",
+          select: true,
+          multiple: true,
+          validation: RulesValidation.shortTextNull,
+        },
+      ]);
+      this.$subscribe((mutation, state) => {
+        if (
+          mutation.storeId == "filterTable" &&
+          state.furtherFilterKey != this.furtherFilterKey
+        ) {
+          this.furtherFilterKey = state.furtherFilterKey;
+          this.loadItems(
+            { page: 1, sortBy: this.startSortBy },
+            state.filterCleanList
+          );
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useFilterTableStore),
   },
 };
 </script>

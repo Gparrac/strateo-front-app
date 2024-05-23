@@ -2,12 +2,8 @@
   <div>
     <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
-      @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete
@@ -79,9 +75,11 @@
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import ServiceApi from "@/services/Forms/ServiceApi";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castDate } from "@/utils/cast";
+import { castDate, statusAllowed } from "@/utils/cast";
+import { useFilterTableStore } from "@/store/filterTables";
+import { RulesValidation } from "@/utils/validations";
 const serviceApi = new ServiceApi();
 export default {
   props: {
@@ -95,12 +93,6 @@ export default {
   data: () => ({
     //required data
     records: [],
-    //search word
-    filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
@@ -136,25 +128,29 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(useFilterTableStore, ["$subscribe"]),
     async loadItems(
       {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      keyword = null,
-      typeKeyword = null
+      filters
     ) {
       this.loading = true;
       const params = new URLSearchParams();
-      if (typeKeyword && keyword) {
-        this.filterCleaner = true;
-        params.append("typeKeyword", typeKeyword);
-        params.append("keyword", keyword);
-      } else {
-        this.filterCleaner = sortBy.length !== 0;
+      if (filters && filters.length > 0) {
+        filters.forEach((item, index) => {
+          params.append(`filters[${index}][key]`, item.key);
+          if (item.key == "status") {
+            item.value.forEach((item, iindex) => {
+              params.append(`filters[${index}][value][${iindex}]`, item);
+            });
+          } else {
+            params.append(`filters[${index}][value]`, item.value);
+          }
+        });
       }
-
       params.append("page", page);
       params.append("pagination", itemsPerPage);
       sortBy.forEach((item, index) => {
@@ -204,8 +200,50 @@ export default {
       }
     },
   },
+  mounted() {
+    try {
+      this.filterTableStore.setFilterList([
+        {
+          name: "Nombre",
+          key: "name",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "ID",
+          key: "id",
+          select: false,
+          validation: RulesValidation.optionalPrice,
+        },
+        {
+          name: "Estado",
+          key: "status",
+          options: statusAllowed(),
+          label: "label",
+          itemValue: "name",
+          select: true,
+          multiple: true,
+          validation: RulesValidation.shortTextNull,
+        },
+      ]);
+      this.$subscribe((mutation, state) => {
+        if (
+          mutation.storeId == "filterTable" &&
+          state.furtherFilterKey != this.furtherFilterKey
+        ) {
+          this.furtherFilterKey = state.furtherFilterKey;
+          this.loadItems(
+            { page: 1, sortBy: this.startSortBy },
+            state.filterCleanList
+          );
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useFilterTableStore),
   },
 };
 </script>

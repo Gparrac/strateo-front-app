@@ -148,6 +148,7 @@ import {
   calTotalDiscountItems,
   castFullDate,
   castStorageToObject,
+  currentlyTime,
   formatNumberToColPesos,
   statusAllowed,
 } from "@/utils/cast";
@@ -300,7 +301,6 @@ export default {
       }
     },
     async loadDraftItem() {
-      console.log('entry draft')
       return new Promise((resolve) => {
         let draft = this.draftData;
         draft = castStorageToObject(draft);
@@ -365,7 +365,7 @@ export default {
             complete: false,
           });
 
-          this.editItem.startDate = new Date().toISOString().slice(0, 16);
+          this.editItem.startDate = new currentlyTime(true);
 
           this.productPlanmentStore.productEvents = [];
 
@@ -610,7 +610,7 @@ export default {
 
         this.editItem.services = [];
         this.editItem.taxes = [];
-        this.editItem.date = new Date().toISOString().substr(0, 10);
+        this.editItem.date = currentlyTime();
 
         this.editItem.stage = {
           name: "Cotización",

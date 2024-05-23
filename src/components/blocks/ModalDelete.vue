@@ -12,7 +12,7 @@
             v-for="(item) in deleteItems"
             :key="item[mainKey]"
             :title="titleKey + searchKey(item,mainKey)"
-            :subtitle="subtitleKey + searchKey(item,secondKey)"
+            :subtitle="subtitleKey + (searchKey(item,secondKey) || '')"
           ></v-list-item>
         </v-list>
       </v-card-text>

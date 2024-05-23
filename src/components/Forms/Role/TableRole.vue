@@ -2,11 +2,8 @@
   <div>
     <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
-      @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete
@@ -96,12 +93,6 @@ export default {
   data: () => ({
     //required data
     records: [],
-    //search word
-    filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
@@ -223,7 +214,7 @@ export default {
     this.$subscribe((mutation, state) => {
       if(mutation.storeId == 'filterTable' && state.furtherFilterKey != this.furtherFilterKey){
         this.furtherFilterKey = state.furtherFilterKey;
-          this.loadItems({}, state.filterCleanList)
+          this.loadItems({page:1, sortBy:this.startSortBy}, state.filterCleanList)
       }
     });
   } catch (error) {

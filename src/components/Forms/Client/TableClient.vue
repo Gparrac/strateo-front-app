@@ -2,12 +2,9 @@
   <div>
       <header-table
       :loading="loading"
-      :typeskeyword="typeskeyword"
       :path="path"
-      :filterCleaner="filterCleaner"
       :disableDelete="selectedItems.length == 0 ? true : false"
       @load-items="(data) => loadItems({}, data?.keyword, data?.typeKeyword)"
-      @clean-filter="loadItems({})"
       @toggle-delete="() => (toggleDelete = true)"
     ></header-table>
     <modal-delete
@@ -34,6 +31,17 @@
       :sort-by="startSortBy"
       :items-per-page-options="[5, 10, 20, 50]"
     >
+    <template v-slot:[`item.third.fullname`]="{ item }">
+        <div>
+          <span class="block text-subtitle-2">{{
+            item?.third?.fullname
+          }}</span
+          ><br />
+          <span class="block text-body-2 text-blue-grey-lighten-3">
+            {{ item?.third?.fullid }}
+          </span>
+        </div>
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <div>
           <v-icon
@@ -65,9 +73,11 @@
 import ClientApi from "@/services/Forms/ClientApi";
 import HeaderTable from "@/components/blocks/HeaderTable.vue";
 import ModalDelete from "@/components/blocks/ModalDelete.vue";
-import { mapStores } from "pinia";
+import { mapActions, mapStores } from "pinia";
 import { useAlertMessageStore } from "@/store/alertMessage";
-import { castDate } from '@/utils/cast';
+import { castDate, statusAllowed } from '@/utils/cast';
+import { useFilterTableStore } from "@/store/filterTables";
+import { RulesValidation } from "@/utils/validations";
 const clientApi = new ClientApi();
 export default {
   name: "TableClient",
@@ -82,12 +92,6 @@ export default {
   data: () => ({
     //required data
     records: [],
-    //search word
-    filterCleaner: false,
-    typeskeyword: [
-      { title: "id", label: "ID" },
-      { title: "name", label: "Usuario" },
-    ],
     //pagination
     totalRecords: 0,
     recordsPerPage: 5,
@@ -111,7 +115,6 @@ export default {
       {title: "cliente", align: "center", key: "third.fullname", sortable:false},
       { title: "Nombre del Representante", align: "center", key: "legal_representative_name", sortable:true },
       { title: "Código del representante", align: "center", key: "legal_representative_id", sortable:false },
-      { title: "Identificación", align: "center", key: "third.identification", sortable:false },
       { title: "Correo", align:"center", key: "third.email", sortable:false },
       { title: "Estado", align: "end", key: "status", sortable:false },
       {
@@ -124,23 +127,29 @@ export default {
     ],
   }),
   methods: {
+    ...mapActions(useFilterTableStore, ["$subscribe"]),
     async loadItems(
       {
         page = this.currentlyPage,
         itemsPerPage = this.recordsPerPage,
         sortBy = [],
       },
-      keyword = null,
-      typeKeyword = null
+      filters
     ) {
       this.loading = true;
       const params = new URLSearchParams();
-      if (typeKeyword && keyword) {
-        this.filterCleaner = true;
-        params.append("typeKeyword", typeKeyword);
-        params.append("keyword", keyword);
-      } else {
-        this.filterCleaner = sortBy.length !== 0;
+      //filtering information 🚥
+      if (filters && filters.length > 0) {
+        filters.forEach((item, index) => {
+          params.append(`filters[${index}][key]`, item.key);
+          if (item.key == "status") {
+            item.value.forEach((item, iindex) => {
+              params.append(`filters[${index}][value][${iindex}]`, item);
+            });
+          } else {
+            params.append(`filters[${index}][value]`, item.value);
+          }
+        });
       }
 
       params.append("page", page);
@@ -172,7 +181,7 @@ export default {
             );
 
       if (response.statusResponse == 200) {
-        await this.loadItems({});
+        await this.loadItems({sortBy: this.startSortBy});
         this.alertMessageStore.show(
           true,
           `${this.nameTable} desactivados exitosamente`
@@ -182,8 +191,56 @@ export default {
       }
     },
   },
+  mounted() {
+    try {
+      this.filterTableStore.setFilterList([
+        {
+          name: "Representate legal",
+          key: "client",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "Cliente",
+          key: "third",
+          select: false,
+          validation: RulesValidation.shortTextNull,
+        },
+        {
+          name: "ID",
+          key: "id",
+          select: false,
+          validation: RulesValidation.optionalPrice,
+        },
+        {
+          name: "Estado",
+          key: "status",
+          options: statusAllowed(),
+          label: "label",
+          itemValue: "name",
+          select: true,
+          multiple: true,
+          validation: RulesValidation.shortTextNull,
+        },
+      ]);
+      this.$subscribe((mutation, state) => {
+        if (
+          mutation.storeId == "filterTable" &&
+          state.furtherFilterKey != this.furtherFilterKey
+        ) {
+          this.furtherFilterKey = state.furtherFilterKey;
+          this.loadItems(
+            { page: 1, sortBy: this.startSortBy },
+            state.filterCleanList
+          );
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
   computed: {
-    ...mapStores(useAlertMessageStore),
+    ...mapStores(useAlertMessageStore, useFilterTableStore),
   },
 };
 </script>
