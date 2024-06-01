@@ -126,8 +126,9 @@ export function castStorageToObject(item){
   }
   return item;
 }
-export function currentlyTime(showHourse=false){
-  const time = new Date(new Date().getTime() - (5 * 60 * 60 * 1000));
-  console.log('time',time)
+export function currentlyTime(showHourse=false, daysBefore = false){
+  const msTime =  (daysBefore) ?  daysBefore * 24 * 60 * 60 * 1000 : 5 * 60 * 60 * 1000;
+  const time = new Date(new Date().getTime() - (msTime));
   return  time.toISOString().substr(0, showHourse ? 16 : 10);
 }
+
