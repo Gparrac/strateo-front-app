@@ -30,14 +30,13 @@ export const useFilterTableStore = defineStore("filterTable", {
         .map((item) => ({ key: item.key, value: item.value }));
     },
     clean() {
-      console.log('filter-list',)
       this.furtherFilterKey += 1;
       this.filterCleanList = [];
       this.filtersList = this.filtersList.map((item) => {
         item.value = null
         return item
       });
-      console.log('itemStoreFilter',this.filtersList)
+
     },
   },
 });

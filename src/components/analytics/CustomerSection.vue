@@ -241,8 +241,6 @@ export default {
       const query =`option=LS&end_date=${castEndDate}&start_date=${castStartDate}`;
       const response = (await analyticApi.read('/client',query));
       if(response.data){
-        console.log('highlight')
-        console.log('following',response.data);
         this.series[0].data = response.data.invoices;
         this.chartOptions.xaxis.categories = response.data.customers;
       }else{

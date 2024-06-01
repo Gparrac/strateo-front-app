@@ -89,16 +89,14 @@ export default {
   },
   methods:{
     async setDate() {
-    console.log('passing!!')
+
     const { valid } = await this.$refs.formDates.validate();
       if (valid) {
-        console.log('passing?')
         this.analyticDateStore.saveDateRange()
       }
   },
   },
   mounted() {
-    console.log("temp", this.startDate);
   },
 };
 </script>
