@@ -6,6 +6,7 @@
           <span class="text-h5"> Información General </span>
           <v-spacer></v-spacer>
           <button-login-google
+          v-if="editItem.enterpriseId"
             :userAuth="editItem.enterpriseId ? true : false"
             :googleAccount="editItem.googleUser"
           ></button-login-google>
