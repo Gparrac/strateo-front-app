@@ -25,6 +25,7 @@
                     <v-col cols="12" sm="12">
                       <v-textarea
                         label="Nota"
+                        variant="outlined"
                         v-model="editItem.note"
                         :maxLength="rulesValidation.longTextNull.maxLength"
                         :rules="rulesValidation.longTextNull.rules"
@@ -32,7 +33,9 @@
                       ></v-textarea>
                     </v-col>
                     <v-col cols="12" sm="4">
-                      <v-text-field :maxlength="rulesValidation.text.maxLength" label="Dirección" v-model="editItem.address_warehouse"
+                      <v-text-field
+                      variant="outlined"
+                      :maxlength="rulesValidation.text.maxLength" label="Dirección" v-model="editItem.address_warehouse"
                           :rules="rulesValidation.text.rules" :loading="loading"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -55,6 +58,7 @@
                         item-value="name"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                   </v-row>

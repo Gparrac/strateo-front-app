@@ -27,6 +27,7 @@
                           setTypesContent(editItem.type.id, true)
                         "
                         :return-object="true"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                     <v-col v-if="editItem.type" cols="12" sm="6" md="4">
@@ -38,6 +39,7 @@
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
                         :return-object="true"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -47,6 +49,7 @@
                         v-model="editItem.consecutive"
                         :rules="rulesValidation.shortText.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <!-- second row -->
@@ -57,6 +60,7 @@
                         v-model="editItem.name"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -66,6 +70,7 @@
                         v-model="editItem.cost"
                         :rules="rulesValidation.price.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -75,6 +80,7 @@
                         v-model="editItem.productCode"
                         :rules="rulesValidation.shortTextNull.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -84,6 +90,7 @@
                         v-model="editItem.size"
                         :rules="rulesValidation.shortText.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <!-- third row -->
@@ -96,6 +103,7 @@
                         :items="measures"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -107,6 +115,7 @@
                         :items="brands"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
 
@@ -119,6 +128,7 @@
                         :items="status"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
 
@@ -129,10 +139,11 @@
                         v-model="editItem.barcode"
                         :rules="rulesValidation.shortTextNull.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
 
-                    <v-col cols="12" sm="6" md="4">
+                    <v-col cols="12" sm="12" md="4">
                       <v-select
                         label="Categorias"
                         v-model="editItem.categories"
@@ -142,6 +153,7 @@
                         :items="categories"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                     <v-col
@@ -163,6 +175,7 @@
                         :rules="rulesValidation.longTextNull.rules"
                         rows="10"
                         :loading="loading"
+                        variant="outlined"
                       ></v-textarea>
                     </v-col>
                   </v-row>

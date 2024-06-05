@@ -27,6 +27,7 @@
                 v-model="editItem.commercial_registry"
                 :rules="rulesValidation.shortTextNull.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="4">
@@ -38,6 +39,7 @@
                 :rules="rulesValidation.file.rules"
                 :loading="loading"
                 @change="handleFileCommercialChange"
+                variant="outlined"
               ></v-file-input>
             </v-col>
             <v-col cols="12" sm="4" class="d-flex align-center justify-center">
@@ -74,6 +76,7 @@
                 :rules="rulesValidation.file.rules"
                 :loading="loading"
                 @change="handleFileRutChange"
+                variant="outlined"
               ></v-file-input>
             </v-col>
             <v-col cols="12" sm="4" class="d-flex align-center justify-center">
@@ -104,6 +107,7 @@
                 v-model="editItem.legal_representative_name"
                 :rules="rulesValidation.shortTextNull.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
@@ -113,6 +117,7 @@
                 v-model="editItem.legal_representative_id"
                 :rules="rulesValidation.nullIdentification.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
@@ -122,6 +127,7 @@
                 :rules="rulesValidation.longTextNull.rules"
                 :maxLength="rulesValidation.longTextNull.maxLength"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6">
@@ -133,6 +139,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-select>
             </v-col>
           </v-row>

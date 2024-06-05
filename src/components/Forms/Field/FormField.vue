@@ -21,6 +21,7 @@
                             v-model="editItem.name"
                             :rules="rulesValidation.text.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
@@ -32,6 +33,7 @@
                             :items="status"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-select>
                         </v-col>
                     <v-col cols="12" sm="12" md="4">
@@ -43,6 +45,7 @@
                             :return-object="true"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
+                            variant="outlined"
                           >
                           <template v-slot:item="{ props, item }">
             <v-list-item v-bind="props">

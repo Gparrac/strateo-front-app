@@ -13,6 +13,7 @@
             :loading="loading"
             :model-value="records.typeDocument"
             @update:model-value="(value) => changeTypeDoc(value)"
+            variant="outlined"
           ></v-select>
         </v-col>
         <v-col cols="12" sm="4">
@@ -26,6 +27,7 @@
             @update:model-value="
               (value) => emitRecords(value, 'identification')
             "
+            variant="outlined"
           ></v-text-field>
         </v-col>
         <template
@@ -42,6 +44,7 @@
               :rules="rulesValidation.justText.rules"
               :loading="loading"
               @update:model-value="(value) => emitRecords(value, 'names')"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="4">
@@ -52,6 +55,7 @@
               :rules="rulesValidation.justText.rules"
               :loading="loading"
               @update:model-value="(value) => emitRecords(value, 'surnames')"
+              variant="outlined"
             ></v-text-field>
           </v-col>
         </template>
@@ -64,6 +68,7 @@
             :rules="rulesValidation.text.rules"
             :loading="loading"
             @update:model-value="(value) => emitRecords(value, 'business')"
+            variant="outlined"
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="4">
@@ -74,6 +79,7 @@
             :rules="rulesValidation.text.rules"
             :loading="loading"
             @update:model-value="(value) => emitRecords(value, 'address')"
+            variant="outlined"
           ></v-text-field>
         </v-col>
         <v-col cols="12" sm="4">
@@ -84,6 +90,7 @@
             :rules="rulesValidation.mobile.rules"
             :loading="loading"
             @update:model-value="(value) => emitRecords(value, 'mobile')"
+            variant="outlined"
           ></v-text-field>
         </v-col>
         <v-col
@@ -103,6 +110,7 @@
             :rules="rulesValidation.email.rules"
             :loading="loading"
             @update:model-value="(value) => emitRecords(value, 'email')"
+            variant="outlined"
           ></v-text-field>
         </v-col>
         <v-col
@@ -122,6 +130,7 @@
             :rules="verificationSecondEmail"
             :loading="loading"
             @update:model-value="(value) => emitRecords(value, 'email2')"
+            variant="outlined"
           ></v-text-field>
         </v-col>
         <v-col
@@ -140,6 +149,7 @@
             :model-value="records.postal_code"
             :rules="rulesValidation.optionalPrice.rules"
             :loading="loading"
+            variant="outlined"
           ></v-text-field>
         </v-col>
         <v-col

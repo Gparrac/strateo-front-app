@@ -15,6 +15,7 @@
                 v-model="editItem.name"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="4">
@@ -23,6 +24,7 @@
                 label="Código"
                 v-model="editItem.code"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="4">
@@ -34,6 +36,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-select>
             </v-col>
           </v-row>
@@ -121,7 +124,7 @@ export default {
         formData.append("code", this.editItem.code);
 
         formData.append("status", this.editItem.status);
-        
+
         if (this.idEditForm) {
           formData.append("brand_id", this.editItem.brand_id);
           response = await brandApi.update(formData);

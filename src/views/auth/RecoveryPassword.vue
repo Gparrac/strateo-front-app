@@ -11,6 +11,7 @@
         <v-row>
           <v-col cols="12">
             <v-text-field
+            variant="outlined"
               label="Email"
               :rules="rulesValidation.email"
               v-model="email"

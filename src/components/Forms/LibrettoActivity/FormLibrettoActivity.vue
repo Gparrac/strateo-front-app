@@ -16,6 +16,7 @@
                 v-model="editItem.name"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="4">
@@ -27,6 +28,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-select>
             </v-col>
             <v-col cols="12" md="4">
@@ -45,6 +47,7 @@
                 :rules="rulesValidation.longTextNull.rules"
                 rows="4"
                 :loading="loading"
+                variant="outlined"
               ></v-textarea>
             </v-col>
             <!------------------------------- DYNAMIC ITEM --------------------------->

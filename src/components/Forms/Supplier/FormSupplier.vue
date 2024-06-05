@@ -29,6 +29,7 @@
                             v-model="editItem.commercialRegistryNumber"
                             :rules="rulesValidation.shortTextNull.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="8">
@@ -42,6 +43,7 @@
                             @change="
                               handleFileFields($event, 'pathCommercialFile')
                             "
+                            variant="outlined"
                           ></v-file-input>
                         </v-col>
                         <v-col
@@ -80,6 +82,7 @@
                             :rules="rulesValidation.file.rules"
                             :loading="loading"
                             @change="handleFileFields($event, 'pathRutFile')"
+                            variant="outlined"
                           ></v-file-input>
                         </v-col>
                         <v-col
@@ -100,6 +103,7 @@
                               size="small"
                               target="_blank"
                               icon="mdi-folder-download"
+                              variant="outlined"
                             >
                             </v-btn>
                           </div>
@@ -118,6 +122,7 @@
                             item-value="name"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-select>
                         </v-col>
                         <v-col>
@@ -127,6 +132,7 @@
                             :maxLength="rulesValidation.longText.maxLength"
                             :rules="rulesValidation.longTextNull.rules"
                             :loading="loading"
+                            variant="outlined"
                             rows="7"
                           ></v-textarea>
                         </v-col>

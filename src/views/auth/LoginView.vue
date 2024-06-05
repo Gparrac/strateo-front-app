@@ -23,6 +23,7 @@
               label="Correo"
               v-model="form.email"
               :rules="rulesValidation.email.rules"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" v-if="!typeAuth">
@@ -33,6 +34,7 @@
               item-title="label"
               item-value="name"
               :rules="rulesValidation.select.rules"
+              variant="outlined"
             ></v-select>
           </v-col>
           <v-col cols="12" sm="6" v-if="!typeAuth">
@@ -41,6 +43,7 @@
               label="Identificación"
               v-model="form.identification"
               :rules="rulesValidation.identification.rules"
+              variant="outlined"
             >
             </v-text-field>
           </v-col>
@@ -53,6 +56,7 @@
               :type="showPassword ? 'text' : 'password'"
               @click:append-inner="showPassword = !showPassword"
               v-model="form.password"
+              variant="outlined"
             ></v-text-field>
           </v-col>
         </v-row>

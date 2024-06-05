@@ -22,6 +22,7 @@
                             v-model="editItem.name"
                             :rules="rulesValidation.text.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12">
@@ -33,6 +34,7 @@
                             :items="status"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-select>
                         </v-col>
                       </v-row>
@@ -44,6 +46,7 @@
                         :maxLength="rulesValidation.longText.maxLength"
                         :rules="rulesValidation.longText.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-textarea>
                     </v-col>
                   </v-row>

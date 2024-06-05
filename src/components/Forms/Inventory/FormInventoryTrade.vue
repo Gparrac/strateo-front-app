@@ -26,6 +26,7 @@
                         :loading="loading"
                         :disabled="!this.editDisable"
                         return-object
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -38,6 +39,7 @@
                         :loading="loading"
                         :disabled="!this.editDisable"
                         return-object
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -64,6 +66,7 @@
                         :rules="rulesValidation.longTextNull.rules"
                         :loading="loading"
                         rows="2"
+                        variant="outlined"
                       ></v-textarea>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -76,6 +79,7 @@
                         :items="warehouses"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       >
                         <template v-slot:item="{ props, item }">
                           <v-list-item v-bind="props">
@@ -93,6 +97,7 @@
                         type="datetime-local"
                         v-model="editItem.date"
                         label="Fecha y Hora"
+                        variant="outlined"
                         :rules="rulesValidation.date.rules"
                       ></v-text-field>
                     </v-col>

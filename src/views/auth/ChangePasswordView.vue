@@ -15,6 +15,7 @@
               @click:append-inner="showPasswords[0] = !showPasswords[0]"
               :rules="rulesValidation.password.rules"
               v-model="editItem.oldPassword"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
@@ -26,6 +27,7 @@
               v-model="editItem.newPassword"
               :rules="passwordRule"
               :loading="loading"
+              variant="outlined"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
@@ -37,6 +39,7 @@
               v-model="editItem.confirmPassword"
               :rules="confirmPasswordRule"
               :loading="loading"
+              variant="outlined"
             ></v-text-field>
           </v-col>
         </v-row>

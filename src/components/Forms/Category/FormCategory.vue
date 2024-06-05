@@ -10,15 +10,20 @@
         <v-card-text>
           <v-row>
             <v-col cols="12">
-              <v-text-field :maxlength="rulesValidation.text.maxLength" label="Nombre" v-model="editItem.name"
+              <v-text-field
+              variant="outlined"
+              :maxlength="rulesValidation.text.maxLength" label="Nombre" v-model="editItem.name"
                   :rules="rulesValidation.text.rules" :loading="loading"></v-text-field>
             </v-col>
             <v-col cols="12">
-              <v-text-field :maxlength="rulesValidation.text.maxLength" label="Código" v-model="editItem.code"
+              <v-text-field
+              variant="outlined"
+              :maxlength="rulesValidation.text.maxLength" label="Código" v-model="editItem.code"
                   :rules="rulesValidation.text.rules" :loading="loading"></v-text-field>
             </v-col>
             <v-col cols="12">
               <v-select
+              variant="outlined"
                 label="Estado"
                 :items="status"
                 v-model="editItem.status"

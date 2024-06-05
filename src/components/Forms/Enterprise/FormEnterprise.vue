@@ -29,6 +29,7 @@
                         :items="typesDocument"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-select>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -39,6 +40,7 @@
                         :rules="rulesValidation.identification.rules"
                         :loading="loading"
                         :suffix="verificationNitNumber"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <template
@@ -53,6 +55,7 @@
                           v-model="editItem.names"
                           :rules="rulesValidation.justText.rules"
                           :loading="loading"
+                          variant="outlined"
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="4">
@@ -62,6 +65,7 @@
                           v-model="editItem.surnames"
                           :rules="rulesValidation.justText.rules"
                           :loading="loading"
+                          variant="outlined"
                         ></v-text-field>
                       </v-col>
                     </template>
@@ -73,6 +77,7 @@
                         v-model="editItem.business"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -82,6 +87,7 @@
                         v-model="editItem.address"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -91,6 +97,7 @@
                         v-model="editItem.mobile"
                         :rules="rulesValidation.mobile.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -108,6 +115,7 @@
                         placeholder="ejemplo@ejemplo.com"
                         :rules="rulesValidation.email.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -125,6 +133,7 @@
                         placeholder="ejemplo@ejemplo.com"
                         :rules="verificationSecondEmail"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -141,6 +150,7 @@
                         v-model="editItem.postal_code"
                         :rules="rulesValidation.text.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -160,6 +170,7 @@
                         item-value="id"
                         :rules="rulesValidation.select.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-autocomplete>
                     </v-col>
                   </v-row>
@@ -187,6 +198,7 @@
                         accept="image/png, image/jpeg, image/bmp"
                         prepend-icon="mdi-camera"
                         @change="handleImageChange"
+                        variant="outlined"
                       ></v-file-input>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -218,6 +230,7 @@
                         :maxLength="rulesValidation.longText.maxLength"
                         :rules="rulesValidation.longText.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-textarea>
                     </v-col>
                     <v-col cols="12" sm="12">
@@ -227,6 +240,7 @@
                         :maxLength="rulesValidation.longText.maxLength"
                         :rules="rulesValidation.longText.rules"
                         :loading="loading"
+                        variant="outlined"
                       ></v-textarea>
                     </v-col>
                   </v-row>

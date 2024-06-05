@@ -9,13 +9,14 @@
         <!----------------------- FORM --------------------------->
         <v-card-text>
           <v-row>
-            <v-col cols="12" md="8">
+            <v-col cols="12" sm="8">
               <v-text-field
                 :maxlength="rulesValidation.text.maxLength"
                 label="Nombre"
                 v-model="editItem.name"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="4">
@@ -27,6 +28,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-select>
             </v-col>
             <v-col cols="12">
@@ -36,6 +38,7 @@
                 :maxLength="rulesValidation.longText.maxLength"
                 :rules="rulesValidation.longText.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-textarea>
             </v-col>
           </v-row>

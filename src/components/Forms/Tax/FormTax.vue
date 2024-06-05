@@ -24,6 +24,7 @@
                 v-model="editItem.name"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" lg="4">
@@ -33,6 +34,7 @@
                 v-model="editItem.acronym"
                 :rules="rulesValidation.text.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="6" lg="4">
@@ -46,6 +48,7 @@
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
                 prepend-inner-icon="mdi-percent"
+                variant="outlined"
               >
             <template v-slot:append>
               <v-btn
@@ -70,6 +73,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-select>
             </v-col>
             <v-col cols="12" sm="6" lg="4">
@@ -82,6 +86,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+                variant="outlined"
 
               ></v-select>
             </v-col>
@@ -94,6 +99,7 @@
                 item-value="name"
                 :rules="rulesValidation.select.rules"
                 :loading="loading"
+                variant="outlined"
               ></v-select>
             </v-col>
           </v-row>

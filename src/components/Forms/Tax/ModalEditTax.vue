@@ -14,6 +14,7 @@
                 v-model="percent"
                 :rules="rulesValidation.percent.rules"
                 :loading="loading"
+                prepend-inner-icon="mdi-percent"
               ></v-text-field>
 
           </v-col>

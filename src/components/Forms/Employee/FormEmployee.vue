@@ -32,6 +32,7 @@
                             :items="typesContract"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-select>
                         </v-col>
                         <v-col cols="8">
@@ -43,6 +44,7 @@
                             :rules="rulesValidation.file.rules"
                             :loading="loading"
                             @change="handleFileFields($event, 'pathResumeFile')"
+                            variant="outlined"
                           ></v-file-input>
                         </v-col>
                         <v-col
@@ -80,6 +82,7 @@
                             :rules="rulesValidation.file.rules"
                             :loading="loading"
                             @change="handleFileFields($event, 'pathRutFile')"
+                            variant="outlined"
                           ></v-file-input>
                         </v-col>
                         <v-col
@@ -118,6 +121,7 @@
                             item-value="name"
                             :rules="rulesValidation.select.rules"
                             :loading="loading"
+                            variant="outlined"
                           ></v-select>
                         </v-col>
 
@@ -127,6 +131,7 @@
                             v-model="editItem.hireDate"
                             label="Inicio del contrato"
                             :rules="startDateRule"
+                            variant="outlined"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12">
