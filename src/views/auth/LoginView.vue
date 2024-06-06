@@ -59,6 +59,9 @@
               variant="outlined"
             ></v-text-field>
           </v-col>
+          <v-col cols="12">
+
+          </v-col>
         </v-row>
         <div class="d-flex justify-end">
           <v-btn
@@ -125,6 +128,8 @@ export default {
           formData.append("email", this.form.email);
         }
         formData.append("password", this.form.password);
+        const key = await this.$recaptcha('login');
+        formData.append("recaptcha_key", key);
         const response = await authUser.login(formData);
 
         if (response.statusResponse != 200) {
@@ -144,6 +149,7 @@ export default {
             user: response.user,
             ...response.data,
           });
+
           localStorage.setItem("auth-token", response.data.access_token);
           localStorage.setItem("user", JSON.stringify(response.user));
           this.$router.push("/");

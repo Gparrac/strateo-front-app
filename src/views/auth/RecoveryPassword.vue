@@ -13,7 +13,7 @@
             <v-text-field
             variant="outlined"
               label="Email"
-              :rules="rulesValidation.email"
+              :rules="rulesValidation.email.rules"
               v-model="email"
             ></v-text-field>
           </v-col>
