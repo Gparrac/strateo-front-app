@@ -1,15 +1,19 @@
 <template>
+  <div :class="recoveryRequest ? 'd-flex justify-center align-center h-screen' : ''">
   <v-form class="d-flex justify-center align-center" ref="form">
-    <v-card width="512" :loading="loader">
+    <v-card width="512" :loading="loading">
       <v-card-title class="text-h4 py-5 text-center">
-        Cambiar contraseña
+       {{ recoveryRequest ? 'Recuperación de credenciales' : 'Cambiar contraseña'}}
       </v-card-title>
-
+      <v-card-subtitle>
+        Introduce las nueva contraseña para {{ $route.query.email }}
+      </v-card-subtitle>
       <v-card-text>
         <v-row>
           <v-col cols="12">
             <v-text-field
               label="Contraseña actual"
+              autocomplete="currently-password"
               :append-inner-icon="showPasswords[0] ? 'mdi-eye-off' : 'mdi-eye'"
               :type="showPasswords[0] ? 'text' : 'password'"
               @click:append-inner="showPasswords[0] = !showPasswords[0]"
@@ -20,6 +24,7 @@
           </v-col>
           <v-col cols="12">
             <v-text-field
+              autocomplete="password"
               label="Nueva contraseña"
               :append-inner-icon="showPasswords[1] ? 'mdi-eye-off' : 'mdi-eye'"
               :type="showPasswords[1] ? 'text' : 'password'"
@@ -32,6 +37,7 @@
           </v-col>
           <v-col cols="12">
             <v-text-field
+              autocomplete="confirmPassword"
               label="Confirmar contraseña"
               :append-inner-icon="showPasswords[2] ? 'mdi-eye-off' : 'mdi-eye'"
               :type="showPasswords[2] ? 'text' : 'password'"
@@ -46,9 +52,11 @@
       </v-card-text>
       <v-card-actions>
         <v-btn color="orange" @click="changePassword"> Guardar </v-btn>
+        <v-btn color="orange" @click="$router.push('/')"> Volver </v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
+</div>
 </template>
 
 <script>
@@ -62,8 +70,9 @@ export default {
   data() {
     return {
       showPasswords: [false, false, false],
-
+      loading:false,
       editItem: {},
+      recoveryRequest: false,
       rulesValidation: RulesValidation,
     };
   },
@@ -88,6 +97,9 @@ export default {
     },
     ...mapStores(useAlertMessageStore),
   },
+  created(){
+    if(this.$route.name) this.recoveryRequest = true;
+  },
   methods: {
     async changePassword() {
       this.loading = true;
@@ -96,9 +108,17 @@ export default {
         //passing validations 🚥
         const formData = new FormData();
         let response = {};
-        formData.append("old_password", this.editItem.oldPassword);
-        formData.append("new_password", this.editItem.newPassword);
-        response = await authApi.changePassword(formData);
+
+        if(this.recoveryRequest){
+          formData.append("password", this.editItem.newPassword);
+          formData.append("email", this.$route.query.email);
+          formData.append("token", this.$route.query.token);
+          response = await authApi.changePassword(formData);
+        }else{
+          formData.append("old_password", this.editItem.oldPassword);
+          formData.append("new_password", this.editItem.newPassword);
+          response = await authApi.changePassword(formData);
+        }
         // logic to show alert 🚨
         if (response.statusResponse != 200) {
           if (response.error && typeof response.error === "object") {
@@ -112,6 +132,7 @@ export default {
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
+          this.$router.push('/');
 
         }
       }
@@ -120,3 +141,8 @@ export default {
   },
 };
 </script>
+<style>
+  .h100{
+    height: 100vh;
+  }
+</style>

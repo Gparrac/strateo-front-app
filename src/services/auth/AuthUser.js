@@ -16,10 +16,14 @@ export default class AuthUser
   }
 
   logout(){
-    return this.petition.get(`${this.prefix}/logout`,'',true);
+    return this.petition.get(`${this.prefix}/logout`,'',true)
+  }
+  reset(body){
+    return this.petition.post(`/password/email`, body, true);
+  }
+  changePassword(body, recovery){
+    const path = (recovery) ? this.prefix + '/change-password' : '/password/reset';
+    return this.petition.post(`${path}`, body, true);
   }
 
-  changePassword(body){
-    return this.petition.post(`${this.prefix}/change-password`, body, true);
-  }
 }

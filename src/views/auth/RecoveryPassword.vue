@@ -20,20 +20,22 @@
         </v-row>
       </v-card-text>
       <v-card-actions >
-        <v-btn color="orange" @click="recoveryPassword"> Recuperar </v-btn>
-        <v-btn color="orange" to="sign-in"> Volver </v-btn>
+        <v-btn color="orange" :loading="loader" @click="recoveryPassword"> Recuperar </v-btn>
+        <v-btn color="orange" :loading="loader" to="sign-in"> Volver </v-btn>
       </v-card-actions>
     </template>
-    <v-card-subtitle  v-else class=" d-block pa-10 "> Envio exitoso. revisa el correo para continuar con la recuperación de tu cuenta!</v-card-subtitle>
+    <v-card-subtitle  v-else class=" d-block pa-10 "> {{ alertMessage }}</v-card-subtitle>
     </v-card>
   </v-form>
 </template>
 
 <script>
+import AuthUser from '@/services/auth/AuthUser';
 import {RulesValidation} from '@/utils/validations';
 
 
 
+const authUser = new AuthUser();
 export default {
   name: "LoginView",
   data: () => ({
@@ -42,9 +44,8 @@ export default {
     loader: false,
     rulesValidation: RulesValidation,
     statusRequest: false,
+    alertMessage: ''
   }),
-  mounted(){
-  },
   methods: {
     async recoveryPassword() {
       this.loader = true;
@@ -52,10 +53,17 @@ export default {
       if (valid) {
         const formData = new FormData();
         formData.append("email", this.email);
-        // const response = await authUser.recoveryPassword(formData);
+        const response = await authUser.reset(formData);
 
-        // if(response.statusResponse != 200){
-        //   return;
+        if (response.statusResponse != 200) {
+          if (response.error && typeof response.error === "object") {
+            this.alertMessage = 'Error en la petición'
+          } else {
+            this.alertMessage = 'Error en el servidor'
+          }
+        } else {
+          this.alertMessage = 'Envio exitoso. revisa el correo para continuar con la recuperación de tu cuenta!';
+        }
         }
         this.statusRequest = true;
         this.loader = false;

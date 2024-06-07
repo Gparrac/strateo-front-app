@@ -29,19 +29,30 @@ const routes = [
       let path = null;
       try {
         //check auth 🚨
-        const userData = await authUser.user();
-        if (userData.statusResponse != 200) {
-          const userStore = useUserAuthStore();
-          localStorage.clear();
-          userStore.$reset();
-          path = "/sign-in";
-        } else {
-          if (from.path == "/sign-in" && to.path == "/") {
-            //check enterprise 🚨
-            const response = await petition.get("/check-enterprise", "", true);
-            if (response.message && response.message == "Successful") {
-              if (response.data === false) {
-                path = "/enterprises";
+        console.log("path", path, to.path, to.query);
+        if (
+          to.path != "/change-recovery-password" &&
+          !to.query.token &&
+          !to.query.email
+        ) {
+          const userData = await authUser.user();
+          if (userData.statusResponse != 200) {
+            const userStore = useUserAuthStore();
+            localStorage.clear();
+            userStore.$reset();
+            path = "/sign-in";
+          } else {
+            if (from.path == "/sign-in" && to.path == "/") {
+              //check enterprise 🚨
+              const response = await petition.get(
+                "/check-enterprise",
+                "",
+                true
+              );
+              if (response.message && response.message == "Successful") {
+                if (response.data === false) {
+                  path = "/enterprises";
+                }
               }
             }
           }
@@ -62,6 +73,11 @@ const routes = [
     name: "RecoveryPassword",
     component: () => import("@/views/auth/RecoveryPassword.vue"),
   },
+  {
+    path: "/change-recovery-password",
+    name: "changePassword",
+    component: () => import("@/views/auth/ChangePasswordView.vue"),
+  },
 ];
 
 const router = createRouter({
@@ -72,6 +88,6 @@ router.beforeEach((_to, _from, next) => {
   const filterTableStore = useFilterTableStore();
   filterTableStore.$reset();
   next();
-})
+});
 
 export default router;
