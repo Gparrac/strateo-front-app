@@ -29,7 +29,6 @@ const routes = [
       let path = null;
       try {
         //check auth 🚨
-        console.log("path", path, to.path, to.query);
         if (
           to.path != "/change-recovery-password" &&
           !to.query.token &&

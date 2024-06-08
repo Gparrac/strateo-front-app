@@ -1,4 +1,5 @@
 <template>
+  <alert-message v-if="recoveryRequest"></alert-message>
   <div :class="recoveryRequest ? 'd-flex justify-center align-center h-screen' : ''">
   <v-form class="d-flex justify-center align-center" ref="form">
     <v-card width="512" :loading="loading">
@@ -10,7 +11,7 @@
       </v-card-subtitle>
       <v-card-text>
         <v-row>
-          <v-col cols="12">
+          <v-col cols="12" v-if="!recoveryRequest">
             <v-text-field
               label="Contraseña actual"
               autocomplete="currently-password"
@@ -22,7 +23,7 @@
               variant="outlined"
             ></v-text-field>
           </v-col>
-          <v-col cols="12">
+          <v-col cols="12" >
             <v-text-field
               autocomplete="password"
               label="Nueva contraseña"
@@ -35,7 +36,7 @@
               variant="outlined"
             ></v-text-field>
           </v-col>
-          <v-col cols="12">
+          <v-col cols="12" >
             <v-text-field
               autocomplete="confirmPassword"
               label="Confirmar contraseña"
@@ -60,6 +61,7 @@
 </template>
 
 <script>
+import AlertMessage from "@/components/blocks/AlertMessage.vue";
 import AuthApi from "@/services/auth/AuthUser";
 import { RulesValidation } from "@/utils/validations";
 import { mapStores } from "pinia";
@@ -67,6 +69,9 @@ import { useAlertMessageStore } from "@/store/alertMessage";
 
 const authApi = new AuthApi();
 export default {
+  components:{
+    AlertMessage
+  },
   data() {
     return {
       showPasswords: [false, false, false],
@@ -132,7 +137,7 @@ export default {
           }
         } else {
           this.alertMessageStore.show(true, "Proceso exitoso!");
-          this.$router.push('/');
+          //this.$router.push('/');
 
         }
       }
