@@ -259,6 +259,7 @@
                         @update:itemSelected="
                           (item) => editItem.ciiu = item
                         "
+                        :rules="rulesValidation.select.rules"
                         mainLabel="description"
                         title="Codigo principal CIIU"
                         subtitle="codigo:"

@@ -11,6 +11,9 @@
     :rules="rules"
     :density="density"
     :custom-filter="filter"
+    :no-data-text="customTextNonData"
+    :persistent-hint="options.length == 0 ? true : false"
+    :hint="options.length == 0 ? `Se require crear ${title} para continuar con esta selección.` : ''"
   >
     <template v-slot:item="{ props, item }">
       <v-list-item v-bind="props">
@@ -34,6 +37,11 @@
 import { searchKey } from "@/utils/cast";
 export default {
   props: {
+    customTextNonData: {
+      default: 'No hay atributos disponible',
+      required: false,
+      type: String
+    },
     rules: {
       default: () => [],
       required: false,

@@ -13,6 +13,7 @@
           mainLabel="name"
           :secondLabel="['description']"
           title="Metodos de pago"
+
           subtitle=""
           class="pr-5"
         >

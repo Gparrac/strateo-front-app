@@ -1,6 +1,6 @@
 export const RulesValidation = {
   text: {
-    maxLength: 25,
+    maxLength: 45,
     rules: [
       (value) => !!value || "Este campo es requirido",
       (value) =>
@@ -151,8 +151,8 @@ export const RulesValidation = {
       (value) =>
         !value ||
         !value.length ||
-        value[0].size < 2000000 ||
-        "La imagen debe pesar menos de 2 MB",
+        value[0].size < 5000000 ||
+        "La imagen debe pesar menos de 5 MB",
     ],
   },
   file: {
@@ -161,7 +161,7 @@ export const RulesValidation = {
         !value ||
         !value.length ||
         value[0].size < 10000000 ||
-        "El archivo debe pesar menos de 3 MB",
+        "El archivo debe pesar menos de 10 MB",
     ],
   },
   quantity: {
