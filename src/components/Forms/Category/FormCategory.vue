@@ -143,16 +143,17 @@ export default {
       if (valid) {
         //passing validations 🚥
         const formData = new FormData();
+
         let response = {};
         // third fields 🚥
         formData.append("name", this.editItem.name);
         formData.append("code", this.editItem.code);
         formData.append("status", this.editItem.status);
-
-        this.editItem.products.forEach((item, index) => {
+        if( this.editItem.products){
+          this.editItem.products.forEach((item, index) => {
           formData.append(`products_ids[${index}]`, item.id);
         });
-
+        }
         if (this.idEditForm) {
           formData.append("category_id", this.editItem.category_id);
           response = await categoryApi.update(formData);
