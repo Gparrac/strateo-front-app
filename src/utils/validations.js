@@ -25,7 +25,7 @@ export const RulesValidation = {
     rules: [
       (value) => !!value || "Este campo es requirido",
       (value) =>
-        (value && value.toString().length < 19) || "Demasiados caracteres",
+        (value && value.toString().length < 19) || "Maximo 19 caracteres",
     ],
   },
   shortTextNull: {
