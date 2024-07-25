@@ -32,7 +32,7 @@ export const RulesValidation = {
     maxLength: 20,
     rules: [
       (value) =>
-        !value || value.toString().length < 19 || "Demasiados caracteres",
+        !value || value.toString().length < 19 || "Maximo 19 caracteres",
     ],
   },
   date: {
@@ -172,7 +172,7 @@ export const RulesValidation = {
         (!isNaN(parseFloat(value)) && isFinite(value)) ||
         typeof value == "number" ||
         "La cantidad debe ser de tipo númerica",
-      (value) => (value < 10000 && value >= 0) || "Rango de cantidad no valida",
+      (value) => (value < 10000 && value >= 0) || "Rango de cantidad no valida (0 - 10000)",
     ],
   },
   quantityNull: {
@@ -190,7 +190,7 @@ export const RulesValidation = {
       },
       (value) => {
         if (value !== null && value !== undefined) {
-          return (value < 10000 && value >= 0) || "Rango de cantidad no válido";
+          return (value < 10000 && value >= 0) || "Rango de cantidad no válido (0 - 10000)";
         }
         return true; // Si el campo es nulo o undefined, no aplicamos la regla de validación
       },
@@ -205,7 +205,7 @@ export const RulesValidation = {
         typeof value == "number" ||
         "La cantidad debe ser de tipo númerica",
       (value) =>
-        (value < 100000000 && value >= 0) || "Rango de cantidad no valida",
+        (value < 100000000 && value >= 0) || "Rango de cantidad no valida (0 - 99999999)",
     ],
   },
   optionalPrice: {
@@ -219,7 +219,7 @@ export const RulesValidation = {
       (value) =>
         !value ||
         (value < 10000000 && value >= 0) ||
-        "Rango de cantidad no valida",
+        "Rango de cantidad no valida (0 - 99999999)",
     ],
   },
   percent: {
