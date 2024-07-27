@@ -65,6 +65,9 @@
       records.length
     }}</span>
   </div>
+  <span v-if="error && error.length > 0" class="text-error text-caption">
+    Se requiere minimo un campo relacionado.
+  </span>
 </template>
 <script>
 import { RulesValidation } from "@/utils/validations";
@@ -75,6 +78,10 @@ export default {
   name: 'DynamicFieldList',
   props: {
     records: Array,
+    error:{
+      require: false,
+      default: '',
+    }
   },
   components:{
     DynamicSelectField

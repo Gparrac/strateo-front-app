@@ -149,7 +149,7 @@ export default {
     },
     async loadItems(name = null) {
       let query = `&filters[0][key]=context&filters[0][value][0]=${this.context}`;
-      query += name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
+      query += name ? `&filters[1][key]=tax&filters[1][value]=${name}` : "";
 
       const response = await taxApi.read(`format=short${query}`);
       this.options = response.data;

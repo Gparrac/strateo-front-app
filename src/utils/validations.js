@@ -151,7 +151,7 @@ export const RulesValidation = {
       (value) =>
         !value ||
         !value.length ||
-        value[0].size < 5000000 ||
+        value[0].size < 1000000 ||
         "La imagen debe pesar menos de 5 MB",
     ],
   },

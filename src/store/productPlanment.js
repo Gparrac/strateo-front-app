@@ -21,7 +21,9 @@ export const useProductPlanmentStore = defineStore("productPlanment", {
       const index = this.productEvents.findIndex(function (objeto) {
         return objeto.id === item.id;
       });
+      console.log('arraving to add event',index)
       if (index === -1) {
+
         this.productEvents.push(item);
 
       }

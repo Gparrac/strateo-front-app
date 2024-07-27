@@ -5,6 +5,8 @@ import Petition from "@/services/PetitionStructure/Petition";
 import AuthUser from "@/services/auth/AuthUser";
 import { useUserAuthStore } from "@/store/userAuth";
 import { useFilterTableStore } from "@/store/filterTables";
+import { useAlertMessageStore } from "@/store/alertMessage";
+
 
 const authUser = new AuthUser();
 const petition = new Petition();
@@ -28,6 +30,7 @@ const routes = [
     beforeEnter: async (to, from, next) => {
       let path = null;
       try {
+        console.log('passsing before enter')
         //check auth 🚨
         if (
           to.path != "/change-recovery-password" &&
@@ -41,19 +44,8 @@ const routes = [
             userStore.$reset();
             path = "/sign-in";
           } else {
-            if (from.path == "/sign-in" && to.path == "/") {
-              //check enterprise 🚨
-              const response = await petition.get(
-                "/check-enterprise",
-                "",
-                true
-              );
-              if (response.message && response.message == "Successful") {
-                if (response.data === false) {
-                  path = "/enterprises";
-                }
-              }
-            }
+            console.log('source route', from.path, to.path);
+
           }
         }
       } catch (error) {
@@ -83,10 +75,28 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
-router.beforeEach((_to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
+  let path = null;
+  console.log('passsing before each')
+  if (to.path != "/sign-in" && to.path != "/enterprises") {
+    //check enterprise 🚨
+    const response = await petition.get(
+      "/check-enterprise",
+      "",
+      true
+    );
+
+    if (response.message && response.message == "Successful") {
+      if (response.data === false) {
+        path = "/enterprises";
+        const alertStore = useAlertMessageStore();
+        alertStore.show(false, 'Se require completar información de empresa.', null);
+      }
+    }
+  }
   const filterTableStore = useFilterTableStore();
   filterTableStore.$reset();
-  next();
+  path ? next(path) : next();
 });
 
 export default router;

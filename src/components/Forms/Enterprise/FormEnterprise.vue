@@ -193,12 +193,13 @@
                       <v-file-input
                         label="Logo"
                         v-model="editItem.path_logo"
-                        :rules="rulesValidation.image.rules"
+                        :rules="imageRules"
                         :loading="loading"
                         accept="image/png, image/jpeg, image/bmp"
                         prepend-icon="mdi-camera"
                         @change="handleImageChange"
                         variant="outlined"
+
                       ></v-file-input>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -367,6 +368,14 @@ export default {
         this.editItem.identification.length > 0
         ? " - " + castNit(this.editItem.identification)
         : "";
+    },
+    imageRules(){
+      console.log('imageRules',this.showImageSelected);
+      return [
+        v => !v || !! this.showImageSelected || 'El icono es requerido'
+        ,...RulesValidation.image.rules,
+
+      ]
     },
     verificationSecondEmail() {
       return [

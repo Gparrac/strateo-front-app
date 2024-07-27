@@ -1,5 +1,5 @@
 <template>
-    <alert-message v-if="recoveryRequest"></alert-message>
+    <alert-message ></alert-message>
   <v-form class="d-flex justify-center align-center h-screen" ref="form">
     <v-card width="512" :loading="loader">
       <v-card-title class="text-h4 pt-5 text-center"> Recuperación de contraseña </v-card-title>

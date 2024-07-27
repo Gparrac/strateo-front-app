@@ -63,6 +63,7 @@
                 <v-card-text>
                   <!------------------------------- DYNAMIC ITEM --------------------------->
                   <dynamic-field-list
+                    :error="fieldsErrorMessage"
                     v-if="editItem.fields"
                     :records="editItem.fields"
                     @update:records="(item) => (editItem.fields = item)"
@@ -116,6 +117,7 @@ export default {
     idEditForm: Number,
     nameTable: String,
     path: String,
+
   },
   components: {
     DynamicFieldList,
@@ -124,6 +126,7 @@ export default {
     // required data
     loading: false,
     editItem: {},
+    fieldsErrorMessage: '',
     // optional data
     formRef: null,
     status: [],
@@ -152,7 +155,15 @@ export default {
 
       this.loading = true;
       const { valid } = await this.$refs.form.validate();
+      if (!this.editItem.fields || this.editItem.fields.length == 0){
+        this.fieldsErrorMessage = 'Se require almenos un campo para continuar.'
+      }else{
+        this.loading = false;
+        this.fieldsErrorMessage = ''
+        return
+      }
       if (valid) {
+
         //passing validations 🚥
         const formData = new FormData();
         let response = {};

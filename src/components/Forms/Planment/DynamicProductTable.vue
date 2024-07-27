@@ -261,8 +261,8 @@ export default {
       this.warehouses = (await warehouseApi.read(`format=short${query}`)).data;
     },
     async setTaxes(name = null) {
-      let query = `&filters[0][key]=context&filters[0][value]=P`;
-      query += name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
+      let query = `&filters[0][key]=context&filters[0][value][0]=P`;
+      query += name ? `&filters[1][key]=tax&filters[1][value][0]=${name}` : "";
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
     },
