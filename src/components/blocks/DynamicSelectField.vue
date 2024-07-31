@@ -40,8 +40,13 @@ export default {
     customTextNonData: {
       default: 'No hay atributos disponible',
       required: false,
-      type: String
+      type: String,
     },
+    maxSearchRate: {
+        default: 6,
+        required: false,
+        type: Number
+      },
     rules: {
       default: () => [],
       required: false,
@@ -81,7 +86,8 @@ export default {
   }),
   watch: {
     async searchItem(to) {
-      if (to.length > 2 && to.length < 6) {
+      console.log('working?', this.maxSearchRate)
+      if (to.length > 2 && to.length < this.maxSearchRate) {
         this.$emit("update:options", to);
       } else if (to.length == 0) {
         this.$emit("update:options", "");

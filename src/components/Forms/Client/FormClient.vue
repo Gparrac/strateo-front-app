@@ -371,6 +371,7 @@ export default {
     async setCities(name = null) {
       const query = name ? `name=${name}` : "";
       this.cities = (await petition.get("/cities", query)).data;
+      console.log('changing',this.cities.length)
     },
     async setCiiuCodes(name = null) {
       const query = name ? `name=${name}` : "";

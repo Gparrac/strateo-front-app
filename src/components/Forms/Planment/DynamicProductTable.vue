@@ -262,7 +262,7 @@ export default {
     },
     async setTaxes(name = null) {
       let query = `&filters[0][key]=context&filters[0][value][0]=P`;
-      query += name ? `&filters[1][key]=tax&filters[1][value][0]=${name}` : "";
+      query += name ? `&filters[1][key]=tax&filters[1][value]=${name}` : "";
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
     },

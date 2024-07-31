@@ -101,7 +101,7 @@ export default {
   methods: {
     async loadItems(name = null) {
 
-      let query = name ? `&filters[0][key]=tax&filters[0][value]=${name}` : "";
+      let query = name ? `&filters[0][key]=name&filters[0][value]=${name}` : "";
 
       const response = await paymentMethodApi.read(`format=short${query}`);
       this.options = response.data;

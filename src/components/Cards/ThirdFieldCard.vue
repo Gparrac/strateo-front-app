@@ -169,6 +169,7 @@
             mainLabel="name"
             title="Ciudad"
             :rules="rulesValidation.select.rules"
+            :maxSearchRate="10"
           >
           </dynamic-select-field>
         </v-col>
@@ -257,6 +258,7 @@ export default {
       );
     },
     emitRecords(item, key) {
+
       this.$emit("update:records", { item: item, key: key });
     },
     async setEditItem() {
