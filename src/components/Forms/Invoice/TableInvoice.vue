@@ -35,6 +35,33 @@
       return-object
       :items-per-page-options="[5, 10, 20, 50]"
     >
+    <template v-slot:[`item.client.third`]="{ item }">
+        <div>
+          <span class="block text-subtitle-2">
+            {{
+              `${item?.client?.third?.id} - ${item?.client?.third?.fullname}`
+
+          }}</span
+          ><br />
+          <span class="block text-body-2 text-blue-grey-lighten-3">
+            {{ item?.client?.third?.fullid }}
+          </span>
+        </div>
+      </template>
+      <template v-slot:[`item.seller`]="{ item }">
+        <div>
+          <span class="text-primary">{{ item.seller.name }}</span> <br/>
+          <span class="block text-subtitle-2">
+            {{
+              `${item?.seller?.third?.id} - ${item?.seller?.third?.fullname}`
+
+          }}</span
+          ><br />
+          <span class="block text-body-2 text-blue-grey-lighten-3">
+            {{ item?.client?.third?.fullid }}
+          </span>
+        </div>
+      </template>
       <template v-slot:[`item.sale_type`]="{ item }">
     <div >
       <v-chip
@@ -106,14 +133,14 @@ export default {
     headers: [
       {
         title: "ID",
-        align: "start",
+        align: "left",
         key: "id",
         sortable: true,
       },
       {
         title: "Cliente",
-        align: "end",
-        key: "client.third.names",
+        align: "start",
+        key: "client.third",
         sortable: false,
       },
       {
@@ -122,8 +149,8 @@ export default {
         key: "client.third.identification",
         sortable: false,
       },
-      { title: "Fecha de la transacción", align: "end", key: "date", sortable: true },
-      { title: "Vendedor", align: "end", key: "seller.name", sortable: false },
+      { title: "Fecha de la transacción", align: "center", key: "date", sortable: true },
+      { title: "Vendedor", align: "start", key: "seller", sortable: false },
       {
         title: "Tipo",
         align: "center",

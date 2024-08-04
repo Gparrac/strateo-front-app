@@ -18,8 +18,8 @@
             <v-col cols="12">
               <v-text-field
               variant="outlined"
-              :maxlength="rulesValidation.text.maxLength" label="Código" v-model="editItem.code"
-                  :rules="rulesValidation.text.rules" :loading="loading"></v-text-field>
+              :maxlength="rulesValidation.code.maxLength" label="Código" v-model="editItem.code"
+                  :rules="rulesValidation.code.rules" :loading="loading"></v-text-field>
             </v-col>
             <v-col cols="12">
               <v-select

@@ -8,6 +8,18 @@ export const RulesValidation = {
         "Este campo debe de ser de almenos 3 caracteres",
     ],
   },
+  code: {
+    maxLength: 10,
+    rules: [
+      (value) => !!value || "Este campo es requirido",
+      (value) =>
+        (value && value.length >= 3) ||
+        "Este campo debe de ser de almenos 3 caracteres",
+      (value) =>
+        (value && value.length <= 10) ||
+        "Este campo debe de ser menor de 10 caracteres",
+    ],
+  },
   justText: {
     maxLength: 25,
     rules: [
