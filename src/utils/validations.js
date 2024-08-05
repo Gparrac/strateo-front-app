@@ -238,6 +238,19 @@ export const RulesValidation = {
     maxLength: 5,
     rules: [
       (value) => {
+        if (value !== null && value !== undefined) {
+        if (!value) return "Por favor, ingrese un valor";
+        const regex = /^\d{1,2}(\.\d{1,3})?$/; // Expresión regular para validar el formato del porcentaje
+        if (!regex.test(value)) return "El formato del porcentaje es inválido";
+        return true;
+        }
+      },
+    ],
+  },
+  percentNull: {
+    maxLength: 5,
+    rules: [
+      (value) => {
         if (!value) return "Por favor, ingrese un valor";
         const regex = /^\d{1,2}(\.\d{1,3})?$/; // Expresión regular para validar el formato del porcentaje
         if (!regex.test(value)) return "El formato del porcentaje es inválido";

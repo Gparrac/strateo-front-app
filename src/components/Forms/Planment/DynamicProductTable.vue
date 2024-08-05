@@ -9,7 +9,12 @@
         <dynamic-select-field
           :options="options"
           @update:options="loadItems"
-          @update:itemSelected="(item) =>checkInvoiceStepStore.handleUpdateInvoiceData(productPlanmentStore.addEvent(item))"
+          @update:itemSelected="
+            (item) =>
+              checkInvoiceStepStore.handleUpdateInvoiceData(
+                productPlanmentStore.addEvent(item)
+              )
+          "
           mainLabel="name"
           :secondLabel="['consecutive']"
           :title="titleField"
@@ -24,40 +29,50 @@
       </div>
     </v-col>
     <v-col class="px-5">
-      <v-data-table :items="productPlanmentStore.productEvents" :headers="headersTable">
+      <v-data-table
+        :items="productPlanmentStore.productEvents"
+        :headers="headersTable"
+      >
         <template v-slot:[`item.id`]="{ item }">
-          <div class="d-flex py-2 align-center">
-          <v-btn
-                    v-show="!editable"
-                    icon="mdi-delete"
-                    size="small"
-                    color="warning"
-                    variant="tonal"
-                    @click="checkInvoiceStepStore.handleUpdateInvoiceData(productPlanmentStore.deleteEvent(item))"
-                  >
-                  </v-btn>
-          <div class="d-flex flex-column pl-3">
-            <h6 class="text-subtitle-1">{{ item.id + ' - ' + item.name }}</h6>
-            <span class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3">
-              COD: {{ item.product_code }}</span
+          <div class="d-flex py-2 align-center min-w-cell" >
+            <v-btn
+              v-show="!editable"
+              icon="mdi-delete"
+              size="small"
+              color="warning"
+              variant="tonal"
+              @click="
+                checkInvoiceStepStore.handleUpdateInvoiceData(
+                  productPlanmentStore.deleteEvent(item)
+                )
+              "
             >
-            <span class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3">
-              CON: {{ item.consecutive }}</span
-            >
-            <div>
-            <v-chip class=" mt-1" size="small">
-              {{`${item.size} ${item.measure.symbol}`}}
-
-            </v-chip>
+            </v-btn>
+            <div class="d-flex flex-column pl-3">
+              <h6 class="text-subtitle-1">{{ item.id + " - " + item.name }}</h6>
+              <span
+                class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3"
+              >
+                COD: {{ item.product_code }}</span
+              >
+              <span
+                class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3"
+              >
+                CON: {{ item.consecutive }}</span
+              >
+              <div>
+                <v-chip class="mt-1" size="small">
+                  {{ `${item.size} ${item.measure.symbol}` }}
+                </v-chip>
+              </div>
+            </div>
           </div>
-
-          </div>
-        </div>
         </template>
-        <template  v-slot:[`item.attributes`]="{ item }">
-          <v-row class="text-start pt-3 my-0">
+        <template v-slot:[`item.attributes`]="{ item }">
+          <v-row class="text-start pt-3 my-0 min-w-cell">
             <v-col cols="12" lg="4">
               <v-text-field
+
                 :maxlength="rulesValidation.quantity.maxLength"
                 label="Cantidad"
                 :rules="rulesValidation.quantity.rules"
@@ -67,7 +82,7 @@
                 :disabled="editable"
                 density="compact"
                 persistent-hint
-                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
+                @update:model-value="checkInvoiceStepStore.handleUpdateInvoiceData()"
               >
               </v-text-field>
             </v-col>
@@ -84,36 +99,37 @@
                 density="compact"
                 persistent-hint
                 :hint="'Precio fijado: ' + item.defaultCost"
-                @change=checkInvoiceStepStore.handleUpdateInvoiceData()
+                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
               ></v-text-field>
             </v-col>
+            <!-- this could be wrapped in a different componente to reuse it 🔦 -->
             <v-col cols="12">
-              <v-text-field
-                :maxlength="rulesValidation.price.maxLength"
-                label="Descuento"
-                :rules="rulesValidation.optionalPrice.rules"
+              <InputDiscount
+                :item="item"
                 :loading="loading"
-                prepend-inner-icon="mdi-cash"
-                v-model="item.discount"
-                variant="outlined"
-                :disabled="editable"
-                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
-                density="compact"
-                persistent-hint
-              ></v-text-field>
+                :editable="editable"
+                @update:itemKindDiscount="(value) => (item.kindDiscount = value)"
+                @update:itemDiscountPercent="(value) => (item.discountPercent = value)"
+                @update:itemDiscount="(value) => (item.discount = value)"
+              ></InputDiscount>
             </v-col>
           </v-row>
         </template>
         <template v-slot:[`item.taxes`]="{ item }">
           <div
-            class="d-flex flex-column mt-4 text-start"
-            style="min-width: 200px"
+            class="d-flex flex-column mt-4 text-start min-w-cell"
+
           >
             <dynamic-select-field
               :options="taxes"
               @update:options="setTaxes"
               density="compact"
-              @update:itemSelected="(value) => checkInvoiceStepStore.handleUpdateInvoiceData(appendItemAttribute(value, item, 'taxes'))"
+              @update:itemSelected="
+                (value) =>
+                  checkInvoiceStepStore.handleUpdateInvoiceData(
+                    appendItemAttribute(value, item, 'taxes')
+                  )
+              "
               mainLabel="acronym"
               :secondLabel="['name']"
               title="Impuestos"
@@ -124,34 +140,38 @@
 
             <template v-if="item.taxes && item.taxes.length">
               <v-divider thickness="3" class="mb-4"></v-divider>
-              <div v-for="(tax, i) in item.taxes" :key="item.id + '-i-t-' + i" class="d-flex  flex-nowrap w-full">
+              <div
+                v-for="(tax, i) in item.taxes"
+                :key="item.id + '-i-t-' + i"
+                class="d-flex flex-nowrap w-full"
+              >
                 <div class="flex-grow-1 mr-2">
-                <v-select
-                  :label="tax.acronym"
-                  variant="outlined"
-                  v-model="tax.percent"
-                  :items="tax.tax_values"
-                  @update:model-value="checkInvoiceStepStore.handleUpdateInvoiceData()"
-                  item-title="percent"
-                  item-value="percent"
-                  prepend-inner-icon="mdi-brightness-percent"
-                  :rules="rulesValidation.select.rules"
-                  :loading="loading"
-                  density="compact"
-
-                ></v-select>
-              </div>
+                  <v-select
+                    :label="tax.acronym"
+                    variant="outlined"
+                    v-model="tax.percent"
+                    :items="tax.tax_values"
+                    @update:model-value="
+                      checkInvoiceStepStore.handleUpdateInvoiceData()
+                    "
+                    item-title="percent"
+                    item-value="percent"
+                    prepend-inner-icon="mdi-brightness-percent"
+                    :rules="rulesValidation.select.rules"
+                    :loading="loading"
+                    density="compact"
+                  ></v-select>
+                </div>
 
                 <v-btn
-                    v-show="!editable"
-                    icon="mdi-minus-circle-outline"
-                    size="small"
-                    color="warning"
-                    variant="plain"
-                    @click="deleteTax(item.taxes,i)"
-                  >
-                  </v-btn>
-
+                  v-show="!editable"
+                  icon="mdi-minus-circle-outline"
+                  size="small"
+                  color="warning"
+                  variant="plain"
+                  @click="deleteTax(item.taxes, i)"
+                >
+                </v-btn>
               </div>
             </template>
           </div>
@@ -190,6 +210,8 @@ import TotalRecords from "@/components/blocks/TotalRecords.vue";
 import { mapStores } from "pinia";
 import { useProductPlanmentStore } from "@/store/productPlanment";
 import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
+import { formatNumberToColPesos } from '@/utils/cast';
+import  InputDiscount  from "@/components/blocks/InputDiscount.vue";
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -201,16 +223,21 @@ export default {
     kindProduct: {
       type: String,
       required: false,
-      default: 'P',
+      default: "P",
     },
   },
   components: {
     DynamicSelectField,
     ModalNewProduct,
     TotalRecords,
+    InputDiscount
   },
   data: () => ({
-    titleField: 'Productos',
+    kindDescount: [
+      { id: "P", icon: "mdi-brightness-percent" },
+      { id: "A", icon: "mdi-cash" },
+    ],
+    titleField: "Productos",
     options: [],
     loading: false,
     rulesValidation: RulesValidation,
@@ -228,12 +255,18 @@ export default {
       { title: "Total", align: "center", sortable: false, key: "total" },
     ],
   }),
- computed: {
-  ...mapStores(useProductPlanmentStore, useCheckInvoiceStep)
- },
+  computed: {
+    ...mapStores(useProductPlanmentStore, useCheckInvoiceStep),
+  },
   methods: {
-    deleteTax(taxes, index){
-
+    formatNumberToColPesos(item){
+      return formatNumberToColPesos(item)
+    },
+    resetDiscounts(item){
+      item.discount = 0
+      item.percent = 0
+    },
+    deleteTax(taxes, index) {
       taxes.splice(index, 1);
       this.checkInvoiceStepStore.handleUpdateInvoiceData();
     },
@@ -246,7 +279,7 @@ export default {
       ).data;
     },
     async loadItems(name = null) {
-      let query =  this.kindProduct == 'E' ? `&types[0]=I&` : `&types[0]=T&`;
+      let query = this.kindProduct == "E" ? `&types[0]=I&` : `&types[0]=T&`;
       query =
         query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
 
@@ -254,7 +287,6 @@ export default {
       this.options = response.data;
     },
     async setWarehouses(name = null) {
-
       const query = name
         ? `&filters[0][key]=address&filters[0][value]=${name}`
         : "";
@@ -266,10 +298,14 @@ export default {
       const response = await taxApi.read(`format=short${query}`);
       this.taxes = response.data;
     },
-    totalData(array, key){
-      return (array) ? array.reduce((total, item) =>
-        ( (!isNaN(item[key])) ? total + (+item[key]) : total + 0)
-      , 0) : 0;
+    totalData(array, key) {
+      return array
+        ? array.reduce(
+            (total, item) =>
+              !isNaN(item[key]) ? total + +item[key] : total + 0,
+            0
+          )
+        : 0;
     },
 
     appendItemAttribute(value, item, key) {
@@ -283,10 +319,8 @@ export default {
         item[key] = [value];
       }
     },
-
   },
   async mounted() {
-
     this.loading = true;
     try {
       await Promise.all([
@@ -298,14 +332,13 @@ export default {
       console.error("Alguna de las funciones falló:", error);
     }
 
-    if(this.kindProduct == 'E'){
-      this.headersTable[0].title = 'Eventos';
-      this.titleField = 'Eventos'
+    if (this.kindProduct == "E") {
+      this.headersTable[0].title = "Eventos";
+      this.titleField = "Eventos";
     }
     this.loading = false;
   },
-  updated(){
-  }
+  updated() {},
 };
 </script>
 <style scoped>
@@ -315,5 +348,8 @@ export default {
 }
 .input-table {
   width: 300px;
+}
+.min-w-cell{
+  min-width: 300px;
 }
 </style>

@@ -27,34 +27,37 @@
       <v-data-table :items="records" :headers="headersTable">
         <template v-slot:[`item.id`]="{ item }">
           <div class="d-flex py-2 align-center">
-          <v-btn
-                    v-show="!editable"
-                    icon="mdi-delete"
-                    size="small"
-                    color="warning"
-                    variant="tonal"
-                    @click="deleteItem(item)"
-                    @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
-                  >
-                  </v-btn>
-          <div class="d-flex flex-column pl-3">
-            <h6 class="text-subtitle-1">{{ item.id + ' - ' + item.name }}</h6>
-            <span class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3">
-              COD: {{ item.product_code }}</span
+            <v-btn
+              v-show="!editable"
+              icon="mdi-delete"
+              size="small"
+              color="warning"
+              variant="tonal"
+              @click="deleteItem(item)"
+              @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
             >
-            <span class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3">
-              CON: {{ item.consecutive }}</span
-            >
-            <div>
-            <v-chip class=" mt-1" size="small">
-              {{`${item.size} ${item.measure.symbol}`}}
-            </v-chip>
+            </v-btn>
+            <div class="d-flex flex-column pl-3">
+              <h6 class="text-subtitle-1">{{ item.id + " - " + item.name }}</h6>
+              <span
+                class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3"
+              >
+                COD: {{ item.product_code }}</span
+              >
+              <span
+                class="d-flex text-overline font-weight-regular text-blue-grey-lighten-3"
+              >
+                CON: {{ item.consecutive }}</span
+              >
+              <div>
+                <v-chip class="mt-1" size="small">
+                  {{ `${item.size} ${item.measure.symbol}` }}
+                </v-chip>
+              </div>
+            </div>
           </div>
-
-          </div>
-        </div>
         </template>
-        <template  v-slot:[`item.attributes`]="{ item }">
+        <template v-slot:[`item.attributes`]="{ item }">
           <v-row class="text-start pt-3 my-0" style="min-width: 180px">
             <v-col cols="12" lg="4">
               <v-text-field
@@ -84,65 +87,62 @@
                 @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
                 density="compact"
                 persistent-hint
-                :hint="'Precio fijado: ' + item.defaultCost"
+                :hint="'Precio fijado: ' + formatNumberToColPesos(item.defaultCost) "
               ></v-text-field>
             </v-col>
             <v-col cols="12">
-              <v-text-field
-                :maxlength="rulesValidation.price.maxLength"
-                label="Descuento"
-                :rules="rulesValidation.optionalPrice.rules"
+              <InputDiscount
+                :item="item"
                 :loading="loading"
-                prepend-inner-icon="mdi-cash"
-                v-model="item.discount"
-                variant="outlined"
-                :disabled="editable"
-                density="compact"
-                @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
-                persistent-hint
-              ></v-text-field>
+                :editable="editable"
+                @update:itemKindDiscount="(value) => (item.kindDiscount = value)"
+                @update:itemDiscountPercent="(value) => (item.discountPercent = value)"
+                @update:itemDiscount="(value) => (item.discount = value)"
+              ></InputDiscount>
             </v-col>
           </v-row>
         </template>
-        <template v-if="kindProduct == 'P'" v-slot:[`item.inventory`]="{ item }">
+        <template
+          v-if="kindProduct == 'P'"
+          v-slot:[`item.inventory`]="{ item }"
+        >
           <div class="d-flex flex-column justify-center align-center flex-wrap">
             <v-checkbox
               v-model="item.tracing"
               color="primary"
-
               @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
               :value="1"
               hide-details
             ></v-checkbox>
-            <div style="min-width: 140px;">
-            <dynamic-select-field
-
-              class="w-100 text-start"
-              v-if="item.tracing"
-              :options="warehouses"
-              :itemSaved="item.warehouse"
-              @update:options="setWarehouses"
-              @update:itemSelected="(value) => setProductInventory(value, item)"
-              mainLabel="address"
-              :secondLabel="['city', 'name']"
-              title="Bodega"
-              subtitle="Ciudad:"
-              :key="warehouses.length"
-              density="compact"
-              :hint="
-                item.tracing && item.warehouse
-                  ? 'Stock actual: ' + item.stock
-                  : ''
-              "
-              persistent-hint
-            >
-            </dynamic-select-field>
+            <div style="min-width: 140px">
+              <dynamic-select-field
+                class="w-100 text-start"
+                v-if="item.tracing"
+                :options="warehouses"
+                :itemSaved="item.warehouse"
+                @update:options="setWarehouses"
+                @update:itemSelected="
+                  (value) => setProductInventory(value, item)
+                "
+                mainLabel="address"
+                :secondLabel="['city', 'name']"
+                title="Bodega"
+                subtitle="Ciudad:"
+                :key="warehouses.length"
+                density="compact"
+                :hint="
+                  item.tracing && item.warehouse
+                    ? 'Stock actual: ' + item.stock
+                    : ''
+                "
+                persistent-hint
+              >
+              </dynamic-select-field>
             </div>
           </div>
         </template>
         <template v-slot:[`item.subproducts`]="{ item }">
           <span class="text-h4">
-
             {{ item.subproducts?.length }}
           </span>
         </template>
@@ -155,7 +155,12 @@
               :options="taxes"
               @update:options="setTaxes"
               density="compact"
-              @update:itemSelected="(value) => checkInvoiceStepStore.handleUpdateInvoiceData(appendItemAttribute(value, item, 'taxes'))"
+              @update:itemSelected="
+                (value) =>
+                  checkInvoiceStepStore.handleUpdateInvoiceData(
+                    appendItemAttribute(value, item, 'taxes')
+                  )
+              "
               mainLabel="acronym"
               :secondLabel="['name']"
               title="Impuestos"
@@ -165,22 +170,26 @@
             </dynamic-select-field>
             <template v-if="item.taxes && item.taxes.length">
               <v-divider thickness="3" class="mb-4"></v-divider>
-              <div v-for="(tax, i) in item.taxes" :key="item.id + '-i-t-' + i" class="d-flex flex-nowrap w-full">
+              <div
+                v-for="(tax, i) in item.taxes"
+                :key="item.id + '-i-t-' + i"
+                class="d-flex flex-nowrap w-full"
+              >
                 <div class="flex-grow-1 mr-2">
-                <v-select
-                  :label="tax.acronym"
-                  variant="outlined"
-                  v-model="tax.percent"
-                  :items="tax.tax_values"
-                  item-title="percent"
-                  item-value="percent"
-                  prepend-inner-icon="mdi-brightness-percent"
-                  @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
-                  :rules="rulesValidation.select.rules"
-                  :loading="loading"
-                  density="compact"
-                ></v-select>
-              </div>
+                  <v-select
+                    :label="tax.acronym"
+                    variant="outlined"
+                    v-model="tax.percent"
+                    :items="tax.tax_values"
+                    item-title="percent"
+                    item-value="percent"
+                    prepend-inner-icon="mdi-brightness-percent"
+                    @change="checkInvoiceStepStore.handleUpdateInvoiceData()"
+                    :rules="rulesValidation.select.rules"
+                    :loading="loading"
+                    density="compact"
+                  ></v-select>
+                </div>
                 <v-btn
                   v-show="!editable"
                   icon="mdi-minus-circle-outline"
@@ -227,6 +236,8 @@ import TaxApi from "@/services/Forms/TaxApi";
 import TotalRecords from "@/components/blocks/TotalRecords.vue";
 import { mapStores } from "pinia";
 import { useCheckInvoiceStep } from "@/store/checkInvoiceStep";
+import  InputDiscount  from "@/components/blocks/InputDiscount.vue";
+import { formatNumberToColPesos } from "@/utils/cast";
 const productApi = new ProductApi();
 const warehouseApi = new WarehouseApi();
 const inventoryApi = new InventoryApi();
@@ -239,7 +250,7 @@ export default {
     kindProduct: {
       type: String,
       required: false,
-      default: 'P',
+      default: "P",
     },
     events: {
       type: Array,
@@ -248,18 +259,17 @@ export default {
     errorKey: {
       type: String,
       required: false,
-      dafault: 'furtherProduct'
-    }
-
-
+      dafault: "furtherProduct",
+    },
   },
   components: {
     DynamicSelectField,
     ModalNewProduct,
     TotalRecords,
+    InputDiscount,
   },
   data: () => ({
-    titleField: 'Productos',
+    titleField: "Productos",
     options: [],
     loading: false,
     rulesValidation: RulesValidation,
@@ -284,13 +294,16 @@ export default {
       { title: "Total", align: "center", sortable: false, key: "total" },
     ],
   }),
-  computed:{
-    ...mapStores( useCheckInvoiceStep)
+  computed: {
+    ...mapStores(useCheckInvoiceStep),
   },
   methods: {
+      formatNumberToColPesos(item){
+      return formatNumberToColPesos(item)
+    },
     async setProductInventory(item, product) {
       product.warehouse = item;
-      this.checkInvoiceStepStore.handleUpdateInvoiceData()
+      this.checkInvoiceStepStore.handleUpdateInvoiceData();
       product.stock = (
         await inventoryApi.read(
           `product_id=${product.id}&warehouse_id=${item.id}`
@@ -298,7 +311,7 @@ export default {
       ).data;
     },
     async loadItems(name = null) {
-      let query =  this.kindProduct == 'E' ? `&types[0]=I&` : `&types[0]=T&`;
+      let query = this.kindProduct == "E" ? `&types[0]=I&` : `&types[0]=T&`;
       query =
         query + (name ? `filters[0][key]=name&filters[0][value]=${name}` : "");
 
@@ -321,10 +334,14 @@ export default {
       taxs.splice(index, 1);
       this.checkInvoiceStepStore.handleUpdateInvoiceData();
     },
-    totalData(array, key){
-      return (array) ? array.reduce((total, item) =>
-        ( (!isNaN(item[key])) ? total + (+item[key]) : total + 0)
-      , 0) : 0;
+    totalData(array, key) {
+      return array
+        ? array.reduce(
+            (total, item) =>
+              !isNaN(item[key]) ? total + +item[key] : total + 0,
+            0
+          )
+        : 0;
     },
     appendItem(item) {
       const index = this.records.findIndex(function (objeto) {
@@ -351,7 +368,6 @@ export default {
       this.emitRecords(
         this.records.filter((item) => item.id != itemSelected.id)
       );
-
     },
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);
@@ -369,10 +385,10 @@ export default {
       console.error("Alguna de las funciones falló:", error);
     }
 
-    if(this.kindProduct == 'E'){
-      this.headersTable[2].title = 'Productos';
-      this.headersTable[2].key = 'subproducts';
-      this.titleField = 'Eventos'
+    if (this.kindProduct == "E") {
+      this.headersTable[2].title = "Productos";
+      this.headersTable[2].key = "subproducts";
+      this.titleField = "Eventos";
     }
     this.loading = false;
   },

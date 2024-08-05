@@ -3,7 +3,7 @@
     <v-btn @click="active = true"   icon="mdi-plus"  variant="tonal" color="primary">
     </v-btn>
 
-    <v-dialog  v-model="active" :close-on-back="true">
+    <v-dialog  v-model="active" :close-on-back="true" fullscreen>
       <v-card class="p-7">
 
       <FormProduct

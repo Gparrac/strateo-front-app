@@ -39,11 +39,22 @@ export default {
   },
   methods:{
     totalCost(record){
-     const tamount = record.amount ?? 0;
-     const tcost = record.cost ?? 0;
-     const tDiscount = +(record.discount ?? 0);
-     record.ctotal = (+tamount ?? 0) * tcost - tDiscount;
+      console.log('cal total')
+     const tamount = +(record.amount ?? 0);
+     const tcost = +(record.cost ?? 0);
+     const tDiscount = this.calculatePercent(tcost, tamount, record);
+
+      console.log('total', tDiscount , record)
+     record.ctotal = tamount * tcost - tDiscount;
      return formatNumberToColPesos(record.ctotal);
+    },
+    calculatePercent(total, amount, record){
+      if(record.kindDiscount){
+        record.discount = (+(record.discountPercent ?? 0)) * amount * total / 100
+      }else{
+        record.discount = +(record.discount ?? 0)
+      }
+      return record.discount
     },
     totalTaxes(record){
       const totalTaxes = record.taxes.reduce((total, item) => {
