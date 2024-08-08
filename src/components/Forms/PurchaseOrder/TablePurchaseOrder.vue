@@ -114,7 +114,7 @@ export default {
         sortable: true,
       },
       {
-        title: "Provedor",
+        title: "Proveedor",
         align: "center",
         key: "supplier",
         sortable: false,
@@ -201,7 +201,7 @@ export default {
     try {
       this.filterTableStore.setFilterList([
         {
-          name: "Provedor",
+          name: "Proveedor",
           key: "supplier",
           select: false,
           validation: RulesValidation.shortTextNull,

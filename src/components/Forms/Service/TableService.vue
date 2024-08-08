@@ -116,7 +116,7 @@ export default {
       { title: "Servicio", align: "start", key: "name", sortable: true },
       { title: "Descripción", align: "left", key: "description", sortable: false },
       { title: "Estado", align: "end", key: "status", sortable: false },
-      { title: "Provedores", align: "center", key: "suppliers_count", sortable: false },
+      { title: "Proveedores", align: "center", key: "suppliers_count", sortable: false },
       { title: "Campos", align: "end", key: "fields_count", sortable: false },
       {
         title: "Ultima actulización",

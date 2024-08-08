@@ -150,13 +150,13 @@ export default {
         key: "id",
       },
       {
-        title: "Registro comercial provedor",
+        title: "Registro comercial proveedor",
         align: "center",
         key: "supplier.commercial_registry",
         sortable: false,
       },
       {
-        title: "Provedor",
+        title: "Proveedor",
         align: "left",
         key: "supplier",
         sortable: false,
@@ -253,7 +253,7 @@ export default {
     try {
       this.filterTableStore.setFilterList([
         {
-          name: "Provedor",
+          name: "Proveedor",
           key: "supplier",
           select: false,
           validation: RulesValidation.shortTextNull,

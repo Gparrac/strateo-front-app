@@ -114,7 +114,7 @@ export default {
     filterCleaner: false,
     typeskeyword: [
       { title: "id", label: "ID" },
-      { title: "name", label: "Provedor" },
+      { title: "name", label: "Proveedor" },
     ],
     //pagination
     totalRecords: 0,

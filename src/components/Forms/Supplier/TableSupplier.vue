@@ -119,7 +119,7 @@ export default {
         key: "id",
         sortable: true,
       },
-      { title: "Provedor", align: "start", key: "supplier", sortable: false },
+      { title: "Proveedor", align: "start", key: "supplier", sortable: false },
       { title: "Registro comercial", align: "end", key: "commercial_registry", sortable: false },
       { title: "Estado", align: "end", key: "status", sortable: false },
       { title: "Servicios", align: "end", key: "dynamic_services_count", sortable: false },

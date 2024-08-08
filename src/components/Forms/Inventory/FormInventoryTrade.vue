@@ -53,7 +53,7 @@
                         mainLabel="supplier"
                         :secondLabel="['commercial_registry']"
                         subtitle="Registro comercial"
-                        title="Provedores"
+                        title="Proveedores"
                         class="pr-5"
                       >
                       </dynamic-select-field>

@@ -16,7 +16,7 @@
               ></thirdFieldCard>
             </v-col>
             <v-col cols="12">
-              <v-card rounded="true" elevation="0" title="Datos del provedor">
+              <v-card rounded="true" elevation="0" title="Datos del proveedor">
                 <v-card-text>
                   <v-row>
                     <v-col cols="12" sm="6">

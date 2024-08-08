@@ -31,7 +31,7 @@
                         "
                         mainLabel="supplier"
                         :secondLabel="['commercial_registry']"
-                        title="Provedor"
+                        title="Proveedor"
                         :rules="rulesValidation.select.rules"
                       >
                       </dynamic-select-field>

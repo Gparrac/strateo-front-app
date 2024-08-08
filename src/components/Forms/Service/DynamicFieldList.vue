@@ -25,7 +25,7 @@
         <v-col cols="12" lg="6" v-for="record in records" :key="record.code">
           <v-card
             :title="record.name"
-            :subtitle="'Tamaño maximo: ' + record.length"
+            :subtitle="'Tamaño maximo: ' + (record.length || 'N.A')"
           >
             <template v-slot:prepend>
               <v-btn
@@ -65,6 +65,7 @@
       records.length
     }}</span>
   </div>
+
   <span v-if="error && error.length > 0" class="text-error text-caption">
     Se requiere minimo un campo relacionado.
   </span>

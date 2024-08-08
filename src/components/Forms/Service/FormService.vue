@@ -67,6 +67,7 @@
                     v-if="editItem.fields"
                     :records="editItem.fields"
                     @update:records="(item) => (editItem.fields = item)"
+
                   >
                   </dynamic-field-list>
                   <!------------------------------- END DYNAMIC ITEM --------------------------->
@@ -160,7 +161,7 @@ export default {
       }else{
         this.loading = false;
         this.fieldsErrorMessage = ''
-        return
+
       }
       if (valid) {
 

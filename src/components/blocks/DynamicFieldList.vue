@@ -2,19 +2,20 @@
   <v-row>
     <v-col cols="12">
       <strong class="text-caption d-block mb-2"
-        >* <span class="text-overline">Campo dinamico  </span> Escribe entre 3 a
-        5 letras para completar la busqueda y llena los campos correspondientes de tu selección...</strong
+        >* <span class="text-overline">Campo dinamico </span> Escribe entre 3 a
+        5 letras para completar la busqueda y llena los campos correspondientes
+        de tu selección...</strong
       >
       <div class="d-flex">
         <dynamic-select-field
-            :options="options"
-            @update:options="loadItems"
-            @update:itemSelected="appendItem"
-            mainLabel="name"
-            :secondLabel="['description']"
-            title="Servicios adicionales"
-          >
-          </dynamic-select-field>
+          :options="options"
+          @update:options="loadItems"
+          @update:itemSelected="appendItem"
+          mainLabel="name"
+          :secondLabel="['description']"
+          title="Servicios adicionales"
+        >
+        </dynamic-select-field>
       </div>
     </v-col>
     <v-col class="max-w-custom">
@@ -36,22 +37,29 @@
               </h4>
               <v-row v-if="record.fields && record.fields.length > 0">
                 <v-col
-
                   v-for="(field, findex) in record.fields"
                   :key="field.id + '-field'"
-                  cols="12" lg="6"
+                  cols="12"
+                  lg="6"
                 >
                   <div v-if="field.type.id == 'F'" class="d-flex">
                     <v-file-input
                       class="w-75"
                       v-model="record.fields[findex].data"
                       accept=".doc, .docx, .pdf"
-                      label="Registro Comercial"
+                      :label="field.name"
                       :rules="field.rules"
                       :loading="loading"
+                      variant="outlined"
                       @change="handleFileFields($event, field)"
                     ></v-file-input>
-                    <div class="w-25 px-5" v-if="!record.fields[findex].data && !record.fields[findex].pathFile">
+                    <div
+                      class="w-25 px-5"
+                      v-if="
+                        !record.fields[findex].data &&
+                        !record.fields[findex].pathFile
+                      "
+                    >
                       <h3 class="text-center">No hay archivo seleccionado</h3>
                     </div>
                     <div v-else>
@@ -67,7 +75,7 @@
                       </v-btn>
                     </div>
                   </div>
-                  <div v-else >
+                  <div v-else>
                     <v-text-field
                       :maxlength="field.length"
                       :label="field.name"
@@ -79,7 +87,6 @@
                   </div>
                 </v-col>
               </v-row>
-
             </v-card-text>
           </v-card>
         </v-col>
@@ -94,8 +101,11 @@
       records.length
     }}</span>
   </div>
-  <span v-if="errorMessage.type && errorMessage.type == 'services'" class="text-error text-caption">
-  {{ errorMessage.message }}
+  <span
+    v-if="errorMessage.type && errorMessage.type == 'services'"
+    class="text-error text-caption"
+  >
+    {{ errorMessage.message }}
   </span>
 </template>
 <script>
@@ -103,15 +113,13 @@ import { RulesValidation } from "@/utils/validations";
 import ServiceApi from "@/services/Forms/ServiceApi";
 import DynamicSelectField from "./DynamicSelectField.vue";
 const serviceApi = new ServiceApi();
-const fieldText = (length) => ([
+const fieldText = (length) => [
   (value) =>
     (value && value.length >= 3) ||
     "Este campo debe de ser de almenos 3 caracteres",
-    (value) =>
-    (value.length < length) ||
-    `Tamaño maximo de ${length} caracteres`,
+  (value) => value.length < length || `Tamaño maximo de ${length} caracteres`,
   (value) => /^[a-zA-Z]+$/.test(value) || "Ingrese solo letras",
-]);
+];
 const fieldFile = [
   (value) =>
     !value ||
@@ -119,18 +127,29 @@ const fieldFile = [
     value[0].size < 2000000 ||
     "La imagen debe pesar menos de 2 MB",
 ];
+const fieldNumeric = (length) => [
+  (value) =>
+    !!value ||
+    (!isNaN(parseFloat(value)) && isFinite(value)) ||
+    typeof value == "number" ||
+    "La cantidad debe ser de tipo númerica",
+  (value) =>
+    (value < length && value >= 0) ||
+    "Rango de cantidad no valida (0 - 99999999)",
+];
+
 export default {
   props: {
     records: Array,
-    errorMessage: Object
+    errorMessage: Object,
   },
-  components:{
-    DynamicSelectField
+  components: {
+    DynamicSelectField,
   },
   data: () => ({
     options: [],
     searchItem: "",
-    loading:false,
+    loading: false,
     rulesValidation: RulesValidation,
   }),
   methods: {
@@ -141,7 +160,7 @@ export default {
       this.options = (await serviceApi.read(query)).data;
     },
     appendItem(item) {
-      this.addRules(item.fields)
+      this.addRules(item.fields);
       const index = this.records.findIndex(function (objeto) {
         return objeto.id === item.id;
       });
@@ -149,19 +168,27 @@ export default {
       if (index === -1) newArray.push(item);
       this.emitRecords(newArray);
     },
-    addRules(items){
-      items.forEach(item => {
-        switch (item.type.id) {
-          case 'T':
+    addRules(items) {
+      items.forEach((item) => {
+        if (item.type.id == "F") {
+          item.rules = fieldFile;
+          if (item.required == 1 && !item.pathFile)
+            item.rules = [
+              (value) => !!value || "Este campo es requerido",
+              ...item.rules,
+            ];
+        } else {
+          if (item.type.id == "T") {
             item.rules = fieldText(item.length);
-            break;
-          case 'F':
-            item.rules = fieldFile;
-            break;
-          default:
-            break;
+          } else if (item.type.id == "N") {
+            item.rules = fieldNumeric(item.length);
+          }
+          if (item.required == 1)
+            item.rules = [
+              (value) => !!value || "Este campo es requerido",
+              ...item.rules,
+            ];
         }
-        if (item.required == 1) item.rules = [(value) => !!value || "Este campo es requerido es requerida",...item.rules];
       });
     },
     deleteItem(itemSelected) {
@@ -172,7 +199,7 @@ export default {
     emitRecords(newRecords) {
       this.$emit("update:records", newRecords);
     },
-    handleFileFields(event, item){
+    handleFileFields(event, item) {
       const files = event.target.files;
       if (files.length > 0) {
         const selectedFile = files[0];
@@ -186,15 +213,13 @@ export default {
       if (typeof file === "object") return URL.createObjectURL(file);
       return;
     },
-
   },
   async mounted() {
-    if(this.records && this.records.length > 0 )
-    this.records.map( item => {
-      this.addRules(item.fields);
-  })
+    if (this.records && this.records.length > 0)
+      this.records.map((item) => {
+        this.addRules(item.fields);
+      });
     await this.loadItems();
-
   },
 };
 </script>
